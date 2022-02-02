@@ -1,0 +1,3 @@
+---
+ingressShim.defaultIssuerName: $LETSENCRYPT_ISSUER_NAME
+ingressShim.defaultIssuerKind: ClusterIssuer

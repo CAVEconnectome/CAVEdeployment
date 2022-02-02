@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${NGINX_INGRESS_CONTROLLER_NAME}
+  namespace: kube-system
+data:
+  proxy-read-timeout: "600"
+  client-body-timeout: "60"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: annotationframework-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: $CLUSTER_NAME
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-cors: "false"
+    nginx.ingress.kubernetes.io/enable-access-log: "true"
+    certmanager.k8s.io/cluster-issuer: $LETSENCRYPT_ISSUER_NAME
+    nginx.ingress.kubernetes.io/x-forwarded-prefix: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
+#    ingress.kubernetes.io/whitelist-source-range: '128.112.0.0/16 140.180.0.0/16 63.237.233.8/32 73.97.166.124/30 24.56.235.125/32'
+spec:
+  rules:
+  - host: ${DOMAIN_NAME}
+    http: &http_rules
+      paths:
+      - path: /info
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: infoservice-service
+            port:
+              number: 80
+      - path: /swaggerui
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: infoservice-service
+            port:
+              number: 80
+      - path: /auth
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+      - path: /sticky_auth
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: sticky-auth-service
+            port:
+              number: 80
+      - path: /nglstate
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: nglstate-service
+            port:
+              number: 80
+      - path: /schema
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: emannotationschemas-service
+            port:
+              number: 80
+      - path: /static
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: infoservice-service
+            port:
+              number: 80
+      - path: /auth_info
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: auth-info-service
+            port:
+              number: 80
+   
+  ${DNS_INGRESS_PARA}
+  tls:
+  - hosts: ${DNS_HOSTNAMES_DB_TABBED}
+    secretName: $ENVIRONMENT-cert

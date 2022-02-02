@@ -1,0 +1,234 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: guidebook-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: guidebook
+  minReplicas: ${GUIDEBOOK_MIN_REPLICAS}
+  maxReplicas: ${GUIDEBOOK_MAX_REPLICAS}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 25
+  # - type: Resource
+  #   resource:
+  #     name: memory
+  #     target:
+  #       type: Utilization
+  #       averageUtilization: 75
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: guidebook-service
+spec:
+  type: NodePort
+  selector:
+    app: guidebook
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guidebook
+spec:
+  selector:
+    matchLabels:
+      app: guidebook
+  template:
+    metadata:
+      labels:
+        app: guidebook
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${LIGHTWEIGHT_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${LIGHTWEIGHT_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: guidebook
+          image: ${DOCKER_REPOSITORY}/guidebook:v${GUIDEBOOK_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: REDIS_SERVICE_HOST
+              value: ${REDIS_HOST}
+            - name: REDIS_PASSWORD
+              value: ${REDIS_PASSWORD}
+            - name: REDIS_SERVICE_PORT
+              value: "6379"
+            - name: PROJECT_ID
+              value: ${DATA_PROJECT_NAME}
+            - name: AUTH_USE_REDIS
+              value: "false"
+            - name: GUIDEBOOK_CSRF_KEY
+              value: ${GUIDEBOOK_CSRF_KEY}
+            - name: GUIDEBOOK_DATASTACK
+              value: ${GUIDEBOOK_DATASTACK}
+            - name: GUIDEBOOK_N_PARALLEL
+              value: "${GUIDEBOOK_N_PARALLEL}"
+            - name: GUIDEBOOK_EXPECTED_RESOLUTION
+              value: ${GUIDEBOOK_EXPECTED_RESOLUTION}
+            - name: GUIDEBOOK_INVALIDATION_D
+              value: "${GUIDEBOOK_INVALIDATION_D}"
+            - name: GLOBAL_SERVER_ADDRESS
+              value: https://${GLOBAL_SERVER}
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+          resources:
+            requests:
+              memory: 300Mi
+              cpu: 50m
+          readinessProbe:
+            httpGet:
+              path: /guidebook/
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /guidebook/
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 100
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: guidebook-worker-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: guidebook-worker
+  minReplicas: ${GUIDEBOOK_WORKER_MIN_REPLICAS}
+  maxReplicas: ${GUIDEBOOK_WORKER_MAX_REPLICAS}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 25
+  # - type: Resource
+  #   resource:
+  #     name: memory
+  #     target:
+  #       type: Utilization
+  #       averageUtilization: 75
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: guidebook-worker
+spec:
+  selector:
+    matchLabels:
+      app: guidebook-worker
+  template:
+    metadata:
+      labels:
+        app: guidebook-worker
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${LIGHTWEIGHT_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${LIGHTWEIGHT_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: guidebook-worker
+          image: gcr.io/${DATA_PROJECT_NAME}/guidebook:v${GUIDEBOOK_VERSION}
+          args:
+            - su
+            - nginx
+            - -c
+            - "python guidebook/worker.py"
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: REDISHOST
+              value: ${REDIS_HOST}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: GLOBAL_SERVER_ADDRESS
+              value: https://${GLOBAL_SERVER}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: REDIS_SERVICE_HOST
+              value: ${REDIS_HOST}
+            - name: REDIS_SERVICE_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              value: ${REDIS_PASSWORD}
+            - name: PROJECT_ID
+              value: ${DATA_PROJECT_NAME}
+            - name: AUTH_USE_REDIS
+              value: "false"
+            - name: GUIDEBOOK_EXPECTED_RESOLUTION
+              value: ${GUIDEBOOK_EXPECTED_RESOLUTION}
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+          resources:
+            requests:
+              memory: 500Mi
+              cpu: 200m

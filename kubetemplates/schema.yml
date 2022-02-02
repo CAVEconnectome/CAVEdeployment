@@ -1,0 +1,80 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: emannotationschemas-service
+  namespace: default
+  labels:
+    tier: dynamicmicroservice
+spec:
+  type: NodePort
+  selector:
+    app: emannotationschemas-app
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emannotationschemas-dep
+spec:
+  replicas: ${EMANNOTATIONSCHEMAS_REPLICAS}
+  selector:
+    matchLabels:
+      app: emannotationschemas-app
+  template:
+    metadata:
+      labels:
+        app: emannotationschemas-app
+    spec:
+      containers:
+        - name: emannotationschemas
+          image: ${DOCKER_REPOSITORY}/emannotationschemas:v${EMANNOTATIONSCHEMAS_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              memory: 130Mi
+              cpu: 50m
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+          readinessProbe:
+            httpGet:
+              path: /schema/views/version
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /schema/views/version
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 10
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m

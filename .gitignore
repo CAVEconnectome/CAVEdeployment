@@ -1,0 +1,9 @@
+gcloud_keys/
+kubeyamls/
+secrets/
+environments/
+
+
+
+.DS_Store
+.vscode

@@ -1,0 +1,103 @@
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: meshworker-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: meshworker
+  minReplicas: ${MESHWORKER_MIN_REPLICAS}
+  maxReplicas: ${MESHWORKER_MAX_REPLICAS}
+  metrics:
+    - external:
+        metric:
+          name: pubsub.googleapis.com|subscription|num_undelivered_messages
+          selector:
+            matchLabels:
+              resource.labels.subscription_id: ${PYCHUNKEDGRAPH_REMESH_QUEUE}
+        target:
+          type: AverageValue
+          averageValue: 1
+      type: External
+    # - type: Resource
+    #   resource:
+    #     name: cpu
+    #     target:
+    #       type: Utilization
+    #       averageUtilization: 95
+    # - type: Resource
+    #   resource:
+    #     name: memory
+    #     target:
+    #       type: Utilization
+    #       averageUtilization: 75
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meshworker
+spec:
+  selector:
+    matchLabels:
+      app: meshworker
+  template:
+    metadata:
+      labels:
+        app: meshworker
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${MESH_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: meshworker
+          image: ${DOCKER_REPOSITORY}/pychunkedgraph:v${PYCG_VERSION}
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /root/.cloudvolume/secrets
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /root/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: REDIS_SERVICE_HOST
+              value: ${REDIS_HOST}
+            - name: REDIS_SERVICE_PORT
+              value: "6379"
+            - name: DAF_CREDENTIALS
+              value: /root/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: REDIS_PASSWORD
+              value: ${REDIS_PASSWORD}
+            - name: REDIS_SERVICE_PORT
+              value: "6379"
+            - name: APP_SETTINGS
+              value: "pychunkedgraph.app.config.DevelopmentConfig"
+            - name: PROJECT_ID
+              value: ${DATA_PROJECT_NAME}
+            - name: PROJECT_NAME
+              value: ${PROJECT_NAME}
+            - name: PYCHUNKEDGRAPH_REMESH_QUEUE
+              value: ${PYCHUNKEDGRAPH_REMESH_QUEUE}
+            - name: PYCHUNKEDGRAPH_EDITS_EXCHANGE
+              value: ${PYCHUNKEDGRAPH_EDITS_EXCHANGE}
+            - name: BIGTABLE_PROJECT
+              value: ${DATA_PROJECT_NAME}
+            - name: BIGTABLE_INSTANCE
+              value: ${BIGTABLE_INSTANCE_NAME}
+          resources:
+            requests:
+              memory: 3000Mi
+              cpu: 800m
+          command:
+            - /bin/sh
+            - -c
+            - python -m workers.mesh_worker

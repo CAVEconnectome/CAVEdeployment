@@ -1,0 +1,163 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: annotationengine-config-v${ANNOTATION_ENGINE_CONFIG_VERSION}
+  namespace: default
+data:
+  config.cfg: |
+    INFOSERVICE_ENDPOINT = "https://${INFO_URL}"
+    SCHEMA_SERVICE_ENDPOINT = "https://${GLOBAL_SERVER}/schema/"
+    GLOBAL_SERVER = "https://${GLOBAL_SERVER}"
+    NEUROGLANCER_URL = "https://neuroglancer-demo.appspot.com"
+    SQLALCHEMY_DATABASE_URI = "${SQL_DB_TYPE}://${POSTGRES_WRITE_USER}:${POSTGRES_WRITE_USER_PASSWORD}@127.0.0.1:3306/${SQL_ANNO_DB_NAME}"
+    TESTING = False
+    LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
+    LOGGING_LOCATION = '/home/nginx/annoeng/bookshelf.log'
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: annotation-service
+  namespace: default
+  labels:
+    tier: dynamicmicroservice
+spec:
+  type: NodePort
+  selector:
+    app: annotationengine
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: annotationengine-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: annotationengine
+  minReplicas: ${ANNOTATIONENGINE_MIN_REPLICAS}
+  maxReplicas: ${ANNOTATIONENGINE_MAX_REPLICAS}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 75
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 75
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: annotationengine
+spec:
+  selector:
+    matchLabels:
+      app: annotationengine
+  template:
+    metadata:
+      labels:
+        app: annotationengine
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${STANDARD_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${STANDARD_POOL}
+      volumes:
+        - name: annotation-engine-config-volume
+          configMap:
+            name: annotationengine-config-v${ANNOTATION_ENGINE_CONFIG_VERSION}
+        - name: google-cloud-key
+          secret:
+            secretName: ${AE_SERVICE_ACCOUNT_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
+      containers:
+        - name: annotationengine
+          image: ${DOCKER_REPOSITORY}/annotationengine:v${ANNOTATION_ENGINE_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: annotation-engine-config-volume
+              mountPath: /app/annotationengine/instance/
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: INFO_URL
+              value: ${INFO_URL}
+          resources:
+            requests:
+              memory: 300Mi
+              cpu: 100m
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 10
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m

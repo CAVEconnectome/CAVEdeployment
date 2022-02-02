@@ -1,0 +1,122 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: pmanagement-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pmanagement
+  minReplicas: ${PMANAGEMENT_MIN_REPLICAS}
+  maxReplicas: ${PMANAGEMENT_MAX_REPLICAS}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 90
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: pmanagement-service
+spec:
+  type: NodePort
+  selector:
+    app: pmanagement
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pmanagement
+spec:
+  selector:
+    matchLabels:
+      app: pmanagement
+  template:
+    metadata:
+      labels:
+        app: pmanagement
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${LIGHTWEIGHT_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${LIGHTWEIGHT_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${PMANAGEMENT_SERVICE_ACCOUNT_SECRET}
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: pmanagement
+          image: ${DOCKER_REPOSITORY}/proofreadingmanagement:v${PMANAGEMENT_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: INFO_URL
+              value: ${INFO_URL}
+            - name: PROJECT_ID
+              value: ${DATA_PROJECT_NAME}
+            - name: PROJECT_NAME
+              value: ${PROJECT_NAME}
+            - name: PMANAGEMENT_URL_PREFIX
+              value: neurons
+            - name: AUTH_USE_REDIS
+              value: "false"
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 100m
+          readinessProbe:
+            httpGet:
+              path: /neurons/api/v1
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /neurons/api/v1
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 100
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m

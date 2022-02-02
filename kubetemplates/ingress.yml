@@ -1,0 +1,167 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ${NGINX_INGRESS_CONTROLLER_NAME}
+  namespace: kube-system
+data:
+  proxy-read-timeout: "600"
+  client-body-timeout: "60"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: annotationframework-ingress
+  annotations:
+    kubernetes.io/ingress.global-static-ip-name: $CLUSTER_NAME
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/enable-cors: "false"
+    nginx.ingress.kubernetes.io/enable-access-log: "true"
+    certmanager.k8s.io/cluster-issuer: $LETSENCRYPT_ISSUER_NAME
+    nginx.ingress.kubernetes.io/x-forwarded-prefix: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-body-size: 10m
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
+    
+#    ingress.kubernetes.io/whitelist-source-range: '128.112.0.0/16 140.180.0.0/16 63.237.233.8/32 73.97.166.124/30 24.56.235.125/32'
+spec:
+  rules:
+  - host: ${DOMAIN_NAME}
+    http: &http_rules
+      paths:
+      - path: /segmentation
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pychunkedgraph-service
+            port:
+              number: 80
+      - path: /l2cache
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pcgl2cache-service
+            port:
+              number: 80
+      - path: /meshing
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: meshing-service
+            port:
+              number: 80
+      - path: /segmentation_proc
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pychunkedgraph-service
+            port:
+              number: 80
+      - path: /annotation
+        pathType: ImplementationSpecific
+        backend:
+          service: 
+            name: annotation-service
+            port:
+              number: 80
+      - path: /swaggerui
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: annotation-service
+            port:
+              number: 80
+      - path: /auth
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: auth-service
+            port:
+              number: 80
+      - path: /sticky_auth
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: sticky-auth-service
+            port:
+              number: 80
+      - path: /materialize
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: materialize-service
+            port:
+              number: 80
+      - path: /static
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: annotation-service
+            port:
+              number: 80
+      - path: /annotationui
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: annotationui-service
+            port:
+              number: 80
+      - path: /v
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: annotationui-service
+            port:
+              number: 80
+      - path: /socket
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: annotationui-service
+            port:
+              number: 80
+      - path: /proxy
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: proxy-service
+            port:
+              number: 80
+      - path: /guidebook
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: guidebook-service
+            port:
+              number: 80
+      - path: /dash
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: dash-service
+            port:
+              number: 80
+      - path: /auth_info
+        pathType: ImplementationSpecific
+        backend:
+          service: 
+            name: auth-info-service
+            port:
+              number: 80
+      - path: /progress
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pprogress-service
+            port: 
+              number: 80
+      - path: /neurons
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pmanagement-service
+            port: 
+              number: 80
+  ${DNS_INGRESS_PARA}
+  tls:
+  - hosts: ${DNS_HOSTNAMES_DB_TABBED}
+    secretName: $ENVIRONMENT-cert

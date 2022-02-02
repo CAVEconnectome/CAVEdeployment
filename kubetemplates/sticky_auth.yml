@@ -1,0 +1,175 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sticky-auth-config-v${STICKYAUTHSERVICE_CONFIG_VERSION}
+data:
+  config.cfg: |
+    import redis
+    import os
+    SECRET_KEY = "b${AUTHSERVICE_SECRET_KEY}"
+    SESSION_TYPE = 'redis'
+    SESSION_REDIS = redis.from_url('redis://' + os.environ.get('REDISHOST', 'localhost') + ':' + str(os.environ.get('REDISPORT', 6379)))
+
+    SQLALCHEMY_DATABASE_URI = "${SQL_DB_TYPE}://${POSTGRES_WRITE_USER}:${POSTGRES_WRITE_USER_PASSWORD}@localhost:5432/${SQL_AUTH_DB_NAME}"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    CORS_SUPPORTS_CREDENTIALS = True
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sticky-auth-uwsgiconfig-v${AUTHSERVICE_CONFIG_VERSION}
+data:
+  uwsgi.ini: |
+    [uwsgi]
+    socket = /tmp/uwsgi.sock
+    chown-socket = nginx:nginx
+    chmod-socket = 664
+    # Graceful shutdown on SIGTERM, see https://github.com/unbit/uwsgi/issues/849#issuecomment-118869386
+    hook-master-start = unix_signal:15 gracefully_kill_them_all
+
+    module = run
+    callable = application
+
+    uid = nginx
+    gid = nginx
+
+    env = HOME=/home/nginx
+    cheaper = 0
+    processes = 1
+    show-config = true
+    need-app = true
+    die-on-term = true
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: sticky-auth-service
+spec:
+  type: NodePort
+  sessionAffinity: ClientIP
+  selector:
+    app: sticky-auth
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sticky-auth
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sticky-auth
+  template:
+    metadata:
+      labels:
+        app: sticky-auth
+    spec:
+      volumes:
+        - name: auth-client-secret-volume
+          secret:
+            secretName: ${AUTH_SERVICE_ACCOUNT_SECRET}
+        - name: auth-oauth-secret-volume
+          secret:
+            secretName: ${AUTH_OAUTH_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
+        - name: authservice-config-volume
+          configMap:
+            name: sticky-auth-config-v${STICKYAUTHSERVICE_CONFIG_VERSION}
+        - name: auth-uwsgi-volume
+          configMap:
+            name: sticky-auth-uwsgiconfig-v${AUTHSERVICE_CONFIG_VERSION}
+      containers:
+        - name: auth
+          image: ${DOCKER_REPOSITORY}/neuroglancer_auth:v${AUTH_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: auth-client-secret-volume
+              mountPath: /app/authclientsecret/instance/
+            - name: auth-oauth-secret-volume
+              mountPath: /app/oauthsecret/instance/
+            - name: authservice-config-volume
+              mountPath: /app/config/
+            - name: auth-uwsgi-volume
+              mountPath: /etc/uwsgi
+          env:
+            - name: OAUTH_CLIENT_SECRET
+              value: /app/authclientsecret/instance/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_OAUTH_SECRET
+              value: /app/oauthsecret/instance/${OAUTH_SECRET_FILENAME}
+            - name: REDISHOST
+              value: ${REDIS_IP}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: AUTH_USE_REDIS
+              value: "true"
+            - name: AUTH_CONFIG_SETTINGS
+              value: /app/config/config.cfg
+            - name: AUTH_USE_REDIS
+              value: "true"
+            - name: URL_PREFIX
+              value: "sticky_auth"
+          resources:
+            requests:
+              memory: 130Mi
+              cpu: 85m
+          readinessProbe:
+            httpGet:
+              path: /sticky_auth/version
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /sticky_auth/version
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:5432",
+              "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 10
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m
