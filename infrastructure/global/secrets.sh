@@ -1,4 +1,5 @@
-source environments/global/$1.sh
+source env_config.sh
+source $ENV_REPO_PATH/$1.sh
 
 ./infrastructure/global/switch_context.sh $1
 

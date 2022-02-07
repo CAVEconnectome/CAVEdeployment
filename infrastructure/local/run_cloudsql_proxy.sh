@@ -1,4 +1,5 @@
-source environments/local/$1.sh
+source env_config.sh
+source $ENV_REPO_PATH/$1.sh
 
 export INSTANCE_CONNECTION_NAME=$PROJECT_NAME:$REGION:$SQL_INSTANCE_NAME
 

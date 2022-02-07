@@ -1,4 +1,5 @@
-source environments/global/$1.sh
+source env_config.sh
+source $ENV_REPO_PATH/$1.sh
 
 mkdir -p ${KEY_FOLDER}
 gcloud iam service-accounts create $CLOUD_SQL_SERVICE_ACCOUNT_NAME --display-name=CloudSQL-$ENVIRONMENT

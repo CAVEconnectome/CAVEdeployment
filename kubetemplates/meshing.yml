@@ -83,8 +83,6 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
-            - name: MESH_START_LAYER
-              value: "${MESH_START_LAYER}"
             - name: REDISHOST
               value: ${REDIS_HOST}
             - name: AUTH_URI
