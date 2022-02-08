@@ -14,7 +14,7 @@ var_dict = {
     "depl_region": "sweet-sweet-kingdom",
     "depl_zone": "sweet-sweet-kingdom-a",
     "dns_zone": "kingdom",
-    "domain_names": "domain",
+    "domain_name": "domain",
     "letsencrypt_email": "my_email",
     "supported_datastack_list": ["ds1", "ds2"],
     "data_project_name": "data_project",
@@ -43,7 +43,6 @@ var_dict = {
 var_dict["supported_datastacks"] = create_double_quoted_list_of_strings(var_dict["supported_datastack_list"])
 
 var_dict["dns_hostnames"] = create_spaced_list_of_strings(["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"])
-var_dict["dns_zones"] = create_spaced_list_of_strings(["$DNS_ZONES"] + var_dict["add_dns_hostnames"])
 var_dict["dns_zones"] = create_spaced_list_of_strings(["$DNS_ZONES"] + var_dict["add_dns_hostnames"])
 var_dict["pcg_service_account_addon"] = " ".join(["".join(["--from-file=", sec, "=${ADD_STORAGE_SECRET_FOLDER}/", sec]) for sec in var_dict["add_storage_secrets"]])
 
