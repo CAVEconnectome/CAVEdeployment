@@ -1,10 +1,13 @@
 from jinja2 import Environment, FileSystemLoader
 
+
 def create_double_quoted_list_of_strings(l):
-    return ','.join([f'"{s}"' for s in l])
+    return ",".join([f'"{s}"' for s in l])
+
 
 def create_spaced_list_of_strings(l):
-    return ' '.join([f'"{s}"' for s in l])
+    return " ".join([f'"{s}"' for s in l])
+
 
 var_dict = {
     "environment_name": "global_depl",
@@ -20,7 +23,7 @@ var_dict = {
     "add_dns_zones": ["$DNS_ZONE", "add_zone"],
     "postgres_password": "my_sweet_secret",
     "sql_instance_name": "daf-global-depl",
-    "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"] ,
+    "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"],
     "global_server": "global.my-dns.com",
     "infoservice_csrf_key": "random_key",
     "infoservice_secret_key": "random_key",
@@ -29,12 +32,16 @@ var_dict = {
 }
 
 # Additional modifications to parameters and checks
-var_dict["dns_hostnames"] = create_spaced_list_of_strings(["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"])
-var_dict["dns_zones"] = create_spaced_list_of_strings(["$DNS_ZONES"] + var_dict["add_dns_hostnames"])
+var_dict["dns_hostnames"] = create_spaced_list_of_strings(
+    ["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"]
+)
+var_dict["dns_zones"] = create_spaced_list_of_strings(
+    ["$DNS_ZONES"] + var_dict["add_dns_hostnames"]
+)
 
 # Load and render template
-env = Environment(loader=FileSystemLoader('.'))
-template = env.get_template('global_env_template.sh')
+env = Environment(loader=FileSystemLoader("."))
+template = env.get_template("global_env_template.sh")
 rendered_template = template.render(var_dict)
 
 # Write rendered tempalte

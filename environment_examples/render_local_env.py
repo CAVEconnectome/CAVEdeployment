@@ -1,10 +1,12 @@
 from jinja2 import Environment, FileSystemLoader
 
+
 def create_double_quoted_list_of_strings(l):
-    return ','.join([f'"{s}"' for s in l])
+    return ",".join([f'"{s}"' for s in l])
+
 
 def create_spaced_list_of_strings(l):
-    return ' '.join([f'"{s}"' for s in l])
+    return " ".join([f'"{s}"' for s in l])
 
 
 var_dict = {
@@ -25,7 +27,7 @@ var_dict = {
     "postgres_password": "my_sweet_secret",
     "sql_instance_name": "daf-depl",
     "bigtable_instance_name": "pychunkedgraph",
-    "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"] ,
+    "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"],
     "mat_health_aligned_volume_name": "volume",
     "mat_datastacks": "datastack1,datastack2",
     "mat_beat_schedule": "environments/local/my_mat_schedule.json",
@@ -36,20 +38,31 @@ var_dict = {
     "guidebook_datastack": "datastack0",
     "guideboox_expected_resolution": "4,4,40",
     "dash_secret_key": "random_key",
-    "dash_config_filename": "my_dash_config.py"
+    "dash_config_filename": "my_dash_config.py",
 }
 
 # Additional modifications to parameters and checks
-var_dict["supported_datastacks"] = create_double_quoted_list_of_strings(var_dict["supported_datastack_list"])
+var_dict["supported_datastacks"] = create_double_quoted_list_of_strings(
+    var_dict["supported_datastack_list"]
+)
 
-var_dict["dns_hostnames"] = create_spaced_list_of_strings(["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"])
-var_dict["dns_zones"] = create_spaced_list_of_strings(["$DNS_ZONES"] + var_dict["add_dns_hostnames"])
-var_dict["pcg_service_account_addon"] = " ".join(["".join(["--from-file=", sec, "=${ADD_STORAGE_SECRET_FOLDER}/", sec]) for sec in var_dict["add_storage_secrets"]])
+var_dict["dns_hostnames"] = create_spaced_list_of_strings(
+    ["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"]
+)
+var_dict["dns_zones"] = create_spaced_list_of_strings(
+    ["$DNS_ZONES"] + var_dict["add_dns_hostnames"]
+)
+var_dict["pcg_service_account_addon"] = " ".join(
+    [
+        "".join(["--from-file=", sec, "=${ADD_STORAGE_SECRET_FOLDER}/", sec])
+        for sec in var_dict["add_storage_secrets"]
+    ]
+)
 
 
 # Load and render template
-env = Environment(loader=FileSystemLoader('.'))
-template = env.get_template('local_env_template.sh')
+env = Environment(loader=FileSystemLoader("."))
+template = env.get_template("local_env_template.sh")
 rendered_template = template.render(var_dict)
 
 # Write rendered tempalte
