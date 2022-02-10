@@ -12,7 +12,6 @@ def create_spaced_list_of_strings(l):
 var_dict = {
     "environment_name": "global_depl",
     "project_name": "my_project",
-    "pcg_bucket_name": "pcg_bucket",
     "depl_region": "sweet-sweet-kingdom",
     "depl_zone": "sweet-sweet-kingdom-a",
     "dns_zone": "kingdom",
