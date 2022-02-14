@@ -122,7 +122,7 @@ export NEUROGLANCER_VIEWER_URL="https://neuromancer-seung-import.appspot.com/"
 export AUTHSERVICE_CONFIG_VERSION=1.10
 export AUTHSERVICE_SECRET_KEY={{ authservice_secret_key }}
 
-export GLOBAL_SERVER=$DNS_HOSTNAME
+export GLOBAL_SERVER={{ global_server }}
 export AUTH_URI=${GLOBAL_SERVER}/auth
 export AUTH_URL=${GLOBAL_SERVER}/auth
 export INFO_URL=${GLOBAL_SERVER}/info
