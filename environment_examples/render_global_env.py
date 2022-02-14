@@ -1,12 +1,13 @@
 from jinja2 import Environment, FileSystemLoader
 
 
-def create_double_quoted_list_of_strings(l):
-    return ",".join([f'"{s}"' for s in l])
-
-
 def create_spaced_list_of_strings(l):
-    return " ".join([f'"{s}"' for s in l])
+    return " ".join(
+        [
+            f'"{s}"' if s.startswith("$") and not s.startswith("${") else f"{s}"
+            for s in l
+        ]
+    )
 
 
 var_dict = {
