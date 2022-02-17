@@ -5,7 +5,7 @@ source $ENV_REPO_PATH/$1.sh
 kubectl apply -f $YAML_FOLDER/service-accounts.yml
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo add stable https://charts.helm.sh/stable
 helm repo update
 helm install ${NGINX_INGRESS_CONTROLLER_NAME} ingress-nginx/ingress-nginx --set rbac.create=true --namespace kube-system --version 3.4.1
 
