@@ -86,7 +86,7 @@ spec:
             name: auth-config-v${AUTHSERVICE_CONFIG_VERSION}
       containers:
         - name: auth
-          image: gcr.io/${DATA_PROJECT_NAME}/neuroglancer_auth:v${AUTH_VERSION}
+          image: ${DOCKER_REGISTRY}/neuroglancer_auth:v${AUTH_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
