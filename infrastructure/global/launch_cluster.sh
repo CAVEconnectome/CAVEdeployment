@@ -7,7 +7,7 @@ gcloud config set compute/zone $ZONE
 gcloud compute --project=$PROJECT_NAME networks create $NETWORK_NAME --subnet-mode=custom
 gcloud compute --project=$PROJECT_NAME networks subnets create $SUBNETWORK_NAME --network=$NETWORK_NAME --region=$REGION --range=10.142.0.0/20
 
-gcloud container clusters create $CLUSTER_NAME --enable-autoscaling --num-nodes 1 --min-nodes 1 --max-nodes 3 --subnetwork $SUBNETWORK_NAME --network $NETWORK_NAME --enable-ip-alias  --machine-type=e2-small
+gcloud container clusters create $CLUSTER_NAME --enable-autoscaling --num-nodes 1 --min-nodes 1 --max-nodes 5 --subnetwork $SUBNETWORK_NAME --network $NETWORK_NAME --enable-ip-alias  --machine-type=e2-small
 
 gcloud compute addresses create $CLUSTER_NAME --region=$REGION
 
