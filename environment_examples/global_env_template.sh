@@ -91,6 +91,7 @@ export CAVE_SECRET_FILENAME=cave-secret.json
 export INFRASTRUCTURE_FOLDER="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 export KEY_FOLDER_NAME=gcloud_keys_auth-$ENVIRONMENT
 export KEY_FOLDER=${INFRASTRUCTURE_FOLDER}/../${KEY_FOLDER_NAME}
+export ADD_STORAGE_SECRET_FOLDER=${INFRASTRUCTURE_FOLDER}/../../secrets/${ENVIRONMENT}/
 export YAML_FOLDER_NAME=kubeyamls-auth-${ENVIRONMENT}
 export YAML_FOLDER=${INFRASTRUCTURE_FOLDER}/../${YAML_FOLDER_NAME}
 
