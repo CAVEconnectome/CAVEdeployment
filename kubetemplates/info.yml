@@ -91,7 +91,7 @@ spec:
               mountPath: /secrets/cloudsql
               readOnly: true
         - name: infoservice
-          image: ${DOCKER_REGISTRY}/annotationframeworkinfoservice:v${INFOSERVICE_VERSION}
+          image: ${DOCKER_REPOSITORY}/annotationframeworkinfoservice:v${INFOSERVICE_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
