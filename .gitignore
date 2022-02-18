@@ -2,7 +2,8 @@ gcloud_keys/
 kubeyamls/
 secrets/
 environments/
-
+gcloud_keys_auth-global/
+kubeyamls-auth-global/
 
 
 .DS_Store
