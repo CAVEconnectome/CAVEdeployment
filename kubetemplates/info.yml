@@ -91,7 +91,7 @@ spec:
               mountPath: /secrets/cloudsql
               readOnly: true
         - name: infoservice
-          image: gcr.io/${DATA_PROJECT_NAME}/annotationframeworkinfoservice:v${INFOSERVICE_VERSION}
+          image: ${DOCKER_REPOSITORY}/annotationframeworkinfoservice:v${INFOSERVICE_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
