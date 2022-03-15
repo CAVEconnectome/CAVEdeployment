@@ -13,8 +13,8 @@ def create_spaced_list_of_strings(l):
 var_dict = {
     "environment_name": "global_depl",
     "project_name": "my_project",
-    "depl_region": "sweet-sweet-kingdom",
-    "depl_zone": "sweet-sweet-kingdom-a",
+    "depl_region": "us-east1",
+    "depl_zone": "us-east1-b",
     "dns_zone": "kingdom",
     "domain_name": "domain",
     "letsencrypt_email": "my_email",
