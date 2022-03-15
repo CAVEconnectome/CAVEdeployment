@@ -30,10 +30,10 @@ spec:
   metrics:
     - type: Resource
       resource:
-        name: memory
+        name: cpu
         target:
           type: Utilization
-          averageUtilization: 70
+          averageUtilization: 80
 ---
 kind: Service
 apiVersion: v1
@@ -115,8 +115,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 230Mi
-              cpu: 100m
+              memory: 300Mi
+              cpu: 20m
           readinessProbe:
             httpGet:
               path: /info
