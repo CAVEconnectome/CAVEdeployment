@@ -128,7 +128,7 @@ export AUTH_URI=${GLOBAL_SERVER}/auth
 export AUTH_URL=${GLOBAL_SERVER}/auth
 export INFO_URL=${GLOBAL_SERVER}/info
 export STICKY_AUTH_URL=${GLOBAL_SERVER}/sticky_auth
-
+export AUTH_DEFAULT_ADMINS={{ defalt_admins }}
 
 # STATESERVER
 

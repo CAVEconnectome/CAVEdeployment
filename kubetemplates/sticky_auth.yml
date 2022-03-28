@@ -1,19 +1,24 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: sticky-auth-config-v${STICKYAUTHSERVICE_CONFIG_VERSION}
+  name: sticky-auth-config-v${AUTHSERVICE_CONFIG_VERSION}
 data:
   config.cfg: |
     import redis
     import os
+    from datetime import timedelta
     SECRET_KEY = "b${AUTHSERVICE_SECRET_KEY}"
     SESSION_TYPE = 'redis'
     SESSION_REDIS = redis.from_url('redis://' + os.environ.get('REDISHOST', 'localhost') + ':' + str(os.environ.get('REDISPORT', 6379)))
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 
     SQLALCHEMY_DATABASE_URI = "${SQL_DB_TYPE}://${POSTGRES_WRITE_USER}:${POSTGRES_WRITE_USER_PASSWORD}@localhost:5432/${SQL_AUTH_DB_NAME}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     CORS_SUPPORTS_CREDENTIALS = True
+    DEFAULT_ADMINS = ${AUTH_DEFAULT_ADMINS}
+
+    STICKY_AUTH = True
 ---
 apiVersion: v1
 kind: ConfigMap

@@ -10,6 +10,15 @@ def create_spaced_list_of_strings(l):
     )
 
 
+def create_string_list_of_strings(l):
+    return " ".join(
+        [
+            
+            for s in l
+        ]
+    )
+
+
 var_dict = {
     "environment_name": "global_depl",
     "project_name": "my_project",
@@ -29,6 +38,7 @@ var_dict = {
     "infoservice_secret_key": "random_key",
     "authservice_secret_key": "random_key",
     "ngl_link_db_table_name": "ngl_link_db",
+    "default_admins": [["email", "name", "PI"]],
 }
 
 # Additional modifications to parameters and checks
@@ -36,7 +46,7 @@ var_dict["dns_hostnames"] = create_spaced_list_of_strings(
     ["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"]
 )
 var_dict["dns_zones"] = create_spaced_list_of_strings(
-    ["$DNS_ZONE"] + var_dict["add_dns_hostnames"]
+    ["$DNS_ZONE"] + var_dict["add_dns_zones"]
 )
 
 # Load and render template
