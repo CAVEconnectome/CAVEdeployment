@@ -10,35 +10,33 @@ def create_spaced_list_of_strings(l):
     )
 
 
-def create_string_list_of_strings(l):
-    return " ".join(
-        [
-            
-            for s in l
-        ]
-    )
-
-
 var_dict = {
-    "environment_name": "global_depl",
-    "project_name": "my_project",
+    "environment_name": "global",
+    "project_name": "mygoogleproject",
     "depl_region": "us-east1",
     "depl_zone": "us-east1-b",
-    "dns_zone": "kingdom",
-    "domain_name": "domain",
-    "letsencrypt_email": "my_email",
+    "dns_zone": "myclouddnszone",
+    "domain_name": "mydns.com",
+    "letsencrypt_email": "myemail@email.com",
     "docker_repository": "docker.io/caveconnectome",
-    "add_dns_hostnames": ["add_hostname1", "add_hostname2"],
-    "add_dns_zones": ["$DNS_ZONE", "add_zone"],
-    "postgres_password": "my_sweet_secret",
-    "sql_instance_name": "daf-global-depl",
-    "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"],
-    "global_server": "global.my-dns.com",
-    "infoservice_csrf_key": "random_key",
-    "infoservice_secret_key": "random_key",
-    "authservice_secret_key": "random_key",
-    "ngl_link_db_table_name": "ngl_link_db",
-    "default_admins": [["email", "name", "PI"]],
+    "add_dns_hostnames": [
+        "${ENVIRONMENT}.myextradns.com",
+    ],
+    "add_dns_zones": [
+        "myextraclouddns-zone",
+    ],
+    "postgres_password": "mysecretpassword",
+    "sql_instance_name": "cave-global",
+    "add_storage_secrets": ["optionalpathtosecret.json"],
+    "global_server": "global.mydns.com",
+    "infoservice_csrf_key": "kibhfugtyknjbjkop",
+    "infoservice_secret_key": "lnjk;buigjkloihjhj",
+    "authservice_secret_key": "ohijlkhogiulkjnjop",
+    "ngl_link_db_table_name": "neuroglancerjsondb",
+    "default_admins": [
+        ["admin1@email.com", "Admin1First Admin1Last", "Admin1PI"],
+        ["admin2@email.com", "Admin2First Admin2Last", "Admin2PI"],
+    ],
 }
 
 # Additional modifications to parameters and checks
