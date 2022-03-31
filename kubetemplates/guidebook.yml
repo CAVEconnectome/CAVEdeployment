@@ -102,20 +102,26 @@ spec:
               value: https://${GLOBAL_SERVER}
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: USE_L2CACHE
+              value: "${GUIDEBOOK_ENABLE_L2CACHE}"
+            - name: CV_USE_HTTPS
+              value: "false"
+            - name: GUIDEBOOK_SHOW_PATH_TOOL
+              value: "true"
           resources:
             requests:
               memory: 300Mi
               cpu: 50m
           readinessProbe:
             httpGet:
-              path: /guidebook/
+              path: /guidebook/version
               port: 80
             initialDelaySeconds: 5
             timeoutSeconds: 1
-            periodSeconds: 60
+            periodSeconds: 15
           livenessProbe:
             httpGet:
-              path: /guidebook/
+              path: /guidebook/version
               port: 80
             initialDelaySeconds: 15
             timeoutSeconds: 1
@@ -191,7 +197,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: guidebook-worker
-          image: gcr.io/${DATA_PROJECT_NAME}/guidebook:v${GUIDEBOOK_VERSION}
+          image: ${DOCKER_REPOSITORY}/guidebook:v${GUIDEBOOK_VERSION}
           args:
             - su
             - nginx
@@ -226,6 +232,8 @@ spec:
               value: "false"
             - name: GUIDEBOOK_EXPECTED_RESOLUTION
               value: ${GUIDEBOOK_EXPECTED_RESOLUTION}
+            - name: GUIDEBOOK_INVALIDATION_D
+              value: "${GUIDEBOOK_INVALIDATION_D}"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
