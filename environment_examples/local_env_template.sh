@@ -154,7 +154,7 @@ export MATERIALIZE_CONFIG_VERSION=16
 export MAT_HEALTH_ALIGNED_VOLUME_NAME={{ mat_health_aligned_volume_name }}
 export MATERIALIZE_CRONJOB_SUSPENDED=false
 export MAT_DATASTACKS="{{ mat_datastacks }}"
-
+export MIN_MAT_DATABASES=3
 export MAT_BEAT_SCHEDULES=$(cat {{ mat_beat_schedule }})
 
 # ANNOTATION_ENGINE

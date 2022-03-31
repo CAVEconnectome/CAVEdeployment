@@ -247,6 +247,8 @@ spec:
               value: ${STICKY_AUTH_URL}
             - name: AUTH_URL
               value: ${AUTH_URL}
+            - name: MIN_DATABASES
+              value: ${MIN_MAT_DATABASES}
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
