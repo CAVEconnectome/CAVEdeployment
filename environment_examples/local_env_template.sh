@@ -190,7 +190,7 @@ export STICKY_AUTH_URL=${GLOBAL_SERVER}/sticky_auth
 export GUIDEBOOK_CSRF_KEY="{{ guidebook_csrf_key }}"
 export GUIDEBOOK_DATASTACK="{{ guidebook_datastack }}"
 export GUIDEBOOK_N_PARALLEL=1
-export GUIDEBOOK_EXPECTED_RESOLUTION={{ guideboox_expected_resolution }}
+export GUIDEBOOK_EXPECTED_RESOLUTION={{ guidebook_expected_resolution }}
 export GUIDEBOOK_INVALIDATION_D=3
 if ((${PCGL2CACHE_MIN_REPLICAS}>0))
 then 
