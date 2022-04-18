@@ -27,6 +27,14 @@ data:
     DATASTACKS = ["${MAT_DATASTACKS}"]
     DAYS_TO_EXPIRE = 7
     LTS_DAYS_TO_EXPIRE = 30
+    # database number config
+    MIN_DATABASES = ${MIN_DATABASES}
+    MAX_DATABASES = ${MAX_DATABASES}    
+    # celery throttling settings
+    QUERY_LIMIT_SIZE = 200000
+    QUEUE_LENGTH_LIMIT = 10000
+    QUEUES_TO_THROTTLE = ["process"]
+    THROTTLE_QUEUES = True      
     if os.environ.get("DAF_CREDENTIALS", None) is not None:
         with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
             AUTH_TOKEN = json.load(f)["token"]
@@ -128,8 +136,6 @@ spec:
               value: ${INFO_URL}
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
-            - name: C_FORCE_ROOT
-              value: "true"
           resources:
             requests:
               memory: 1000Mi
