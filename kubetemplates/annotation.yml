@@ -5,6 +5,8 @@ metadata:
   namespace: default
 data:
   config.cfg: |
+    import os
+    import json
     INFOSERVICE_ENDPOINT = "https://${INFO_URL}"
     SCHEMA_SERVICE_ENDPOINT = "https://${GLOBAL_SERVER}/schema/"
     GLOBAL_SERVER = "https://${GLOBAL_SERVER}"
@@ -13,6 +15,9 @@ data:
     TESTING = False
     LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
     LOGGING_LOCATION = '/home/nginx/annoeng/bookshelf.log'
+    if os.environ.get("DAF_CREDENTIALS", None) is not None:
+        with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
+            AUTH_TOKEN = json.load(f)["token"]
 ---
 kind: Service
 apiVersion: v1
@@ -106,6 +111,8 @@ spec:
               value: ${AUTH_URL}
             - name: INFO_URL
               value: ${INFO_URL}
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
               memory: 300Mi
