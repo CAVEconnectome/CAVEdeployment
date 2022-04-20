@@ -57,7 +57,7 @@ export DNS_INGRESS_PARA
 
 # SQL INSTANCE
 
-export SQL_INSTANCE_CPU=2
+export SQL_INSTANCE_CPU=4
 export SQL_INSTANCE_MEMORY=16
 export SQL_ANNO_DB_NAME=annotation
 export SQL_AUTH_DB_NAME=authentication
