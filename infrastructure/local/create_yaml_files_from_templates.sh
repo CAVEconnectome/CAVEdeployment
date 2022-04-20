@@ -13,7 +13,7 @@ envsubst < kubetemplates/meshing.yml > ${YAML_FOLDER}/meshing.yml
 envsubst < kubetemplates/nglstate.yml > ${YAML_FOLDER}/nglstate.yml
 envsubst < kubetemplates/mesh_worker.yml > ${YAML_FOLDER}/mesh_worker.yml
 envsubst < kubetemplates/remesh_worker.yml > ${YAML_FOLDER}/remesh_worker.yml
-envsubst < kubetemplates/pychunkedgraph_cron.yml > ${YAML_FOLDER}/pychunkedgraph_cron.yml
+# envsubst < kubetemplates/pychunkedgraph_cron.yml > ${YAML_FOLDER}/pychunkedgraph_cron.yml
 # envsubst < kubetemplates/schema.yml > ${YAML_FOLDER}/schema.yml
 envsubst < kubetemplates/secrets.yml > ${YAML_FOLDER}/secrets.yml
 envsubst < kubetemplates/service-accounts.yml > ${YAML_FOLDER}/service-accounts.yml
