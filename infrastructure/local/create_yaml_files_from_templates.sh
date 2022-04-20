@@ -4,7 +4,6 @@ source $ENV_REPO_PATH/$1.sh
 mkdir -p ${YAML_FOLDER}
 envsubst < kubetemplates/pcgl2cache.yml > ${YAML_FOLDER}/pcgl2cache.yml
 envsubst < kubetemplates/annotation.yml > ${YAML_FOLDER}/annotation.yml
-envsubst < kubetemplates/annotationui.yml > ${YAML_FOLDER}/annotationui.yml
 envsubst < kubetemplates/ingress.yml > ${YAML_FOLDER}/ingress.yml
 envsubst < kubetemplates/ingress-service.yml > ${YAML_FOLDER}/ingress-service.yml
 envsubst < kubetemplates/materialize.yml > ${YAML_FOLDER}/materialize.yml
