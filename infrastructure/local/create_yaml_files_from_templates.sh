@@ -4,7 +4,6 @@ source $ENV_REPO_PATH/$1.sh
 mkdir -p ${YAML_FOLDER}
 envsubst < kubetemplates/pcgl2cache.yml > ${YAML_FOLDER}/pcgl2cache.yml
 envsubst < kubetemplates/annotation.yml > ${YAML_FOLDER}/annotation.yml
-envsubst < kubetemplates/annotationui.yml > ${YAML_FOLDER}/annotationui.yml
 envsubst < kubetemplates/ingress.yml > ${YAML_FOLDER}/ingress.yml
 envsubst < kubetemplates/ingress-service.yml > ${YAML_FOLDER}/ingress-service.yml
 envsubst < kubetemplates/materialize.yml > ${YAML_FOLDER}/materialize.yml
@@ -14,7 +13,7 @@ envsubst < kubetemplates/meshing.yml > ${YAML_FOLDER}/meshing.yml
 envsubst < kubetemplates/nglstate.yml > ${YAML_FOLDER}/nglstate.yml
 envsubst < kubetemplates/mesh_worker.yml > ${YAML_FOLDER}/mesh_worker.yml
 envsubst < kubetemplates/remesh_worker.yml > ${YAML_FOLDER}/remesh_worker.yml
-envsubst < kubetemplates/pychunkedgraph_cron.yml > ${YAML_FOLDER}/pychunkedgraph_cron.yml
+# envsubst < kubetemplates/pychunkedgraph_cron.yml > ${YAML_FOLDER}/pychunkedgraph_cron.yml
 # envsubst < kubetemplates/schema.yml > ${YAML_FOLDER}/schema.yml
 envsubst < kubetemplates/secrets.yml > ${YAML_FOLDER}/secrets.yml
 envsubst < kubetemplates/service-accounts.yml > ${YAML_FOLDER}/service-accounts.yml
