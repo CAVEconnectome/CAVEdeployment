@@ -24,4 +24,4 @@ helm install \
   --version v1.0.2 \
   -f $YAML_FOLDER/cert-manager-values.yml \
   --set installCRDs=true
-./infrastructure/configure_ingress.sh $1
+./infrastructure/local/configure_ingress.sh $1

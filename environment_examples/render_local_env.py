@@ -36,7 +36,7 @@ var_dict = {
     "global_server": "global.my-dns.com",
     "guidebook_csrf_key": "random_key",
     "guidebook_datastack": "datastack0",
-    "guideboox_expected_resolution": "4,4,40",
+    "guidebook_expected_resolution": "4,4,40",
     "dash_secret_key": "random_key",
     "dash_config_filename": "my_dash_config.py",
 }
