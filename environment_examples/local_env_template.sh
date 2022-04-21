@@ -139,8 +139,10 @@ export ANNOTATIONENGINE_MIN_REPLICAS=0
 export ANNOTATIONENGINE_MAX_REPLICAS=0
 export MAT_MIN_REPLICAS=0
 export MAT_MAX_REPLICAS=0
-export CELERY_WORKER_MIN_REPLICAS=0
-export CELERY_WORKER_MAX_REPLICAS=0
+export CELERY_PRODUCER_MIN_REPLICAS=0
+export CELERY_PRODUCER_MAX_REPLICAS=0
+export CELERY_CONSUMER_MIN_REPLICAS=0
+export CELERY_CONSUMER_MAX_REPLICAS=0
 export CELERY_BEAT_REPLICAS=0
 export DASH_MIN_REPLICAS=0
 export DASH_MAX_REPLICAS=0
@@ -157,7 +159,8 @@ export MATERIALIZE_CONFIG_VERSION=16
 export MAT_HEALTH_ALIGNED_VOLUME_NAME={{ mat_health_aligned_volume_name }}
 export MATERIALIZE_CRONJOB_SUSPENDED=false
 export MAT_DATASTACKS="{{ mat_datastacks }}"
-export MIN_MAT_DATABASES=3
+export MIN_DATABASES=1
+export MAX_DATABASES=2
 export MAT_BEAT_SCHEDULES=$(cat {{ mat_beat_schedule }})
 
 # ANNOTATION_ENGINE
@@ -193,7 +196,7 @@ export STICKY_AUTH_URL=${GLOBAL_SERVER}/sticky_auth
 export GUIDEBOOK_CSRF_KEY="{{ guidebook_csrf_key }}"
 export GUIDEBOOK_DATASTACK="{{ guidebook_datastack }}"
 export GUIDEBOOK_N_PARALLEL=1
-export GUIDEBOOK_EXPECTED_RESOLUTION={{ guideboox_expected_resolution }}
+export GUIDEBOOK_EXPECTED_RESOLUTION={{ guidebook_expected_resolution }}
 export GUIDEBOOK_INVALIDATION_D=3
 if ((${PCGL2CACHE_MIN_REPLICAS}>0))
 then 
@@ -220,9 +223,16 @@ export CELERY_WORKER_POOL="celery-pool"
 # roughly you should have concurency=# of cpu in pool
 # cpu should be (1000m*concurrency) - 500m
 # memory should be 200Mi*concurrency
-export CELERY_CONCURRENCY=1
-export CELERY_CPU="600m"
+export CELERY_CONSUMER_CONCURRENCY=2
+export CELERY_PRODUCER_CONCURRENCY=2
+export CELERY_CPU="500m"
 export CELERY_MEMORY="400Mi"
+export CONSUMER_QUEUE_NAME="process"
+export PRODUCER_QUEUE_NAME="workflow"
+export CELERY_CONSUMER_WORKER_NAME="worker.${CONSUMER_QUEUE_NAME}"
+export CELERY_PRODUCER_WORKER_NAME="worker.${PRODUCER_QUEUE_NAME}"
+
+#OTHER POOLS
 export STANDARD_POOL="standard-pool"
 export LIGHTWEIGHT_POOL="lightweight-pool"
 export CORE_POOL="core-pool"
