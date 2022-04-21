@@ -1,14 +1,31 @@
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
 metadata:
-  name: celery-scaler
+  name: celery-producer-scaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1beta1
     kind: Deployment
-    name: celery
-  minReplicas: ${CELERY_WORKER_MIN_REPLICAS}
-  maxReplicas: ${CELERY_WORKER_MAX_REPLICAS}
+    name: celery-producer
+  minReplicas: ${CELERY_PRODUCER_MIN_REPLICAS}
+  maxReplicas: ${CELERY_PRODUCER_MAX_REPLICAS}
+  metrics:
+    - type: Pods
+      pods:
+        metricName: custom.googleapis.com|http|celery_queue_length
+        targetAverageValue: 4
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: celery-consumer-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1beta1
+    kind: Deployment
+    name: celery-consumer
+  minReplicas: ${CELERY_CONSUMER_MIN_REPLICAS}
+  maxReplicas: ${CELERY_CONSUMER_MAX_REPLICAS}
   metrics:
     - type: Pods
       pods:
@@ -18,15 +35,15 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: celery
+  name: celery-producer
 spec:
   selector:
     matchLabels:
-      app: celery
+      app: celery-producer
   template:
     metadata:
       labels:
-        app: celery
+        app: celery-producer
     spec:
       terminationGracePeriodSeconds: 6000 # change grace period to one hour
       tolerations:
@@ -55,11 +72,11 @@ spec:
           args:
             - cli.py
             - --broker-url
-            - redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
+            - redis://:${REDIS_IP}:${REDIS_PORT}/0
             - --port
             - "9540"
             - -q
-            - process
+            - ${PRODUCER_QUEUE_NAME}
           ports:
             - containerPort: 9540
           lifecycle:
@@ -105,7 +122,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery worker -A run.celery --pool=prefork --hostname=worker.process@%h --queues=process --loglevel=info -E --concurrency=${CELERY_CONCURRENCY}"
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -117,13 +134,13 @@ spec:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_HOST}
+              value: ${REDIS_IP}
             - name: REDIS_HOST
-              value: ${REDIS_HOST}
+              value: ${REDIS_IP}
             - name: REDIS_PASSWORD
               value: ${REDIS_PASSWORD}
             - name: CELERY_BROKER_URL
-              value: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
+              value: redis://${REDIS_IP}:${REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -138,6 +155,185 @@ spec:
               value: ${AUTH_URL}
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: QUEUE_NAME
+              value: ${PRODUCER_QUEUE_NAME}
+            - name: WORKER_NAME
+              value: ${CELERY_PRODUCER_WORKER_NAME}              
+            - name: WORKER_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          resources:
+            requests:
+              cpu: ${CELERY_CPU}
+              memory: ${CELERY_MEMORY}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/home/nginx/gracefully_shutdown_celery.sh"]
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  [
+                    "sh",
+                    "-c",
+                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; kill -2 1",
+                  ]
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+      restartPolicy: Always
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-consumer
+spec:
+  selector:
+    matchLabels:
+      app: celery-consumer
+  template:
+    metadata:
+      labels:
+        app: celery-consumer
+    spec:
+      terminationGracePeriodSeconds: 30
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${CELERY_WORKER_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${CELERY_WORKER_POOL}
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config-v${MATERIALIZE_CONFIG_VERSION}
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
+        - name: graceful-shut-down
+          emptyDir: {}
+      containers:
+        - name: celery-exporter
+          image: gcr.io/${DATA_PROJECT_NAME}/celery-metric-exporter:v5
+          command: ["python"]
+          args:
+            - cli.py
+            - --broker-url
+            - redis://${REDIS_IP}:${REDIS_PORT}/0
+            - --port
+            - "9540"
+            - -q
+            - ${CONSUMER_QUEUE_NAME}
+          ports:
+            - containerPort: 9540
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  [
+                    "sh",
+                    "-c",
+                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; kill -2 1",
+                  ]
+          volumeMounts:
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+        - name: prometheus-to-sd
+          image: gcr.io/google-containers/prometheus-to-sd:v0.8.0
+          command: ["/monitor"]
+          args:
+            - --source=http://localhost:9540/metrics
+            - --stackdriver-prefix=custom.googleapis.com
+            - --pod-id=$(POD_ID)
+            - --namespace-id=$(POD_NAMESPACE)
+          env:
+            # save Kubernetes metadata as environment variables for use in metrics
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+        - name: celery
+          image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
+          args:
+            - su
+            - nginx
+            - -c
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
+          volumeMounts:
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: REDIS_SERVICE_HOST
+              value: ${REDIS_IP}
+            - name: REDIS_HOST
+              value: ${REDIS_IP}
+            - name: REDIS_PASSWORD
+              value: ${REDIS_PASSWORD}
+            - name: CELERY_BROKER_URL
+              value: redis://${REDIS_IP}:${REDIS_PORT}/0
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: BIGTABLE_PROJECT
+              value: ${DATA_PROJECT_NAME}
+            - name: BIGTABLE_INSTANCE
+              value: ${BIGTABLE_INSTANCE_NAME}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: QUEUE_NAME
+              value: ${CONSUMER_QUEUE_NAME}              
+            - name: WORKER_NAME
+              value: ${CELERY_CONSUMER_WORKER_NAME}
             - name: WORKER_HOSTNAME
               valueFrom:
                 fieldRef:
