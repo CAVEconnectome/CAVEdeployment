@@ -85,7 +85,7 @@ spec:
             secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
         - name: authservice-config-volume
           configMap:
-            name: sticky-auth-config-v${STICKYAUTHSERVICE_CONFIG_VERSION}
+            name: sticky-auth-config-v${AUTHSERVICE_CONFIG_VERSION}
         - name: auth-uwsgi-volume
           configMap:
             name: sticky-auth-uwsgiconfig-v${AUTHSERVICE_CONFIG_VERSION}
