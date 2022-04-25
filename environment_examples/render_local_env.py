@@ -50,7 +50,7 @@ var_dict["dns_hostnames"] = create_spaced_list_of_strings(
     ["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"]
 )
 var_dict["dns_zones"] = create_spaced_list_of_strings(
-    ["$DNS_ZONES"] + var_dict["add_dns_hostnames"]
+    ["$DNS_ZONE"] + var_dict["add_dns_hostnames"]
 )
 var_dict["pcg_service_account_addon"] = " ".join(
     [
