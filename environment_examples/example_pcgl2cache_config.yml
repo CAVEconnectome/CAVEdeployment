@@ -1,0 +1,3 @@
+MY_PCG_TABLE_NAME:
+  cv_path: "graphene://https://MYLOCAL.MYDNSNAME.com/segmentation/table/MY_PCG_TABLE_NAME"
+  l2cache_id: "MYL2CACHE_BIGTABLE_NAME"
