@@ -1,11 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: pcgl2cache-config-v${PCGL2CACHE_CONFIG_VERSION}
+  name: pcgl2cache-config-v${L2CACHE_CONFIG_VERSION}
   namespace: default
 data:
   config.cfg: |
     import datetime
+  L2_table_map.yml: |
+${L2CACHE_CONFIG}
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -64,7 +66,7 @@ spec:
             secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
         - name: pcg-config-volume
           configMap:
-            name: pcgl2cache-config-v${PCGL2CACHE_CONFIG_VERSION}
+            name: pcgl2cache-config-v${L2CACHE_CONFIG_VERSION}
       terminationGracePeriodSeconds: 10
       containers:
         - name: pcgl2cache
@@ -78,6 +80,8 @@ spec:
             - name: pcg-config-volume
               mountPath: /app/pcgl2cache/app/instance/
           env:
+            - name: GRAPH_L2CACHE_CONFIG_PATH
+              value: /app/pcgl2cache/app/instance/L2_table_map.yml
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -110,8 +114,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 2Gi
-              cpu: 300m
+              memory: 200Mi
+              cpu: 200m
           readinessProbe:
             httpGet:
               path: /l2cache/api/v1
@@ -240,7 +244,7 @@ spec:
             secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
         - name: pcg-config-volume
           configMap:
-            name: pcgl2cache-config-v${PCGL2CACHE_CONFIG_VERSION}
+            name: pcgl2cache-config-v${L2CACHE_CONFIG_VERSION}
       terminationGracePeriodSeconds: 10
       containers:
         - name: pcgl2cache-worker
@@ -254,6 +258,8 @@ spec:
             - name: pcg-config-volume
               mountPath: /app/pcgl2cache/app/instance/
           env:
+            - name: GRAPH_L2CACHE_CONFIG_PATH
+              value: /app/pcgl2cache/app/instance/L2_table_map.yml
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -286,8 +292,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 3000Mi
-              cpu: 200m
+              memory: 2500Mi
+              cpu: 500m
           command:
             - su
             - nginx
@@ -320,7 +326,7 @@ spec:
             secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
         - name: pcg-config-volume
           configMap:
-            name: pcgl2cache-config-v${PCGL2CACHE_CONFIG_VERSION}
+            name: pcgl2cache-config-v${L2CACHE_CONFIG_VERSION}
       terminationGracePeriodSeconds: 10
       containers:
         - name: pcgl2cache-highpriority-worker
@@ -334,6 +340,8 @@ spec:
             - name: pcg-config-volume
               mountPath: /app/pcgl2cache/app/instance/
           env:
+            - name: GRAPH_L2CACHE_CONFIG_PATH
+              value: /app/pcgl2cache/app/instance/L2_table_map.yml
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -366,8 +374,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 3000Mi
-              cpu: 200m
+              memory: 2500Mi
+              cpu: 500m
           command:
             - su
             - nginx
@@ -400,7 +408,7 @@ spec:
             secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
         - name: pcg-config-volume
           configMap:
-            name: pcgl2cache-config-v${PCGL2CACHE_CONFIG_VERSION}
+            name: pcgl2cache-config-v${L2CACHE_CONFIG_VERSION}
       terminationGracePeriodSeconds: 10
       containers:
         - name: pcgl2cache-lowpriority-worker
@@ -414,6 +422,8 @@ spec:
             - name: pcg-config-volume
               mountPath: /app/pcgl2cache/app/instance/
           env:
+            - name: GRAPH_L2CACHE_CONFIG_PATH
+              value: /app/pcgl2cache/app/instance/L2_table_map.yml
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -446,8 +456,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 3000Mi
-              cpu: 200m
+              memory: 2500Mi
+              cpu: 500m
           command:
             - su
             - nginx

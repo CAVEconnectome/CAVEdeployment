@@ -81,6 +81,7 @@ export NGLSTATE_SERVICE_ACCOUNT_NAME=daf-nglstate-$ENVIRONMENT
 export CLOUD_SQL_SERVICE_ACCOUNT_NAME=daf-cloudsqlproxy-$ENVIRONMENT
 export AUTH_SERVICE_ACCOUNT_NAME=daf-auth-$ENVIRONMENT
 export CLOUD_DNS_SERVICE_ACCOUNT_NAME=daf-clouddns-$ENVIRONMENT
+export PMANAGEMENT_SERVICE_ACCOUNT_NAME=daf-pmanagement-$ENVIRONMENT
 export ADD_STORAGE_NAME=daf-storage-$ENVIRONMENT
 
 
@@ -178,9 +179,13 @@ export PYCHUNKEDGRAPH_LOW_PRIORITY_REMESH_QUEUE="${ENVIRONMENT}_PCG_LOW_PRIORITY
 
 
 # PCGL2CACHE
-export PCGL2CACHE_CONFIG_VERSION=1
+export L2CACHE_CONFIG_VERSION=1
+export L2CACHE_CONFIG=$(cat {{ l2cache_config_filename }} | awk '{printf "    %s\n", $0}')
 export L2CACHE_UPDATE_QUEUE="${ENVIRONMENT}_L2CACHE_WORKER"
 export L2CACHE_EXCHANGE="${ENVIRONMENT}_L2CACHE"
+export L2CACHE_TRIGGER_QUEUE="${ENVIRONMENT}_L2CACHE_HIGH_PRIORITY_TRIGGER"
+export L2CACHE_TRIGGER_LOW_PRIORITY_QUEUE="${ENVIRONMENT}_L2CACHE_LOW_PRIORITY_TRIGGER"
+
 
 
 # AUTH
@@ -207,7 +212,7 @@ fi
 
 # DASH
 export DASH_SECRET_KEY="{{ dash_secret_key }}"
-export DASH_CONFIG=$(cat environments/local/{{ dash_config_filename }} | awk '{printf "    %s\n", $0}')
+export DASH_CONFIG=$(cat {{ dash_config_filename }} | awk '{printf "    %s\n", $0}')
 export DASH_CONFIG_VERSION=6
 
 # DEFINE ADD SECRET IMPORT

@@ -13,9 +13,9 @@ var_dict = {
     "environment_name": "depl",
     "project_name": "my_project",
     "pcg_bucket_name": "pcg_bucket",
-    "depl_region": "sweet-sweet-kingdom",
-    "depl_zone": "sweet-sweet-kingdom-a",
-    "dns_zone": "kingdom",
+    "depl_region": "us-east1",
+    "depl_zone": "us-east1-b",
+    "dns_zone": "myclouddnszone",
     "domain_name": "domain",
     "letsencrypt_email": "my_email",
     "supported_datastack_list": ["ds1", "ds2"],
@@ -30,7 +30,7 @@ var_dict = {
     "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"],
     "mat_health_aligned_volume_name": "volume",
     "mat_datastacks": "datastack1,datastack2",
-    "mat_beat_schedule": "environments/local/my_mat_schedule.json",
+    "mat_beat_schedule": "{ENV_REPO_PATH}/my_mat_schedule.json",
     "pcg_graph_ids": "pcg_table1,pcg_table2",
     "authservice_secret_key": "randomkey",
     "global_server": "global.my-dns.com",
@@ -38,7 +38,8 @@ var_dict = {
     "guidebook_datastack": "datastack0",
     "guidebook_expected_resolution": "4,4,40",
     "dash_secret_key": "random_key",
-    "dash_config_filename": "my_dash_config.py",
+    "dash_config_filename": "${ENV_REPO_PATH}/my_dash_config.py",
+    "l2cache_config_filename": "${ENV_REPO_PATH}/my_l2cache_config.yml",
 }
 
 # Additional modifications to parameters and checks
