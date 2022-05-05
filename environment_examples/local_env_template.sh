@@ -24,6 +24,9 @@ export SUPPORTED_DATASTACKS='{{ supported_datastacks }}'
 
 export DATA_PROJECT_NAME={{ data_project_name }}
 export DATA_REGION={{ data_project_region }}
+export SQL_PROJECT_NAME={{ sql_project_name }}
+export SQL_REGION={{ SQL_REGION }}
+export SQL_ZONE={{ sql_project_zone }}
 export DOCKER_REPOSITORY={{ docker_repository }}
 
 # KUBERNETES DEPLOYMENT DETAILS

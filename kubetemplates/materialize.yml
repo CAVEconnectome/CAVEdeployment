@@ -159,7 +159,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-instances=${SQL_PROJECT_NAME}:${SQL_REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
               "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
             ]
           resources:

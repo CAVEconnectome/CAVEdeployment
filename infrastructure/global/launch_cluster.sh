@@ -18,6 +18,13 @@ gcloud sql instances create $SQL_INSTANCE_NAME --database-version=POSTGRES_9_6 -
 gcloud sql databases create $SQL_AUTH_DB_NAME --instance=$SQL_INSTANCE_NAME
 gcloud sql databases create $SQL_INFO_DB_NAME --instance=$SQL_INSTANCE_NAME
 
+
+gcloud config set project $SQL_PROJECT_NAME
+gcloud config set compute/zone $SQL_ZONE
+
 gcloud sql users set-password $POSTGRES_WRITE_USER --instance=$SQL_INSTANCE_NAME --password=$POSTGRES_WRITE_USER_PASSWORD
+
+gcloud config set project $PROJECT_NAME
+gcloud config set compute/zone $ZONE
 
 mkdir -p $ADD_STORAGE_SECRET_FOLDER
