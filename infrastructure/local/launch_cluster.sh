@@ -19,12 +19,18 @@ gcloud container node-pools delete default-pool --cluster $CLUSTER_NAME
 
 gcloud compute addresses create $CLUSTER_NAME --region=$REGION
 
+gcloud config set project $SQL_PROJECT_NAME
+gcloud config set compute/zone $SQL_ZONE
+
 gcloud sql instances create $SQL_INSTANCE_NAME --database-version=POSTGRES_13 --region=$REGION --cpu=$SQL_INSTANCE_CPU --memory=$SQL_INSTANCE_MEMORY
 
 gcloud sql databases create $SQL_ANNO_DB_NAME --instance=$SQL_INSTANCE_NAME
 gcloud sql databases create $SQL_MAT_DB_NAME --instance=$SQL_INSTANCE_NAME
 
 gcloud sql users set-password $POSTGRES_WRITE_USER --instance=$SQL_INSTANCE_NAME --password=$POSTGRES_WRITE_USER_PASSWORD
+
+gcloud config set project $PROJECT_NAME
+gcloud config set compute/zone $ZONE
 
 kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user "$(gcloud config get-value account)"
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-stackdriver/master/custom-metrics-stackdriver-adapter/deploy/production/adapter.yaml
