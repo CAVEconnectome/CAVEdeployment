@@ -111,7 +111,7 @@ spec:
           resources:
             requests:
               memory: 300Mi
-              cpu: 50m
+              cpu: 80m
           readinessProbe:
             httpGet:
               path: /guidebook/version
