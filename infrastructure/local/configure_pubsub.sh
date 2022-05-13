@@ -13,5 +13,5 @@ gcloud pubsub subscriptions create ${PYCHUNKEDGRAPH_LOW_PRIORITY_REMESH_QUEUE} -
 if ((${PCGL2CACHE_MAX_REPLICAS} > 0))
 then
     gcloud pubsub subscriptions create ${L2CACHE_TRIGGER_QUEUE} --topic=${PYCHUNKEDGRAPH_EDITS_EXCHANGE} --topic-project=${PROJECT_NAME} --ack-deadline=600 --expiration-period="never" --max-retry-delay=10 --message-filter='attributes.remesh_priority="true"'
-    gcloud pubsub subscriptions create ${L2CACHE_LOW_PRIORITY_TRIGGER_QUEUE} --topic=${PYCHUNKEDGRAPH_EDITS_EXCHANGE} --topic-project=${PROJECT_NAME} --ack-deadline=600 --expiration-period="never" --max-retry-delay=10 --message-filter='attributes.remesh_priority="false"'
+    gcloud pubsub subscriptions create ${L2CACHE_TRIGGER_LOW_PRIORITY_QUEUE} --topic=${PYCHUNKEDGRAPH_EDITS_EXCHANGE} --topic-project=${PROJECT_NAME} --ack-deadline=600 --expiration-period="never" --max-retry-delay=10 --message-filter='attributes.remesh_priority="false"'
 fi
