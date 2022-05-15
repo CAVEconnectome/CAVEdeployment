@@ -10,7 +10,8 @@ data:
     # Statement for enabling the development environment
     INFOSERVICE_ENDPOINT = "https://${INFO_URL}"
     SCHEMA_SERVICE_ENDPOINT = "https://${GLOBAL_SERVER}/schema/"
-    GLOBAL_SERVER = "https://${GLOBAL_SERVER}"
+    GLOBAL_SERVER_URL = "https://${GLOBAL_SERVER}"
+    LOCAL_SERVER_URL = "https://${ENVIRONMENT}.${DOMAIN_NAME}"
     TESTING = False
     LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
     LOGGING_LOCATION = '/home/nginx/.materializationengine/bookshelf.log'
