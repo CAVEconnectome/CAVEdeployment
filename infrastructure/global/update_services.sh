@@ -11,7 +11,7 @@ kubectl apply -f ${YAML_FOLDER}/nglstate.yml
 kubectl apply -f ${YAML_FOLDER}/ingress.yml
 kubectl apply -f ${YAML_FOLDER}/info.yml
 kubectl apply -f ${YAML_FOLDER}/schema.yml
-# kubectl apply -f ${YAML_FOLDER}/auth-info.yml
+kubectl apply -f ${YAML_FOLDER}/auth-info.yml
 # Logging
 kubectl apply -f ${YAML_FOLDER}/fluentd-custom-configmap.yml
 kubectl apply -f ${YAML_FOLDER}/fluentd-custom-daemonset.yml
