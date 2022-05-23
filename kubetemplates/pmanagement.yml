@@ -80,14 +80,16 @@ spec:
               value: ${PROJECT_NAME}
             - name: PMANAGEMENT_URL_PREFIX
               value: neurons
+            - name: AUTH_DATABASE_NAME
+              value: "fafb"
             - name: AUTH_USE_REDIS
               value: "false"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 100Mi
-              cpu: 100m
+              memory: 500Mi
+              cpu: 200m
           readinessProbe:
             httpGet:
               path: /neurons/api/v1
