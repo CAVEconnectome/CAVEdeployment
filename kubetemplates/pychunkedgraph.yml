@@ -24,7 +24,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 90
+          averageUtilization: 110
 ---
 kind: Service
 apiVersion: v1
