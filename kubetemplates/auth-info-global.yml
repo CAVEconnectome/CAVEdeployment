@@ -1,0 +1,96 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf-${NGINX_CONFIG_VERSION}
+data:
+  nginx.conf: |
+    user nginx;
+    worker_processes  3;
+    error_log  /var/log/nginx/error.log;
+    events {
+      worker_connections  10240;
+    }
+    http {
+      log_format  main
+              'remote_addr:$remote_addr\t'
+              'time_local:$time_local\t'
+              'method:$request_method\t'
+              'uri:$request_uri\t'
+              'host:$host\t'
+              'status:$status\t'
+              'bytes_sent:$body_bytes_sent\t'
+              'referer:$http_referer\t'
+              'useragent:$http_user_agent\t'
+              'forwardedfor:$http_x_forwarded_for\t'
+              'request_time:$request_time';
+
+      access_log	/var/log/nginx/access.log main;
+
+      server {
+          listen       80;
+          server_name  _;
+
+          location / {
+            add_header 'Access-Control-Allow-Origin' '*';
+            add_header 'Access-Control-Allow-Methods' 'GET, OPTIONS';
+            add_header 'Access-Control-Allow-Headers' 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range';
+            add_header 'Access-Control-Expose-Headers' 'Content-Length,Content-Range';
+            default_type application/json;
+            return 200 '{"login_url":"https://${STICKY_AUTH_URL}",
+                         "supported_datastacks":[${SUPPORTED_DATASTACKS}]}';
+          }
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: basic-nginx
+  template:
+    metadata:
+      labels:
+        app: basic-nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - mountPath: /etc/nginx # mount nginx-conf volumn to /etc/nginx
+              readOnly: true
+              name: nginx-conf
+            - mountPath: /var/log/nginx
+              name: log
+          resources:
+            requests:
+              memory: 50Mi
+              cpu: 50m
+      volumes:
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf-${NGINX_CONFIG_VERSION} # place ConfigMap `nginx-conf` on /etc/nginx
+            items:
+              - key: nginx.conf
+                path: nginx.conf
+        - name: log
+          emptyDir: {}
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: auth-info-service
+spec:
+  type: NodePort
+  sessionAffinity: ClientIP
+  selector:
+    app: basic-nginx
+  ports:
+    - port: 80
+      targetPort: 80
