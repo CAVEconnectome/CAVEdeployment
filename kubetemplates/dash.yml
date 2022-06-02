@@ -16,8 +16,8 @@ spec:
     apiVersion: apps/v1
     kind: Deployment
     name: dash
-  minReplicas: 1
-  maxReplicas: 1
+  minReplicas: ${DASH_MIN_REPLICAS}
+  maxReplicas: ${DASH_MAX_REPLICAS}
   metrics:
   - type: Resource
     resource:
