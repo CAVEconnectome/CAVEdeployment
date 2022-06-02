@@ -24,7 +24,7 @@ spec:
       name: cpu
       target:
         type: Utilization
-        averageUtilization: 25
+        averageUtilization: 90
   # - type: Resource
   #   resource:
   #     name: memory
@@ -98,7 +98,7 @@ spec:
         resources:
           requests:
             memory: 300Mi
-            cpu: 50m
+            cpu: 100m
         readinessProbe:
           httpGet:
             path: /dash/
