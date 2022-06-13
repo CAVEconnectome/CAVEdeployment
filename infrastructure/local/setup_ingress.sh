@@ -21,7 +21,7 @@ kubectl create namespace cert-manager
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.0.2 \
+  --version v1.8.0 \
   -f $YAML_FOLDER/cert-manager-values.yml \
   --set installCRDs=true
 ./infrastructure/local/configure_ingress.sh $1
