@@ -2,7 +2,7 @@
 
 source env_config.sh
 source $ENV_REPO_PATH/$1.sh
-
+./infrastructure/local/switch_context.sh $1
 kubectl apply -f $YAML_FOLDER/service-accounts.yml
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
