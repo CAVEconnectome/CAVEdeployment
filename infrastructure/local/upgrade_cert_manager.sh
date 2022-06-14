@@ -4,6 +4,8 @@ source env_config.sh
 source $ENV_REPO_PATH/$1.sh
 ./infrastructure/local/switch_context.sh $1
 
+kubectl apply -f $YAML_FOLDER/service-accounts.yml
+
 helm upgrade \
  -f $YAML_FOLDER/cert-manager-values.yml \
   cert-manager jetstack/cert-manager \
