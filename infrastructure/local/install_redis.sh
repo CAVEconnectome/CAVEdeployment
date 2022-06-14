@@ -4,7 +4,7 @@ source $ENV_REPO_PATH/$1.sh
 ./infrastructure/local/switch_context.sh $1
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
-helm install redis-release  bitnami/redis --values ${YAML_FOLDER}/redis_production_values.yml --version 10.7.11
+helm install redis-release  bitnami/redis --values ${YAML_FOLDER}/redis_production_values.yml --version 16.12.0
 
 # helm upgrade --force --recreate-pods -f ${YAML_FOLDER}/redis_production_values.yml redis-release bitnami/redis  --version 10.7.11
 
