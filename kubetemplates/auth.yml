@@ -119,7 +119,7 @@ spec:
               value: "auth"
           resources:
             requests:
-              memory: 700Mi
+              memory: 900Mi
               cpu: 85m
           readinessProbe:
             httpGet:
@@ -145,7 +145,7 @@ spec:
             ]
           resources:
             requests:
-              memory: 8Mi
+              memory: 15Mi
               cpu: 10m
           securityContext:
             runAsUser: 2 # non-root user
