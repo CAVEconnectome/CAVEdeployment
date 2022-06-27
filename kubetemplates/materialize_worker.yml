@@ -67,7 +67,7 @@ spec:
           emptyDir: {}
       containers:
         - name: celery-exporter
-          image: gcr.io/${DATA_PROJECT_NAME}/celery-metric-exporter:v5
+          image: ${CELERY_EXPORTER_IMAGE}:${CELERY_EXPORTER_TAG}
           command: ["python"]
           args:
             - cli.py
@@ -242,7 +242,7 @@ spec:
           emptyDir: {}
       containers:
         - name: celery-exporter
-          image: gcr.io/${DATA_PROJECT_NAME}/celery-metric-exporter:v5
+          image: ${CELERY_EXPORTER_IMAGE}:${CELERY_EXPORTER_TAG}
           command: ["python"]
           args:
             - cli.py
