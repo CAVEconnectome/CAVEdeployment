@@ -4,7 +4,7 @@ metadata:
   name: celery-producer-scaler
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     name: celery-producer
   minReplicas: ${CELERY_PRODUCER_MIN_REPLICAS}
@@ -21,7 +21,7 @@ metadata:
   name: celery-consumer-scaler
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     name: celery-consumer
   minReplicas: ${CELERY_CONSUMER_MIN_REPLICAS}
