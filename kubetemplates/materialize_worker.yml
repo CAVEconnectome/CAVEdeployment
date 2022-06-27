@@ -92,7 +92,7 @@ spec:
             - name: graceful-shut-down
               mountPath: /home/nginx/tmp/shutdown
         - name: prometheus-to-sd
-          image: gcr.io/google-containers/prometheus-to-sd:v0.8.0
+          image: ${PROMETHEUS_TO_SD_IMAGE}:${PROMETHEUS_TO_SD_TAG}
           command: ["/monitor"]
           args:
             - --source=http://localhost:9540/metrics
@@ -176,7 +176,7 @@ spec:
               exec:
                 command: ["/home/nginx/gracefully_shutdown_celery.sh"]
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: ${GCE_PROXY_IMAGE}:${GCE_PROXY_TAG}
           command:
             [
               "/cloud_sql_proxy",
@@ -267,7 +267,7 @@ spec:
             - name: graceful-shut-down
               mountPath: /home/nginx/tmp/shutdown
         - name: prometheus-to-sd
-          image: gcr.io/google-containers/prometheus-to-sd:v0.8.0
+          image: ${PROMETHEUS_TO_SD_IMAGE}:${PROMETHEUS_TO_SD_TAG}
           command: ["/monitor"]
           args:
             - --source=http://localhost:9540/metrics
@@ -351,7 +351,7 @@ spec:
               exec:
                 command: ["/home/nginx/gracefully_shutdown_celery.sh"]
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: ${GCE_PROXY_IMAGE}:${GCE_PROXY_TAG}
           command:
             [
               "/cloud_sql_proxy",
@@ -450,7 +450,7 @@ spec:
               cpu: 10m
               memory: 150Mi
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: ${GCE_PROXY_IMAGE}:${GCE_PROXY_TAG}
           command:
             [
               "/cloud_sql_proxy",
@@ -497,7 +497,7 @@ spec:
     spec:
       containers:
         - name: flower
-          image: mher/flower:0.9.5
+          image: ${FLOWER_IMAGE}:${FLOWER_TAG}
           args:
             - flower
             - --broker=redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0

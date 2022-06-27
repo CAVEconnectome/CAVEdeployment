@@ -61,7 +61,7 @@ spec:
             timeoutSeconds: 1
             periodSeconds: 60
         - name: sysctl-buddy
-          image: alpine:3.4
+          image: ${SYSCTL_BUDDY_IMAGE}:${SYSCTL_BUDDY_TAG}
           command:
             - /bin/sh
             - -c

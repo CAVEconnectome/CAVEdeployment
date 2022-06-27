@@ -19,7 +19,7 @@ gcloud container node-pools delete default-pool --cluster $CLUSTER_NAME
 
 gcloud compute addresses create $CLUSTER_NAME --region=$REGION
 
-gcloud sql instances create $SQL_INSTANCE_NAME --database-version=POSTGRES_13 --region=$REGION --cpu=$SQL_INSTANCE_CPU --memory=$SQL_INSTANCE_MEMORY
+gcloud sql instances create $SQL_INSTANCE_NAME --database-version=$SQL_INSTANCE_VERSION --region=$REGION --cpu=$SQL_INSTANCE_CPU --memory=$SQL_INSTANCE_MEMORY
 
 gcloud sql databases create $SQL_ANNO_DB_NAME --instance=$SQL_INSTANCE_NAME
 gcloud sql databases create $SQL_MAT_DB_NAME --instance=$SQL_INSTANCE_NAME

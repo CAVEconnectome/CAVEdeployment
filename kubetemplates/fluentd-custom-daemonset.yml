@@ -36,7 +36,7 @@ spec:
       - env:
         - name: FLUENTD_ARGS
           value: --no-supervisor
-        image: gcr.io/google-containers/fluentd-gcp:2.0.17
+        image: ${FLUENTD_GCP_IMAGE}:${FLUENTD_GCP_TAG}
         imagePullPolicy: IfNotPresent
         # If fluentd consumes its own logs, the following situation may happen:
         # fluentd fails to send a chunk to the server => writes it to the log =>
@@ -104,7 +104,7 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
-        image: gcr.io/google-containers/prometheus-to-sd:v0.2.6
+        image: ${PROMETHEUS_TO_SD_IMAGE}:${PROMETHEUS_TO_SD_TAG}
         imagePullPolicy: IfNotPresent
         name: prometheus-to-sd-exporter
         resources: {}
