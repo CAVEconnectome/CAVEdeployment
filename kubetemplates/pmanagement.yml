@@ -88,8 +88,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 500Mi
-              cpu: 200m
+              memory: 1000Mi
+              cpu: 100m
           readinessProbe:
             httpGet:
               path: /neurons/api/v1
