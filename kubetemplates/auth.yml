@@ -34,11 +34,101 @@ data:
     gid = nginx
 
     env = HOME=/home/nginx
-    cheaper = 0
-    processes = 16
     show-config = true
     need-app = true
     die-on-term = true
+
+    ### Worker scaling
+    # maximum number of workers
+    processes = 16
+
+    # https://uwsgi-docs.readthedocs.io/en/latest/Cheaper.html#busyness-cheaper-algorithm
+    cheaper-algo = busyness
+
+    # Time window for tracking average busyness
+    cheaper-overload = 20
+
+    # Number of idle cycles before stopping a worker
+    cheaper-busyness-multiplier = 3
+
+    # Minimum number of workers
+    cheaper = 2
+
+    # Start with 2 workers
+    cheaper-initial = 2
+
+    # Spawn at most 2 workers at once
+    cheaper-step = 2
+
+    # Start spawning more workers at 60% busyness
+    cheaper-busyness-max = 60
+
+    # Start killing workers if busyness falls below 20%
+    cheaper-busyness-min = 20
+
+
+    ### Reloads and limitations
+    # max socket listen queue length - requires net.somaxconn increase
+    listen = 4096
+
+    # Max request header size
+    buffer-size = 4096
+
+    # Don't spawn new workers if total memory over 750 MB
+    cheaper-rss-limit-soft = 805306368
+    cheaper-rss-limit-hard = 912680550
+
+    # Reload worker after serving X requests
+    max-requests = 5000
+
+    # Grace period for single worker to reload/shutdown
+    worker-reload-mercy = 600
+
+    # Grace period for all workers and processes to reload/shutdown
+    reload-mercy = 605
+
+    # Kill stuck/unresponsive processes after 20 minutes
+    harakiri = 1200
+
+
+    ### Misc
+    # Maintain Python thread support
+    enable-threads = true
+
+    # Required for cheaper-rss-limit-soft
+    memory-report = true
+
+    # Additional log output for harakiri
+    harakiri-verbose = true
+
+
+    ### Logging
+    # Filter our properly pre-formated app messages and pass them through
+    logger = app stdio
+    log-route = app ^{.*"source":.*}$
+
+    # Capture known / most common uWSGI messages
+    logger = uWSGIdebug stdio
+    logger = uWSGIwarn stdio
+
+    log-route = uWSGIdebug ^{address space usage
+    log-route = uWSGIwarn \[warn\]
+
+    log-encoder = json:uWSGIdebug {"source":"uWSGI","time":"${strftime:%Y-%m-%dT%H:%M:%S.000Z}","severity":"debug","message":"${msg}"}
+    log-encoder = nl:uWSGIdebug
+    log-encoder = json:uWSGIwarn {"source":"uWSGI","time":"${strftime:%Y-%m-%dT%H:%M:%S.000Z}","severity":"warning","message":"${msg}"}
+    log-encoder = nl:uWSGIwarn
+
+    # Treat everything else as error message of unknown origin
+    logger = unknown stdio
+
+    # Creating our own "inverse Regex" using negative lookaheads, which makes this
+    # log-route rather cryptic and slow... Unclear how to get a simple
+    # "fall-through" behavior for non-matching messages, otherwise.
+    log-route = unknown ^(?:(?!^{address space usage|\[warn\]|^{.*"source".*}$).)*$
+
+    log-encoder = json:unknown {"source":"unknown","time":"${strftime:%Y-%m-%dT%H:%M:%S.000Z}","severity":"error","message":"${msg}"}
+    log-encoder = nl:unknown
 ---
 kind: Service
 apiVersion: v1
