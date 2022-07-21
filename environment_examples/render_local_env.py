@@ -1,4 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
+import shlex
 
 
 def create_double_quoted_list_of_strings(l):
@@ -60,6 +61,7 @@ var_dict["pcg_service_account_addon"] = " ".join(
         for sec in var_dict["add_storage_secrets"]
     ]
 )
+var_dict["postgres_password"] = shlex.quote(var_dict["postgres_password"])
 
 
 # Load and render template

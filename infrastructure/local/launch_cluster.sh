@@ -24,7 +24,7 @@ gcloud sql instances create $SQL_INSTANCE_NAME --database-version=POSTGRES_13 --
 gcloud sql databases create $SQL_ANNO_DB_NAME --instance=$SQL_INSTANCE_NAME
 gcloud sql databases create $SQL_MAT_DB_NAME --instance=$SQL_INSTANCE_NAME
 
-gcloud sql users set-password $POSTGRES_WRITE_USER --instance=$SQL_INSTANCE_NAME --password=$POSTGRES_WRITE_USER_PASSWORD
+gcloud sql users set-password $POSTGRES_WRITE_USER --instance=$SQL_INSTANCE_NAME --password="$POSTGRES_WRITE_USER_PASSWORD"
 
 kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user "$(gcloud config get-value account)"
 kubectl apply -f https://raw.githubusercontent.com/GoogleCloudPlatform/k8s-stackdriver/master/custom-metrics-stackdriver-adapter/deploy/production/adapter.yaml
