@@ -5,7 +5,7 @@ metadata:
   namespace: default
 data:
   config.cfg: |
-    import datetime
+${PCG_CONFIG}
   L2_table_map.yml: |
 ${L2CACHE_CONFIG}
 ---
