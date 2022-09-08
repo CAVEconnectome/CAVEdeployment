@@ -8,7 +8,7 @@ data:
     import os
     import json
     INFOSERVICE_ENDPOINT = "https://${INFO_URL}"
-    SCHEMA_SERVICE_ENDPOINT = "https://${GLOBAL_SERVER}/schema/"
+    SCHEMA_SERVICE_ENDPOINT = "https://${GLOBAL_SERVER}/schema"
     GLOBAL_SERVER = "https://${GLOBAL_SERVER}"
     NEUROGLANCER_URL = "https://neuroglancer-demo.appspot.com"
     SQLALCHEMY_DATABASE_URI = "${SQL_DB_TYPE}://${POSTGRES_WRITE_USER}:${POSTGRES_WRITE_USER_PASSWORD}@127.0.0.1:3306/${SQL_ANNO_DB_NAME}"
