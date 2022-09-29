@@ -35,7 +35,8 @@ data:
     QUERY_LIMIT_SIZE = 200000
     QUEUE_LENGTH_LIMIT = 10000
     QUEUES_TO_THROTTLE = ["process"]
-    THROTTLE_QUEUES = True      
+    THROTTLE_QUEUES = True
+    MERGE_TABLES=True
     if os.environ.get("DAF_CREDENTIALS", None) is not None:
         with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
             AUTH_TOKEN = json.load(f)["token"]
