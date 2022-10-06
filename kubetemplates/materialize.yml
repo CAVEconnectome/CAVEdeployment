@@ -7,6 +7,7 @@ data:
   config.cfg: |
     import os
     import json
+    import logging
     # Statement for enabling the development environment
     INFOSERVICE_ENDPOINT = "https://${INFO_URL}"
     SCHEMA_SERVICE_ENDPOINT = "https://${GLOBAL_SERVER}/schema/"
@@ -37,6 +38,7 @@ data:
     QUEUES_TO_THROTTLE = ["process"]
     THROTTLE_QUEUES = True
     MERGE_TABLES=True
+    LOGGING_LEVEL = logging.ERROR
     if os.environ.get("DAF_CREDENTIALS", None) is not None:
         with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
             AUTH_TOKEN = json.load(f)["token"]
