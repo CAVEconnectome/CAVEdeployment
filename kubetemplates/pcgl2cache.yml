@@ -298,7 +298,7 @@ spec:
             - su
             - nginx
             - -c
-            - "python -m workers.l2_feats_missing"
+            - "python -m workers.missing"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -380,7 +380,7 @@ spec:
             - su
             - nginx
             - -c
-            - "python -m workers.l2_feats_missing"
+            - "python -m workers.from_edits"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -462,4 +462,4 @@ spec:
             - su
             - nginx
             - -c
-            - "python -m workers.l2_feats_missing"
+            - "python -m workers.from_edits"
