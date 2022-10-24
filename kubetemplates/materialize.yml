@@ -46,6 +46,8 @@ data:
         AUTH_TOKEN = ""
 
     BEAT_SCHEDULES = ${MAT_BEAT_SCHEDULES}
+    AUTH_SHARED_EXCLUDED_GROUPS=[${ANNOTATION_EXCLUDED_PERMISSION_GROUPS}]
+
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler

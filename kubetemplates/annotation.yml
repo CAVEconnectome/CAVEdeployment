@@ -18,6 +18,7 @@ data:
     if os.environ.get("DAF_CREDENTIALS", None) is not None:
         with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
             AUTH_TOKEN = json.load(f)["token"]
+    AUTH_SHARED_EXCLUDED_GROUPS=[${ANNOTATION_EXCLUDED_PERMISSION_GROUPS}]
 ---
 kind: Service
 apiVersion: v1

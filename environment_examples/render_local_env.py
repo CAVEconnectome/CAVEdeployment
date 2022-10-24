@@ -42,13 +42,16 @@ var_dict = {
     "dash_config_filename": "${ENV_REPO_PATH}/my_dash_config.py",
     "l2cache_config_filename": "${ENV_REPO_PATH}/my_l2cache_config.yml",
     "proxy_map": "'datastack1': 'https://storage.googleapis.com/datastack1_imagery'}",
+    "ann_excluded_permission_groups": ["default"],
 }
 
 # Additional modifications to parameters and checks
 var_dict["supported_datastacks"] = create_double_quoted_list_of_strings(
     var_dict["supported_datastack_list"]
 )
-
+var_dict["ann_excluded_permission_groups"] = create_double_quoted_list_of_strings(
+    var_dict["ann_excluded_permission_groups"]
+)
 var_dict["dns_hostnames"] = create_spaced_list_of_strings(
     ["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"]
 )

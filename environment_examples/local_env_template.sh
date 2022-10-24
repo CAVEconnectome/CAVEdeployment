@@ -171,6 +171,7 @@ export MAT_BEAT_SCHEDULES=$(cat {{ mat_beat_schedule }})
 
 # ANNOTATION_ENGINE
 export ANNOTATION_ENGINE_CONFIG_VERSION=1.4
+export ANNOTATION_EXCLUDED_PERMISSION_GROUPS = "{{ ann_excluded_permission_groups }}"
 
 # PYCHUNKEDGRAPH
 export PCG_CONFIG_VERSION=6
