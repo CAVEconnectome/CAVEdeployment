@@ -122,3 +122,42 @@ spec:
             requests:
               memory: 10Mi
               cpu: 5m
+---
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: tallyedits
+spec:
+  schedule: "0 0 * * *"
+  concurrencyPolicy: Allow
+  startingDeadlineSeconds: 100
+  suspend: false
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:      
+          volumes:
+          - name: google-cloud-key
+            secret:
+              secretName: ${PMANAGEMENT_SERVICE_ACCOUNT_SECRET}
+          containers:
+          - name: tallyedits
+            image: ${DOCKER_REPOSITORY}/proofreadingmanagement:v${PMANAGEMENT_VERSION}
+            imagePullPolicy: Always
+            args:
+            - bash
+            - -c
+            - python tallyedits/cron_job.py
+            volumeMounts:
+              - name: google-cloud-key
+                mountPath: /home/nginx/.cloudvolume/secrets
+            env:
+              - name: GOOGLE_APPLICATION_CREDENTIALS
+                value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+              - name: DAF_CREDENTIALS
+                value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+              - name: PCG_GRAPH_IDS 
+                value: ${PCG_GRAPH_IDS}
+          restartPolicy: OnFailure
