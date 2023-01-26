@@ -13,7 +13,7 @@ spec:
     - type: Pods
       pods:
         metricName: custom.googleapis.com|http|celery_queue_length
-        targetAverageValue: 4
+        targetAverageValue: 1
 ---
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
@@ -30,7 +30,7 @@ spec:
     - type: Pods
       pods:
         metricName: custom.googleapis.com|http|celery_queue_length
-        targetAverageValue: 4
+        targetAverageValue: 2
 ---
 apiVersion: apps/v1
 kind: Deployment
