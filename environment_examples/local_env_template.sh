@@ -168,6 +168,7 @@ export MAT_DATASTACKS="{{ mat_datastacks }}"
 export MIN_DATABASES=1
 export MAX_DATABASES=2
 export MAT_BEAT_SCHEDULES=$(cat {{ mat_beat_schedule }})
+export MERGE_MATERIALIZE_DATABASES=True
 
 # ANNOTATION_ENGINE
 export ANNOTATION_ENGINE_CONFIG_VERSION=1.4
