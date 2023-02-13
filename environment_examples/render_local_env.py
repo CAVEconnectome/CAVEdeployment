@@ -43,6 +43,7 @@ var_dict = {
     "l2cache_config_filename": "${ENV_REPO_PATH}/my_l2cache_config.yml",
     "proxy_map": "'datastack1': 'https://storage.googleapis.com/datastack1_imagery'}",
     "ann_excluded_permission_groups": ["default"],
+    "redis_password": "my_sweet_secret",
 }
 
 # Additional modifications to parameters and checks

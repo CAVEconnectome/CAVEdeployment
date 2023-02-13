@@ -168,7 +168,7 @@ export MAT_DATASTACKS="{{ mat_datastacks }}"
 export MIN_DATABASES=1
 export MAX_DATABASES=2
 export MAT_BEAT_SCHEDULES=$(cat {{ mat_beat_schedule }})
-export MERGE_MATERIALIZE_DATABASES=True
+export MERGE_MATERIALIZE_DATABASES=False
 
 # ANNOTATION_ENGINE
 export ANNOTATION_ENGINE_CONFIG_VERSION=1.4
@@ -228,7 +228,7 @@ export DASH_CONFIG_VERSION=6
 
 # DEFINE ADD SECRET IMPORT
 export PYCG_SERVICE_ACCOUNT_ADDON="{{ pcg_service_account_addon }}"
-export REDIS_PASSWORD=$(kubectl get secret --namespace default redis-release -o jsonpath="{.data.redis-password}" | base64 --decode)
+export REDIS_PASSWORD={{ redis_password }}
 export REDIS_HOST="redis-release-master.default.svc.cluster.local"
 export REDIS_PORT=6379
 
