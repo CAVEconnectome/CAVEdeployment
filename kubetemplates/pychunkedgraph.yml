@@ -112,6 +112,10 @@ spec:
               value: ${PYCHUNKEDGRAPH_EDITS_EXCHANGE}
             - name: PYCHUNKEDGRAPH_EDITS_LOW_PRIORITY_EXCHANGE
               value: ${PYCHUNKEDGRAPH_LOW_PRIORITY_EXCHANGE}
+            - name: PCG_SERVER_LOGS_PROJECT
+              value: ${PROJECT_NAME}
+            - name: PCG_SERVER_LOGS_NS
+              value: pcg_server_logs_test
             - name: PCG_GRAPH_IDS
               value: ${PCG_GRAPH_IDS}
             - name: MESHING_URL_PREFIX
