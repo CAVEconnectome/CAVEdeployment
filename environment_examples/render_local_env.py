@@ -31,7 +31,7 @@ var_dict = {
     "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"],
     "mat_health_aligned_volume_name": "volume",
     "mat_datastacks": "datastack1,datastack2",
-    "mat_beat_schedule": "{ENV_REPO_PATH}/my_mat_schedule.json",
+    "mat_beat_schedule": "${ENV_REPO_PATH}/my_mat_schedule.json",
     "pcg_graph_ids": "pcg_table1,pcg_table2",
     "authservice_secret_key": "randomkey",
     "global_server": "global.my-dns.com",
