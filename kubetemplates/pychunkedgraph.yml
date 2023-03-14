@@ -115,7 +115,9 @@ spec:
             - name: PCG_SERVER_LOGS_PROJECT
               value: ${PROJECT_NAME}
             - name: PCG_SERVER_LOGS_NS
-              value: pcg_server_logs_test
+              value: pcg_server_logs_${ENVIRONMENT}
+            - name: PCG_SERVER_LOGS_LEAVES_MANY
+              value: ${PCG_SERVER_LOGS_LEAVES_MANY}
             - name: PCG_GRAPH_IDS
               value: ${PCG_GRAPH_IDS}
             - name: MESHING_URL_PREFIX
