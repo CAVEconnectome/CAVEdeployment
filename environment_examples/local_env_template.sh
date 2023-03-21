@@ -69,6 +69,8 @@ export POSTGRES_WRITE_USER_PASSWORD={{ postgres_password }}
 
 ## INSTANCE NAMES
 
+export PCG_REDIS_NAME=pcg-cache
+export PCG_REDIS_IP="$(gcloud redis instances describe $PCG_REDIS_NAME --region=$REGION | sed -n -e 's/^host: \(.*\)$/\1/p')"
 # export REDIS_NAME=svenmd-daf-redis-$ENVIRONMENT
 export SQL_INSTANCE_NAME={{ sql_instance_name }}
 export BIGTABLE_INSTANCE_NAME={{ bigtable_instance_name }}
