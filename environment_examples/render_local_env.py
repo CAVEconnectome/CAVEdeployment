@@ -44,6 +44,8 @@ var_dict = {
     "proxy_map": "'datastack1': 'https://storage.googleapis.com/datastack1_imagery'}",
     "ann_excluded_permission_groups": ["default"],
     "redis_password": "my_sweet_secret",
+    "slack_token": "your_slack_api_token",
+    "slack_channel": "your_slack_channel",
 }
 
 # Additional modifications to parameters and checks
