@@ -22,6 +22,7 @@ data:
     review_test_table_name = "${PMANAGEMENT_PROOFREADINGREVIEW_TEST_TABLE}"
     cell_identity_table_name = "${PMANAGEMENT_NEURONINFORMATION_TABLE}"
     cell_identity_test_table_name = "${PMANAGEMENT_NEURONINFORMATION_TEST_TABLE}"
+    server_address = "https://${GLOBAL_SERVER}"
     datastore_namespace = os.environ.get("DATASTORE_NAMESPACE", "pmanagement")
 
     datastore_kind = "proofreading_drive"
