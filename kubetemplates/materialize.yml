@@ -136,11 +136,7 @@ spec:
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: LIMITER_CATEGORIES
-              value:
-                {
-                  "query": "${LIMITS_QUERY_PER_MINUTE}/minute",
-                  "fast_query": "${LIMITS_FAST_QUERY_PER_MINUTE}/minute",
-                }
+              value: '{"query":"${LIMITS_QUERY_PER_MINUTE}/minute","fast_query":"${LIMITS_FAST_QUERY_PER_MINUTE}/minute"}'
             - name: LIMITER_URI
               value: ${LIMITER_URI}
             - name: STICKY_AUTH_URL
