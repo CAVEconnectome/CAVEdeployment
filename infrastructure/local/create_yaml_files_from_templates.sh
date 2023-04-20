@@ -33,4 +33,4 @@ envsubst < kubetemplates/redis_production_values.yml > ${YAML_FOLDER}/redis_prod
 envsubst < kubetemplates/meshing_pod_recycler.yml > ${YAML_FOLDER}/meshing_pod_recycler.yml
 envsubst < kubetemplates/pprogress.yml > ${YAML_FOLDER}/pprogress.yml
 envsubst < kubetemplates/pmanagement.yml > ${YAML_FOLDER}/pmanagement.yml
-envsubst < kubetemplates/cavecanery.yml > ${YAML_FOLDER}/cavecanery.yml
+envsubst < kubetemplates/cavecanary.yml > ${YAML_FOLDER}/cavecanary.yml
