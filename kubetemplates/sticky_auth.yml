@@ -119,8 +119,6 @@ spec:
               value: "true"
             - name: AUTH_CONFIG_SETTINGS
               value: /app/config/config.cfg
-            - name: AUTH_USE_REDIS
-              value: "true"
             - name: URL_PREFIX
               value: "sticky_auth"
           resources:
