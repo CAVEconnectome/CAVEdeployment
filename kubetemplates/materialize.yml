@@ -134,6 +134,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
               value: ${AUTH_URI}
+            - name: LIMITER_CATEGORIES
+              value: {"query":${LIMITS_QUERY_PER_MINUTE},"fast_query":${LIMITS_FAST_QUERY_PER_MINUTE}}
             - name: STICKY_AUTH_URL
               value: ${STICKY_AUTH_URL}
             - name: AUTH_URL
