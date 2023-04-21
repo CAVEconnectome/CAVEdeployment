@@ -136,7 +136,7 @@ spec:
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: LIMITER_CATEGORIES
-              value: "${MAT_LIMITER_CATEGORIES}"
+              value: '${MAT_LIMITER_CATEGORIES}'
             - name: LIMITER_URI
               value: ${LIMITER_URI}
             - name: STICKY_AUTH_URL
