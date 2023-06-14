@@ -33,6 +33,7 @@ var_dict = {
     "mat_datastacks": "datastack1,datastack2",
     "mat_beat_schedule": "${ENV_REPO_PATH}/my_mat_schedule.json",
     "pcg_graph_ids": "pcg_table1,pcg_table2",
+    "pmanagement_datastore_bucket_path": "gs://my_bucket",
     "authservice_secret_key": "randomkey",
     "global_server": "global.my-dns.com",
     "guidebook_csrf_key": "random_key",

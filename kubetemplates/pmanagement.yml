@@ -1,3 +1,36 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: proofreadingmanagement-config-v${PMANAGEMENT_CONFIG_VERSION}
+  namespace: default
+data:
+  config.cfg: |
+    DEBUG = False
+    TESTING = False
+    HOME = os.path.expanduser("~")
+    CORS_ORIGINS = "*"
+    CORS_HEADERS = "Content-Type"
+    SECRET_KEY = "b${DASH_SECRET_KEY}"
+
+    LOGGING_FORMAT = '{"source":"%(name)s","time":"%(asctime)s","severity":"%(levelname)s","message":"%(message)s"}'
+    LOGGING_DATEFORMAT = "%Y-%m-%dT%H:%M:%S.0Z"
+    LOGGING_LEVEL = logging.DEBUG
+    JSON_SORT_KEYS = False
+    datastack_name = "${MAT_DATASTACKS}"
+    proofreading_table_name = "${PMANAGEMENT_PROOFREADING_TABLE}"
+    review_table_name = "${PMANAGEMENT_PROOFREADINGREVIEW_TABLE}"
+    review_test_table_name = "${PMANAGEMENT_PROOFREADINGREVIEW_TEST_TABLE}"
+    cell_identity_table_name = "${PMANAGEMENT_NEURONINFORMATION_TABLE}"
+    cell_identity_test_table_name = "${PMANAGEMENT_NEURONINFORMATION_TEST_TABLE}"
+    server_address = "https://${GLOBAL_SERVER}"
+    datastore_namespace = os.environ.get("DATASTORE_NAMESPACE", "pmanagement")
+
+    datastore_kind = "proofreading_drive"
+    datastore_project_id = "${PROJECT_NAME}"
+    pcg_ids = [${PCG_GRAPH_IDS}]
+    PCG_ADDRESS = "http://pychunkedgraph-service/segmentation/api/v1/table/"
+    DATASTORE_BUCKET_PATH="${PMANAGEMENT_DATASTORE_BUCKET_PATH}"
+---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
 metadata:
@@ -53,6 +86,9 @@ spec:
         - name: google-cloud-key
           secret:
             secretName: ${PMANAGEMENT_SERVICE_ACCOUNT_SECRET}
+        - name: proofreadingmanagement-config-volume
+          configMap:
+            name: proofreadingmanagement-config-v${PMANAGEMENT_CONFIG_VERSION}
       terminationGracePeriodSeconds: 10
       containers:
         - name: pmanagement
@@ -63,6 +99,8 @@ spec:
           volumeMounts:
             - name: google-cloud-key
               mountPath: /home/nginx/.cloudvolume/secrets
+            - name: proofreadingmanagement-config-volume
+              mountPath: /app/proofreadingmanagement/app/instance/
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
@@ -137,27 +175,27 @@ spec:
   jobTemplate:
     spec:
       template:
-        spec:      
+        spec:
           volumes:
-          - name: google-cloud-key
-            secret:
-              secretName: ${PMANAGEMENT_SERVICE_ACCOUNT_SECRET}
+            - name: google-cloud-key
+              secret:
+                secretName: ${PMANAGEMENT_SERVICE_ACCOUNT_SECRET}
           containers:
-          - name: tallyedits
-            image: ${DOCKER_REPOSITORY}/proofreadingmanagement:v${PMANAGEMENT_VERSION}
-            imagePullPolicy: Always
-            args:
-            - bash
-            - -c
-            - python tallyedits/cron_job.py
-            volumeMounts:
-              - name: google-cloud-key
-                mountPath: /home/nginx/.cloudvolume/secrets
-            env:
-              - name: GOOGLE_APPLICATION_CREDENTIALS
-                value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
-              - name: DAF_CREDENTIALS
-                value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
-              - name: PCG_GRAPH_IDS 
-                value: ${PCG_GRAPH_IDS}
+            - name: tallyedits
+              image: ${DOCKER_REPOSITORY}/proofreadingmanagement:v${PMANAGEMENT_VERSION}
+              imagePullPolicy: Always
+              args:
+                - bash
+                - -c
+                - python tallyedits/cron_job.py
+              volumeMounts:
+                - name: google-cloud-key
+                  mountPath: /home/nginx/.cloudvolume/secrets
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+                - name: DAF_CREDENTIALS
+                  value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+                - name: PCG_GRAPH_IDS
+                  value: ${PCG_GRAPH_IDS}
           restartPolicy: OnFailure

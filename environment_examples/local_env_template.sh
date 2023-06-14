@@ -243,6 +243,14 @@ export REDIS_PASSWORD={{ redis_password }}
 export REDIS_HOST="redis-release-master.default.svc.cluster.local"
 export REDIS_PORT=6379
 
+#PMANAGEMENT
+export PMANAGEMENT_CONFIG_VERSION=1.1
+export PMANAGEMENT_PROOFREADING_TABLE = "proofreading_status_public_v1"
+export PMANAGEMENT_PROOFREADINGREVIEW_TABLE = "proofreading_review_public_v1"
+export PMANAGEMENT_PROOFREADINGREVIEW_TEST_TABLE = "proofreading_review_public_vtest"
+export PMANAGEMENT_NEURONINFORMATION_TABLE = "neuron_information_v2"
+export PMANAGEMENT_NEURONINFORMATION_TEST_TABLE = "neuron_information_vtest"
+export PMANAGEMENT_DATASTORE_BUCKET_PATH = {{ pmanagement_datastore_bucket_path }}
 
 # CELERY
 export CELERY_WORKER_POOL="celery-pool"
