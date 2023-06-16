@@ -13,7 +13,7 @@ spec:
     - type: Pods
       pods:
         metricName: custom.googleapis.com|http|celery_queue_length
-        targetAverageValue: 4
+        targetAverageValue: 1
 ---
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
@@ -30,7 +30,7 @@ spec:
     - type: Pods
       pods:
         metricName: custom.googleapis.com|http|celery_queue_length
-        targetAverageValue: 4
+        targetAverageValue: 2
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -67,12 +67,12 @@ spec:
           emptyDir: {}
       containers:
         - name: celery-exporter
-          image: gcr.io/${DATA_PROJECT_NAME}/celery-metric-exporter:v5
+          image: ${DOCKER_REPOSITORY}/celery-metric-exporter:v5
           command: ["python"]
           args:
             - cli.py
             - --broker-url
-            - redis://:${REDIS_IP}:${REDIS_PORT}/0
+            - redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
             - --port
             - "9540"
             - -q
@@ -134,13 +134,13 @@ spec:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_IP}
+              value: ${REDIS_HOST}
             - name: REDIS_HOST
-              value: ${REDIS_IP}
+              value: ${REDIS_HOST}
             - name: REDIS_PASSWORD
               value: ${REDIS_PASSWORD}
             - name: CELERY_BROKER_URL
-              value: redis://${REDIS_IP}:${REDIS_PORT}/0
+              value: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -158,7 +158,7 @@ spec:
             - name: QUEUE_NAME
               value: ${PRODUCER_QUEUE_NAME}
             - name: WORKER_NAME
-              value: ${CELERY_PRODUCER_WORKER_NAME}              
+              value: ${CELERY_PRODUCER_WORKER_NAME}
             - name: WORKER_HOSTNAME
               valueFrom:
                 fieldRef:
@@ -176,7 +176,7 @@ spec:
               exec:
                 command: ["/home/nginx/gracefully_shutdown_celery.sh"]
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
           command:
             [
               "/cloud_sql_proxy",
@@ -242,12 +242,12 @@ spec:
           emptyDir: {}
       containers:
         - name: celery-exporter
-          image: gcr.io/${DATA_PROJECT_NAME}/celery-metric-exporter:v5
+          image: ${DOCKER_REPOSITORY}/celery-metric-exporter:v5
           command: ["python"]
           args:
             - cli.py
             - --broker-url
-            - redis://${REDIS_IP}:${REDIS_PORT}/0
+            - redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
             - --port
             - "9540"
             - -q
@@ -309,13 +309,13 @@ spec:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_IP}
+              value: ${REDIS_HOST}
             - name: REDIS_HOST
-              value: ${REDIS_IP}
+              value: ${REDIS_HOST}
             - name: REDIS_PASSWORD
               value: ${REDIS_PASSWORD}
             - name: CELERY_BROKER_URL
-              value: redis://${REDIS_IP}:${REDIS_PORT}/0
+              value: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -331,7 +331,7 @@ spec:
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
             - name: QUEUE_NAME
-              value: ${CONSUMER_QUEUE_NAME}              
+              value: ${CONSUMER_QUEUE_NAME}
             - name: WORKER_NAME
               value: ${CELERY_CONSUMER_WORKER_NAME}
             - name: WORKER_HOSTNAME
@@ -351,7 +351,7 @@ spec:
               exec:
                 command: ["/home/nginx/gracefully_shutdown_celery.sh"]
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
           command:
             [
               "/cloud_sql_proxy",
@@ -422,7 +422,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery beat -A run.celery --pidfile=/home/nginx/celerybeat.pid --schedule=/home/nginx/celerybeat-schedule --loglevel=info"
+            - "celery --app=run.celery beat --pidfile=/home/nginx/celerybeat.pid --schedule=/home/nginx/celerybeat-schedule --loglevel=info"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -443,8 +443,6 @@ spec:
               value: ${STICKY_AUTH_URL}
             - name: AUTH_URL
               value: ${AUTH_URL}
-            - name: MIN_DATABASES
-              value: ${MIN_MAT_DATABASES}
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
@@ -452,7 +450,7 @@ spec:
               cpu: 10m
               memory: 150Mi
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
           command:
             [
               "/cloud_sql_proxy",

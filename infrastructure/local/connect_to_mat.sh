@@ -1,0 +1,1 @@
+kubectl exec -it deploy/materialize-migrate -c materialize -- /bin/bash -c "python migrate.py migrate-static-schemas"

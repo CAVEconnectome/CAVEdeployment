@@ -1,13 +1,15 @@
 source env_config.sh
 source $ENV_REPO_PATH/$1.sh
 
+./infrastructure/global/switch_context.sh $1
+./infrastructure/global/create_yaml_files_from_templates.sh $1
 
 kubectl apply -f $YAML_FOLDER/service-accounts.yml
 
 helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
 helm repo add stable https://charts.helm.sh/stable
 helm repo update
-helm install ${NGINX_INGRESS_CONTROLLER_NAME} ingress-nginx/ingress-nginx --set rbac.create=true --namespace kube-system --version 3.4.1
+helm install ${NGINX_INGRESS_CONTROLLER_NAME} ingress-nginx/ingress-nginx --set rbac.create=true --namespace kube-system --version 4.1.2
 
 gcloud compute addresses describe ${CLUSTER_NAME} --region $REGION | grep address: | sed "s/address: //"
 
@@ -20,7 +22,7 @@ kubectl create namespace cert-manager
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
-  --version v1.0.2 \
+  --version v1.8.0 \
   -f $YAML_FOLDER/cert-manager-values.yml \
   --set installCRDs=true
 ./infrastructure/global/configure_ingress.sh $1

@@ -7,10 +7,12 @@ data:
   config.cfg: |
     import os
     import json
+    import logging
     # Statement for enabling the development environment
     INFOSERVICE_ENDPOINT = "https://${INFO_URL}"
     SCHEMA_SERVICE_ENDPOINT = "https://${GLOBAL_SERVER}/schema/"
-    GLOBAL_SERVER = "https://${GLOBAL_SERVER}"
+    GLOBAL_SERVER_URL = "https://${GLOBAL_SERVER}"
+    LOCAL_SERVER_URL = "https://${ENVIRONMENT}.${DOMAIN_NAME}"
     TESTING = False
     LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
     LOGGING_LOCATION = '/home/nginx/.materializationengine/bookshelf.log'
@@ -31,10 +33,12 @@ data:
     MIN_DATABASES = ${MIN_DATABASES}
     MAX_DATABASES = ${MAX_DATABASES}    
     # celery throttling settings
-    QUERY_LIMIT_SIZE = 200000
+    QUERY_LIMIT_SIZE = 500000
     QUEUE_LENGTH_LIMIT = 10000
     QUEUES_TO_THROTTLE = ["process"]
-    THROTTLE_QUEUES = True      
+    THROTTLE_QUEUES = True
+    MERGE_TABLES=${MERGE_MATERIALIZE_DATABASES}  
+    LOGGING_LEVEL = logging.ERROR
     if os.environ.get("DAF_CREDENTIALS", None) is not None:
         with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
             AUTH_TOKEN = json.load(f)["token"]
@@ -42,6 +46,9 @@ data:
         AUTH_TOKEN = ""
 
     BEAT_SCHEDULES = ${MAT_BEAT_SCHEDULES}
+    AUTH_SHARED_EXCLUDED_GROUPS=[${ANNOTATION_EXCLUDED_PERMISSION_GROUPS}]
+    DB_CONNECTION_POOL_SIZE = 5 
+    DB_CONNECTION_MAX_OVERFLOW = 5
 ---
 apiVersion: autoscaling/v2beta2
 kind: HorizontalPodAutoscaler
@@ -128,6 +135,10 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
               value: ${AUTH_URI}
+            - name: LIMITER_CATEGORIES
+              value: '${MAT_LIMITER_CATEGORIES}'
+            - name: LIMITER_URI
+              value: ${LIMITER_URI}
             - name: STICKY_AUTH_URL
               value: ${STICKY_AUTH_URL}
             - name: AUTH_URL
@@ -155,7 +166,7 @@ spec:
             timeoutSeconds: 1
             periodSeconds: 60
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
           command:
             [
               "/cloud_sql_proxy",

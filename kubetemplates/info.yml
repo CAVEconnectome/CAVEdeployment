@@ -72,7 +72,7 @@ spec:
             secretName: ${INFOSERVICE_SERVICE_ACCOUNT_SECRET}
       containers:
         - name: cloudsql-proxy
-          image: gcr.io/cloudsql-docker/gce-proxy:1.11
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
           command:
             [
               "/cloud_sql_proxy",
@@ -103,6 +103,8 @@ spec:
           env:
             - name: ANNOTATIONINFOSERVICE_SETTINGS
               value: /app/annotationinfoservice/instance/config.cfg
+            - name: GLOBAL_SERVER
+              value: https://${GLOBAL_SERVER}
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: STICKY_AUTH_URL

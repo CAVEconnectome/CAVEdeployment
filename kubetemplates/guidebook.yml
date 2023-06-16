@@ -15,7 +15,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 100
+          averageUtilization: 125
   # - type: Resource
   #   resource:
   #     name: memory
@@ -111,7 +111,7 @@ spec:
           resources:
             requests:
               memory: 300Mi
-              cpu: 50m
+              cpu: 80m
           readinessProbe:
             httpGet:
               path: /guidebook/version

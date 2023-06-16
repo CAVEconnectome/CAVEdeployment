@@ -1,0 +1,116 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cavecanary-config-v${CAVECANARY_CONFIG_VERSION}
+  namespace: default
+data:
+  config.cfg: |
+    [SETTINGS]
+    DATASTACK_NAME = ${MAT_DATASTACKS}
+    SERVER_ADDRESS = https://${GLOBAL_SERVER}
+    SLACK_API_TOKEN = ${SLACK_API_TOKEN}
+    SLACK_CHANNEL = ${SLACK_CHANNEL}
+    NUM_TEST_ANNOTATIONS = 1000
+    CHECK_INTERVAL = 60
+    DATABASE_URI = postgresql+asyncpg://${POSTGRES_WRITE_USER}:${POSTGRES_WRITE_USER_PASSWORD}@127.0.0.1:3306/${SQL_ANNO_DB_NAME}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cavecanary
+spec:
+  selector:
+    matchLabels:
+      app: cavecanary
+  template:
+    metadata:
+      labels:
+        app: cavecanary
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${LIGHTWEIGHT_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${LIGHTWEIGHT_POOL}
+      volumes:
+        - name: cavecanary-config-volume
+          configMap:
+            name: cavecanary-config-v${CAVECANARY_CONFIG_VERSION}
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
+      containers:
+        - name: cavecanary
+          image: ${DOCKER_REPOSITORY}/cavecanary:v${CAVECANARY_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: cavecanary-config-volume
+              mountPath: /app/cavecanary/config/
+            - name: google-cloud-key
+              mountPath: /root/.cloudvolume/secrets
+          env:
+            - name: CAVECANARY_CONFIG_FILE
+              value: /app/cavecanary/config/config.cfg
+          resources:
+            requests:
+              memory: 100Mi
+              cpu: 20m
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 10
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m

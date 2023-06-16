@@ -1,4 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
+import shlex
 
 
 def create_spaced_list_of_strings(l):
@@ -46,6 +47,7 @@ var_dict["dns_hostnames"] = create_spaced_list_of_strings(
 var_dict["dns_zones"] = create_spaced_list_of_strings(
     ["$DNS_ZONE"] + var_dict["add_dns_zones"]
 )
+var_dict["postgres_password"] = shlex.quote(var_dict["postgres_password"])
 
 # Load and render template
 env = Environment(loader=FileSystemLoader("."))

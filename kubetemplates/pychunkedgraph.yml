@@ -24,7 +24,7 @@ spec:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 90
+          averageUtilization: 110
 ---
 kind: Service
 apiVersion: v1
@@ -80,6 +80,8 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: MANIFEST_CACHE_REDIS_HOST
+              value: "${PCG_REDIS_IP}"
             - name: REDISHOST
               value: ${REDIS_HOST}
             - name: AUTH_URI
@@ -112,6 +114,14 @@ spec:
               value: ${PYCHUNKEDGRAPH_EDITS_EXCHANGE}
             - name: PYCHUNKEDGRAPH_EDITS_LOW_PRIORITY_EXCHANGE
               value: ${PYCHUNKEDGRAPH_LOW_PRIORITY_EXCHANGE}
+            - name: PCG_SERVER_LOGS_PROJECT
+              value: ${PROJECT_NAME}
+            - name: PCG_SERVER_LOGS_NS
+              value: pcg_server_logs_${ENVIRONMENT}
+            - name: PCG_SERVER_ENABLE_LOGS
+              value: ${PCG_SERVER_ENABLE_LOGS}
+            - name: PCG_SERVER_LOGS_LEAVES_MANY
+              value: ${PCG_SERVER_LOGS_LEAVES_MANY}
             - name: PCG_GRAPH_IDS
               value: ${PCG_GRAPH_IDS}
             - name: MESHING_URL_PREFIX

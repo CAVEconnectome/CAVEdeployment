@@ -69,6 +69,8 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /root/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: MANIFEST_CACHE_REDIS_HOST
+              value: "${PCG_REDIS_IP}"
             - name: REDIS_SERVICE_HOST
               value: ${REDIS_HOST}
             - name: REDIS_SERVICE_PORT

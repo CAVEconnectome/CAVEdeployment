@@ -7,7 +7,7 @@ envsubst < kubetemplates/sticky_auth.yml > ${YAML_FOLDER}/sticky_auth.yml
 envsubst < kubetemplates/nglstate.yml > ${YAML_FOLDER}/nglstate.yml
 envsubst < kubetemplates/info.yml > ${YAML_FOLDER}/info.yml
 envsubst < kubetemplates/schema.yml > ${YAML_FOLDER}/schema.yml
-envsubst < kubetemplates/auth-info.yml > ${YAML_FOLDER}/auth-info.yml
+envsubst < kubetemplates/auth-info-global.yml > ${YAML_FOLDER}/auth-info.yml
 
 envsubst < kubetemplates/auth_ingress.yml > ${YAML_FOLDER}/ingress.yml
 envsubst < kubetemplates/secrets.yml > ${YAML_FOLDER}/secrets.yml

@@ -1,4 +1,5 @@
 from jinja2 import Environment, FileSystemLoader
+import shlex
 
 
 def create_double_quoted_list_of_strings(l):
@@ -33,7 +34,7 @@ var_dict = {
     "add_storage_secrets": ["my-secret-secret.json", "my-secret-secret2.json"],
     "mat_health_aligned_volume_name": "volume",
     "mat_datastacks": "datastack1,datastack2",
-    "mat_beat_schedule": "{ENV_REPO_PATH}/my_mat_schedule.json",
+    "mat_beat_schedule": "${ENV_REPO_PATH}/my_mat_schedule.json",
     "pcg_graph_ids": "pcg_table1,pcg_table2",
     "authservice_secret_key": "randomkey",
     "global_server": "global.my-dns.com",
@@ -43,13 +44,20 @@ var_dict = {
     "dash_secret_key": "random_key",
     "dash_config_filename": "${ENV_REPO_PATH}/my_dash_config.py",
     "l2cache_config_filename": "${ENV_REPO_PATH}/my_l2cache_config.yml",
+    "proxy_map": "'datastack1': 'https://storage.googleapis.com/datastack1_imagery'}",
+    "ann_excluded_permission_groups": ["default"],
+    "redis_password": "my_sweet_secret",
+    "slack_token": "your_slack_api_token",
+    "slack_channel": "your_slack_channel",
 }
 
 # Additional modifications to parameters and checks
 var_dict["supported_datastacks"] = create_double_quoted_list_of_strings(
     var_dict["supported_datastack_list"]
 )
-
+var_dict["ann_excluded_permission_groups"] = create_double_quoted_list_of_strings(
+    var_dict["ann_excluded_permission_groups"]
+)
 var_dict["dns_hostnames"] = create_spaced_list_of_strings(
     ["$DNS_HOSTNAME"] + var_dict["add_dns_hostnames"]
 )
@@ -62,6 +70,7 @@ var_dict["pcg_service_account_addon"] = " ".join(
         for sec in var_dict["add_storage_secrets"]
     ]
 )
+var_dict["postgres_password"] = shlex.quote(var_dict["postgres_password"])
 
 
 # Load and render template

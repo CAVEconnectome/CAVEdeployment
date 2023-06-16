@@ -18,7 +18,8 @@ ${REMESHWORKER_MAX_REPLICAS}
 ${GUIDEBOOK_MAX_REPLICAS}
 ${DASH_MAX_REPLICAS}
 ${PPROGRESS_MAX_REPLICAS}
-${PMANAGEMENT_MAX_REPLICAS})
+${PMANAGEMENT_MAX_REPLICAS}
+${CAVECANERY_MAX_REPLICAS})
 
 SERVICE_ARRAY=(pcgl2cache
 annotation
@@ -32,7 +33,8 @@ remesh_worker
 guidebook
 dash
 pprogress
-pmanagement)
+pmanagement
+cavecanary)
 
 for i in $(seq 0 1 $((${#MAX_REPLICA_ARRAY[@]}-1))); do
   echo $i
