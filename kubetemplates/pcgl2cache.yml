@@ -9,7 +9,7 @@ ${PCG_CONFIG}
   L2_table_map.yml: |
 ${L2CACHE_CONFIG}
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: pcgl2cache-scaler
@@ -149,7 +149,7 @@ spec:
               memory: 10Mi
               cpu: 5m
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: pcgl2cache-worker-scaler
@@ -172,7 +172,7 @@ spec:
           averageValue: 1
       type: External
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: pcgl2cache-lowpriorityworker-scaler
@@ -195,7 +195,7 @@ spec:
           averageValue: 1
       type: External
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: pcgl2cache-highpriorityworker-scaler

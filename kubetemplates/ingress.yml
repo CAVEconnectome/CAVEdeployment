@@ -140,6 +140,13 @@ spec:
             name: dash-service
             port:
               number: 80
+      - path: /dash2
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: dash2-service
+            port:
+              number: 80
       - path: /auth_info
         pathType: ImplementationSpecific
         backend:

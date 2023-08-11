@@ -1,4 +1,4 @@
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: pmanagement-scaler
@@ -137,27 +137,27 @@ spec:
   jobTemplate:
     spec:
       template:
-        spec:      
+        spec:
           volumes:
-          - name: google-cloud-key
-            secret:
-              secretName: ${PMANAGEMENT_SERVICE_ACCOUNT_SECRET}
+            - name: google-cloud-key
+              secret:
+                secretName: ${PMANAGEMENT_SERVICE_ACCOUNT_SECRET}
           containers:
-          - name: tallyedits
-            image: ${DOCKER_REPOSITORY}/proofreadingmanagement:v${PMANAGEMENT_VERSION}
-            imagePullPolicy: Always
-            args:
-            - bash
-            - -c
-            - python tallyedits/cron_job.py
-            volumeMounts:
-              - name: google-cloud-key
-                mountPath: /home/nginx/.cloudvolume/secrets
-            env:
-              - name: GOOGLE_APPLICATION_CREDENTIALS
-                value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
-              - name: DAF_CREDENTIALS
-                value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
-              - name: PCG_GRAPH_IDS 
-                value: ${PCG_GRAPH_IDS}
+            - name: tallyedits
+              image: ${DOCKER_REPOSITORY}/proofreadingmanagement:v${PMANAGEMENT_VERSION}
+              imagePullPolicy: Always
+              args:
+                - bash
+                - -c
+                - python tallyedits/cron_job.py
+              volumeMounts:
+                - name: google-cloud-key
+                  mountPath: /home/nginx/.cloudvolume/secrets
+              env:
+                - name: GOOGLE_APPLICATION_CREDENTIALS
+                  value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+                - name: DAF_CREDENTIALS
+                  value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+                - name: PCG_GRAPH_IDS
+                  value: ${PCG_GRAPH_IDS}
           restartPolicy: OnFailure
