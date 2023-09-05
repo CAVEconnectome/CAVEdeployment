@@ -1,10 +1,10 @@
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: celery-producer-scaler
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     name: celery-producer
   minReplicas: ${CELERY_PRODUCER_MIN_REPLICAS}
@@ -12,16 +12,19 @@ spec:
   metrics:
     - type: Pods
       pods:
-        metricName: custom.googleapis.com|http|celery_queue_length
-        targetAverageValue: 1
+        metric:
+          name: celery_queue_length
+        target:
+          type: AverageValue
+          averageValue: 1
 ---
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: celery-consumer-scaler
 spec:
   scaleTargetRef:
-    apiVersion: apps/v1beta1
+    apiVersion: apps/v1
     kind: Deployment
     name: celery-consumer
   minReplicas: ${CELERY_CONSUMER_MIN_REPLICAS}
@@ -29,8 +32,11 @@ spec:
   metrics:
     - type: Pods
       pods:
-        metricName: custom.googleapis.com|http|celery_queue_length
-        targetAverageValue: 2
+        metric:
+          name: celery_queue_length
+        target:
+          type: AverageValue
+          averageValue: 2
 ---
 apiVersion: apps/v1
 kind: Deployment
