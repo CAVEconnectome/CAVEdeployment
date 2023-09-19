@@ -155,6 +155,10 @@ spec:
               value: ${PCG_SERVER_LOGS_LEAVES_MANY}
             - name: PCG_GRAPH_IDS
               value: ${PCG_GRAPH_IDS}
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "python"
+            - name: ZSTD_THREADS
+              value: 2
             - name: MESHING_URL_PREFIX
               value: meshing
             - name: AUTH_USE_REDIS
@@ -252,6 +256,10 @@ spec:
               value: ${DATA_PROJECT_NAME}
             - name: BIGTABLE_INSTANCE
               value: ${BIGTABLE_INSTANCE_NAME}
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "python"
+            - name: ZSTD_THREADS
+              value: 2
             - name: AUTH_URL
               value: ${AUTH_URL}
             - name: INFO_URL

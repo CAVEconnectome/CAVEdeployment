@@ -105,6 +105,10 @@ spec:
               value: ${REDIS_PASSWORD}
             - name: REDIS_SERVICE_PORT
               value: "6379"
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "python"
+            - name: ZSTD_THREADS
+              value: 2
             - name: APP_SETTINGS
               value: "pychunkedgraph.app.config.DeploymentWithRedisConfig"
             - name: PROJECT_ID
