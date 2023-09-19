@@ -28,7 +28,7 @@ spec:
   - host: ${DOMAIN_NAME}
     http: &http_rules
       paths:
-      - path: ^\/segmentation\/.*\/(split|merge|split_preview)$
+      - path: /segmentation/.*/(split|merge|split_preview)$
         pathType: ImplementationSpecific
         backend:
           service:
