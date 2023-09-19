@@ -29,7 +29,7 @@ spec:
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: pychunkedgraph-scaler
+  name: pychunkedgraph-read-scaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
@@ -225,7 +225,7 @@ spec:
         - name: pcg-config-volume
           configMap:
             name: pychunkedgraph-config-v${PCG_CONFIG_VERSION}
-      terminationGracePeriodSeconds: 605
+      terminationGracePeriodSeconds: 15
       containers:
         - name: pychunkedgraph
           image: ${DOCKER_REPOSITORY}/pychunkedgraph:v${PYCG_VERSION}
