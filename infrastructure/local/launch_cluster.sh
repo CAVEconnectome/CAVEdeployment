@@ -12,7 +12,7 @@ gcloud container clusters create $CLUSTER_NAME --enable-autoscaling --num-nodes 
 gcloud redis instances create $PCG_REDIS_NAME --size=1 --project=$PROJECT_NAME --region=$REGION --zone=$ZONE --network=$NETWORK_NAME --redis-config maxmemory-policy=allkeys-lru
 
 # TODO add more configuration details for node pool creation here (pre-emptible, etc)
-gcloud container node-pools create $STANDARD_POOL --cluster $CLUSTER_NAME --node-taints pool=$STANDARD_POOL:NoSchedule --enable-autoscaling --num-nodes 1 --min-nodes 1 --max-nodes 10 --machine-type=e2-standard-4 --disk-size=20GB
+gcloud container node-pools create $STANDARD_POOL --cluster $CLUSTER_NAME --node-taints pool=$STANDARD_POOL:NoSchedule --enable-autoscaling --num-nodes 1 --min-nodes 1 --max-nodes 10 --machine-type=t2d-standard-4 --disk-size=20GB
 gcloud container node-pools create $CELERY_WORKER_POOL --cluster $CLUSTER_NAME --node-taints pool=$CELERY_WORKER_POOL:NoSchedule --num-nodes 1 --enable-autoscaling --min-nodes 1 --max-nodes 4  --machine-type=e2-highcpu-8 --disk-size=20GB
 gcloud container node-pools create $LIGHTWEIGHT_POOL --cluster $CLUSTER_NAME --node-taints pool=$LIGHTWEIGHT_POOL:NoSchedule --num-nodes 1 --preemptible --enable-autoscaling --min-nodes 1 --max-nodes 10  --machine-type=e2-small --disk-size=20GB
 gcloud container node-pools create $MESH_POOL --cluster $CLUSTER_NAME --node-taints pool=$MESH_POOL:NoSchedule --num-nodes 1 --preemptible --enable-autoscaling --min-nodes 1 --max-nodes 10 --disk-size=20GB --machine-type e2-standard-4
