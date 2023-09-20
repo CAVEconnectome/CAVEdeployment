@@ -76,7 +76,7 @@ spec:
             - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
               value: "python"
             - name: ZSTD_THREADS
-              value: 2
+              value: "4"
             - name: APP_SETTINGS
               value: "pychunkedgraph.app.config.DevelopmentConfig"
             - name: PROJECT_ID

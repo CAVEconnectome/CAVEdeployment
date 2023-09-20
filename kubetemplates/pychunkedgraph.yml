@@ -158,7 +158,7 @@ spec:
             - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
               value: "python"
             - name: ZSTD_THREADS
-              value: 2
+              value: "4"
             - name: MESHING_URL_PREFIX
               value: meshing
             - name: AUTH_USE_REDIS
@@ -259,7 +259,7 @@ spec:
             - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
               value: "python"
             - name: ZSTD_THREADS
-              value: 2
+              value: "2"
             - name: AUTH_URL
               value: ${AUTH_URL}
             - name: INFO_URL
