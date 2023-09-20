@@ -21,18 +21,25 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-body-size: 10m
     nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
-    
+    nginx.ingress.kubernetes.io/use-regex: "true"
 #    ingress.kubernetes.io/whitelist-source-range: '128.112.0.0/16 140.180.0.0/16 63.237.233.8/32 73.97.166.124/30 24.56.235.125/32'
 spec:
   rules:
   - host: ${DOMAIN_NAME}
     http: &http_rules
       paths:
-      - path: /segmentation
+      - path: /segmentation/.*/(split|merge|undo|redo|rollback|split_preview)$
         pathType: ImplementationSpecific
         backend:
           service:
             name: pychunkedgraph-service
+            port:
+              number: 80
+      - path: /segmentation
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pychunkedgraph-read-service
             port:
               number: 80
       - path: /l2cache
@@ -138,13 +145,6 @@ spec:
         backend:
           service:
             name: dash-service
-            port:
-              number: 80
-      - path: /dash2
-        pathType: ImplementationSpecific
-        backend:
-          service:
-            name: dash2-service
             port:
               number: 80
       - path: /auth_info
