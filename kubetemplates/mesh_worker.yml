@@ -79,16 +79,12 @@ spec:
               value: /root/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
             - name: REDIS_PASSWORD
               value: ${REDIS_PASSWORD}
-            - name: REDIS_SERVICE_PORT
-              value: "6379"
             - name: APP_SETTINGS
               value: "pychunkedgraph.app.config.DevelopmentConfig"
             - name: PROJECT_ID
               value: ${DATA_PROJECT_NAME}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
-            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
-              value: "python"
             - name: ZSTD_THREADS
               value: "4"
             - name: PYCHUNKEDGRAPH_REMESH_QUEUE
