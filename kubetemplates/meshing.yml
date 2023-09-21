@@ -105,6 +105,8 @@ spec:
               value: ${REDIS_PASSWORD}
             - name: REDIS_SERVICE_PORT
               value: "6379"
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "upb"
             - name: ZSTD_THREADS
               value: "4"
             - name: APP_SETTINGS

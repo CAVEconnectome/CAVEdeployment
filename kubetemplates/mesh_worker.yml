@@ -85,6 +85,8 @@ spec:
               value: ${DATA_PROJECT_NAME}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "upb"
             - name: ZSTD_THREADS
               value: "4"
             - name: PYCHUNKEDGRAPH_REMESH_QUEUE

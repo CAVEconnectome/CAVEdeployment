@@ -257,7 +257,7 @@ spec:
             - name: BIGTABLE_INSTANCE
               value: ${BIGTABLE_INSTANCE_NAME}
             - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
-              value: "python"
+              value: "upb"
             - name: ZSTD_THREADS
               value: "2"
             - name: AUTH_URL
