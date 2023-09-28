@@ -13,7 +13,7 @@ spec:
     - type: Pods
       pods:
         metric:
-          name: celery_queue_length
+          name: custom.googleapis.com|http|celery_queue_length
         target:
           type: AverageValue
           averageValue: 1
@@ -33,7 +33,7 @@ spec:
     - type: Pods
       pods:
         metric:
-          name: celery_queue_length
+          name: custom.googleapis.com|http|celery_queue_length
         target:
           type: AverageValue
           averageValue: 2
