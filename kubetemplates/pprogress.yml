@@ -56,7 +56,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: pprogress
-          image: ${DOCKER_REPOSITORY}/proofreadingprogress:v${PPROGRESS_VERSION}
+          image: ${PPROGRESS_DOCKER_REPOSITORY}/proofreadingprogress:v${PPROGRESS_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -96,6 +96,12 @@ spec:
               value: "false"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: PPROGRESS_DATASET
+              value: ${PPROGRESS_DATASET}
+            - name: PPROGRESS_DATASET_URL
+              value: ${PPROGRESS_DATASET_URL}
+            - name: PPROGRESS_SERVER_ADDRESS
+              value: ${PPROGRESS_SERVER_ADDRESS}
           resources:
             requests:
               memory: 300Mi
