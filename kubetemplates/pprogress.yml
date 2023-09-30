@@ -96,12 +96,10 @@ spec:
               value: "false"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
-            - name: PPROGRESS_DATASET
-              value: ${PPROGRESS_DATASET}
-            - name: PPROGRESS_DATASET_URL
-              value: ${PPROGRESS_DATASET_URL}
-            - name: PPROGRESS_SERVER_ADDRESS
-              value: ${PPROGRESS_SERVER_ADDRESS}
+            - name: PPROGRESS_DATASETS
+              value: '${PPROGRESS_DATASETS}'
+            - name: PPROGRESS_SERVER_ADDRESSES
+              value: '${PPROGRESS_SERVER_ADDRESSES}'
           resources:
             requests:
               memory: 300Mi
