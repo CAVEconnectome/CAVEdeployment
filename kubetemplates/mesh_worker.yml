@@ -1,5 +1,5 @@
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: meshworker-scaler
@@ -79,14 +79,16 @@ spec:
               value: /root/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
             - name: REDIS_PASSWORD
               value: ${REDIS_PASSWORD}
-            - name: REDIS_SERVICE_PORT
-              value: "6379"
             - name: APP_SETTINGS
               value: "pychunkedgraph.app.config.DevelopmentConfig"
             - name: PROJECT_ID
               value: ${DATA_PROJECT_NAME}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "upb"
+            - name: ZSTD_THREADS
+              value: "4"
             - name: PYCHUNKEDGRAPH_REMESH_QUEUE
               value: ${PYCHUNKEDGRAPH_REMESH_QUEUE}
             - name: PYCHUNKEDGRAPH_EDITS_EXCHANGE

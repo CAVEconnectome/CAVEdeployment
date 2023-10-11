@@ -50,7 +50,7 @@ data:
     DB_CONNECTION_POOL_SIZE = 5 
     DB_CONNECTION_MAX_OVERFLOW = 5
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: materialize-scaler

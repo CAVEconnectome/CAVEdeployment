@@ -16,7 +16,7 @@ data:
     else:
         AUTH_TOKEN = ""
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: infoservice-scaler

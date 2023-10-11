@@ -1,5 +1,5 @@
 ---
-apiVersion: autoscaling/v2beta2
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: remeshworker-scaler
@@ -73,6 +73,10 @@ spec:
               value: ${REDIS_PASSWORD}
             - name: REDIS_SERVICE_PORT
               value: "6379"
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "upb"
+            - name: ZSTD_THREADS
+              value: "4"
             - name: APP_SETTINGS
               value: "pychunkedgraph.app.config.DevelopmentConfig"
             - name: PROJECT_ID
