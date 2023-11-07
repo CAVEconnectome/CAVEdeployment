@@ -47,7 +47,7 @@ kind: Deployment
 metadata:
   name: nginx
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: basic-nginx
@@ -76,8 +76,8 @@ spec:
               name: log
           resources:
             requests:
-              memory: 50Mi
-              cpu: 50m
+              memory: 20Mi
+              cpu: 10m
       volumes:
         - name: nginx-conf
           configMap:
