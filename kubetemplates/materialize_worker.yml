@@ -78,7 +78,7 @@ spec:
           args:
             - cli.py
             - --broker-url
-            - redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
+            - redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - --port
             - "9540"
             - -q
@@ -140,13 +140,13 @@ spec:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_HOST}
+              value: ${MAT_REDIS_HOST}
             - name: REDIS_HOST
-              value: ${REDIS_HOST}
+              value: ${MAT_REDIS_HOST}
             - name: REDIS_PASSWORD
-              value: ${REDIS_PASSWORD}
+              value: ${MAT_REDIS_PASSWORD}
             - name: CELERY_BROKER_URL
-              value: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
+              value: redis://${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -253,7 +253,7 @@ spec:
           args:
             - cli.py
             - --broker-url
-            - redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
+            - redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - --port
             - "9540"
             - -q
@@ -315,13 +315,13 @@ spec:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_HOST}
+              value: ${MAT_REDIS_HOST}
             - name: REDIS_HOST
-              value: ${REDIS_HOST}
+              value: ${MAT_REDIS_HOST}
             - name: REDIS_PASSWORD
-              value: ${REDIS_PASSWORD}
+              value: ${MAT_REDIS_PASSWORD}
             - name: CELERY_BROKER_URL
-              value: redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
+              value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -438,9 +438,9 @@ spec:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_HOST}
-            - name: REDIS_PASSWORD
-              value: ${REDIS_PASSWORD}
+              value: ${MAT_REDIS_HOST}
+            - name: MAT_REDIS_PASSWORD
+              value: ${MAT_REDIS_PASSWORD}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -506,7 +506,7 @@ spec:
           image: mher/flower:0.9.5
           args:
             - flower
-            - --broker=redis://:${REDIS_PASSWORD}@${REDIS_HOST}:${REDIS_PORT}/0
+            - --broker=redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - --port=5555
             - --purge_offline_workers=1
           env:

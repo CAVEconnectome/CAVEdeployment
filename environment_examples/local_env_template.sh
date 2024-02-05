@@ -239,9 +239,10 @@ export DASH_CONFIG_VERSION=6
 
 # DEFINE ADD SECRET IMPORT
 export PYCG_SERVICE_ACCOUNT_ADDON="{{ pcg_service_account_addon }}"
-export REDIS_PASSWORD={{ redis_password }}
-export REDIS_HOST="redis-release-master.default.svc.cluster.local"
-export REDIS_PORT=6379
+export MAT_REDIS_PASSWORD=""
+export MAT_REDIS_NAME={{ project_name }}-celery-redis
+export MAT_REDIS_HOST="$(gcloud redis instances describe $MAT_REDIS_NAME --region=$REGION | sed -n -e 's/^host: \(.*\)$/\1/p')"
+export MAT_REDIS_PORT=6379
 
 
 # CELERY

@@ -79,9 +79,9 @@ spec:
             - name: AUTH_URL
               value: ${AUTH_URL}
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_HOST}
+              value: ${MAT_REDIS_HOST}
             - name: REDIS_PASSWORD
-              value: ${REDIS_PASSWORD}
+              value: ${MAT_REDIS_PASSWORD}
             - name: REDIS_SERVICE_PORT
               value: "6379"
             - name: PROJECT_ID
@@ -211,7 +211,7 @@ spec:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: REDISHOST
-              value: ${REDIS_HOST}
+              value: ${MAT_REDIS_HOST}
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: GLOBAL_SERVER_ADDRESS
@@ -221,11 +221,11 @@ spec:
             - name: AUTH_URL
               value: ${AUTH_URL}
             - name: REDIS_SERVICE_HOST
-              value: ${REDIS_HOST}
+              value: ${MAT_REDIS_HOST}
             - name: REDIS_SERVICE_PORT
               value: "6379"
             - name: REDIS_PASSWORD
-              value: ${REDIS_PASSWORD}
+              value: ${MAT_REDIS_PASSWORD}
             - name: PROJECT_ID
               value: ${DATA_PROJECT_NAME}
             - name: AUTH_USE_REDIS
