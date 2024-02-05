@@ -20,7 +20,7 @@ data:
     REDIS_HOST = "${MAT_REDIS_HOST}"
     REDIS_PORT = "${MAT_REDIS_PORT}"
     REDIS_PASSWORD = ""
-    REDIS_URL = f"redis://${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0"
+    REDIS_URL = "redis://${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0"
     CELERY_BROKER_URL = REDIS_URL
     CELERY_RESULT_BACKEND = CELERY_BROKER_URL
     MATERIALIZATION_ROW_CHUNK_SIZE = 500
@@ -136,7 +136,7 @@ spec:
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: LIMITER_CATEGORIES
-              value: "${MAT_LIMITER_CATEGORIES}"
+              value: '${MAT_LIMITER_CATEGORIES}'
             - name: LIMITER_URI
               value: ${LIMITER_URI}
             - name: STICKY_AUTH_URL

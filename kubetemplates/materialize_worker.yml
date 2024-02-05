@@ -506,7 +506,7 @@ spec:
           image: mher/flower:0.9.5
           args:
             - flower
-            - --broker=redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
+            - --broker=redis://${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - --port=5555
             - --purge_offline_workers=1
           env:
