@@ -9,7 +9,7 @@ gcloud compute --project=$PROJECT_NAME networks subnets create $SUBNETWORK_NAME 
 
 gcloud container clusters create $CLUSTER_NAME --enable-autoscaling --num-nodes 1 --min-nodes 1 --max-nodes 1 --subnetwork $SUBNETWORK_NAME --network $NETWORK_NAME --enable-ip-alias  --machine-type=e2-standard-2
 
-gcloud redis instances create $PCG_REDIS_NAME --size=1 --project=$PROJECT_NAME --region=$REGION --zone=$ZONE --network=$NETWORK_NAME --redis-config maxmemory-policy=allkeys-lru --redis-config maxmemory-gb=98
+gcloud redis instances create $PCG_REDIS_NAME --size=1 --project=$PROJECT_NAME --region=$REGION --zone=$ZONE --network=$NETWORK_NAME --redis-config maxmemory-policy=allkeys-lru --redis-config maxmemory-gb=0.98
 gcloud redis instances create $MAT_REDIS_NAME --size=1 --project=$PROJECT_NAME --region=$REGION --zone=$ZONE --network=$NETWORK_NAME --redis-config maxmemory-policy=allkeys-lru
 
 
