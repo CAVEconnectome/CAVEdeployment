@@ -230,10 +230,10 @@ spec:
       tolerations:
         - key: "pool"
           operator: "Equal"
-          value: "${CELERY_WORKER_POOL}"
+          value: "${MESH_POOL}"
           effect: "NoSchedule"
       nodeSelector:
-        cloud.google.com/gke-nodepool: ${CELERY_WORKER_POOL}
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
       volumes:
         - name: materializationengine-config-volume
           configMap:
