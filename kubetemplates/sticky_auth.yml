@@ -124,7 +124,7 @@ spec:
           resources:
             requests:
               memory: 130Mi
-              cpu: 85m
+              cpu: 50m
           readinessProbe:
             httpGet:
               path: /sticky_auth/version

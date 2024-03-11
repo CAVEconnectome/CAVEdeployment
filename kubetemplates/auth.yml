@@ -207,8 +207,8 @@ spec:
               value: "auth"
           resources:
             requests:
-              memory: 900Mi
-              cpu: 85m
+              memory: 200Mi
+              cpu: 50m
           readinessProbe:
             httpGet:
               path: /auth/version
