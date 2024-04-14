@@ -156,7 +156,7 @@ spec:
             - name: PCG_GRAPH_IDS
               value: ${PCG_GRAPH_IDS}
             - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
-              value: ${PCG_EDIT_PROTO_BACKEND}
+              value: "upb"
             - name: ZSTD_THREADS
               value: "4"
             - name: MESHING_URL_PREFIX
