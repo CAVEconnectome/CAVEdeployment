@@ -247,6 +247,67 @@ spec:
         - name: graceful-shut-down
           emptyDir: {}
       containers:
+        - name: celery
+          image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
+          args:
+            - su
+            - nginx
+            - -c
+            - "celery --app=run.celery worker --pool=threads --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
+          volumeMounts:
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: REDIS_SERVICE_HOST
+              value: ${MAT_REDIS_HOST}
+            - name: REDIS_HOST
+              value: ${MAT_REDIS_HOST}
+            - name: REDIS_PASSWORD
+              value: ${MAT_REDIS_PASSWORD}
+            - name: CELERY_BROKER_URL
+              value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: BIGTABLE_PROJECT
+              value: ${DATA_PROJECT_NAME}
+            - name: BIGTABLE_INSTANCE
+              value: ${BIGTABLE_INSTANCE_NAME}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: QUEUE_NAME
+              value: ${CONSUMER_QUEUE_NAME}
+            - name: CELERY_CLOUDVOLUME_CACHE_BYTES
+              value: "5200000000"
+            - name: WORKER_NAME
+              value: ${CELERY_CONSUMER_WORKER_NAME}
+            - name: WORKER_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          resources:
+            requests:
+              cpu: ${CELERY_CPU}
+              memory: ${CELERY_MEMORY}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/home/nginx/gracefully_shutdown_celery.sh"]
         - name: celery-exporter
           image: ${DOCKER_REPOSITORY}/celery-metric-exporter:v5
           command: ["python"]
@@ -297,65 +358,6 @@ spec:
           volumeMounts:
             - name: graceful-shut-down
               mountPath: /home/nginx/tmp/shutdown
-        - name: celery
-          image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
-          args:
-            - su
-            - nginx
-            - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
-          volumeMounts:
-            - name: materializationengine-config-volume
-              mountPath: /app/materializationengine/instance/
-            - name: google-cloud-key
-              mountPath: /home/nginx/.cloudvolume/secrets
-            - name: graceful-shut-down
-              mountPath: /home/nginx/tmp/shutdown
-          env:
-            - name: MATERIALIZATION_ENGINE_SETTINGS
-              value: /app/materializationengine/instance/config.cfg
-            - name: REDIS_SERVICE_HOST
-              value: ${MAT_REDIS_HOST}
-            - name: REDIS_HOST
-              value: ${MAT_REDIS_HOST}
-            - name: REDIS_PASSWORD
-              value: ${MAT_REDIS_PASSWORD}
-            - name: CELERY_BROKER_URL
-              value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
-            - name: AUTH_URI
-              value: ${AUTH_URI}
-            - name: BIGTABLE_PROJECT
-              value: ${DATA_PROJECT_NAME}
-            - name: BIGTABLE_INSTANCE
-              value: ${BIGTABLE_INSTANCE_NAME}
-            - name: STICKY_AUTH_URL
-              value: ${STICKY_AUTH_URL}
-            - name: AUTH_URL
-              value: ${AUTH_URL}
-            - name: DAF_CREDENTIALS
-              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
-            - name: QUEUE_NAME
-              value: ${CONSUMER_QUEUE_NAME}
-            - name: WORKER_NAME
-              value: ${CELERY_CONSUMER_WORKER_NAME}
-            - name: WORKER_HOSTNAME
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-            - name: POD_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.uid
-          resources:
-            requests:
-              cpu: ${CELERY_CPU}
-              memory: ${CELERY_MEMORY}
-          lifecycle:
-            preStop:
-              exec:
-                command: ["/home/nginx/gracefully_shutdown_celery.sh"]
         - name: cloudsql-proxy
           image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
           command:
@@ -428,7 +430,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery beat --pidfile=/home/nginx/celerybeat.pid --schedule=/home/nginx/celerybeat-schedule --loglevel=info"
+            - "celery --app=run.celery beat --pidfile=/home/nginx/celerybeat.pid --schedule=/home/nginx/celerybeat-schedule --loglevel=info "
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
