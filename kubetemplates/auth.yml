@@ -7,7 +7,6 @@ data:
     import redis
     import os
     SECRET_KEY = "b${AUTHSERVICE_SECRET_KEY}"
-    SESSION_TYPE = 'null'
 
     SQLALCHEMY_DATABASE_URI = "${SQL_DB_TYPE}://${POSTGRES_WRITE_USER}:${POSTGRES_WRITE_USER_PASSWORD}@localhost:5432/${SQL_AUTH_DB_NAME}"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -207,8 +206,8 @@ spec:
               value: "auth"
           resources:
             requests:
-              memory: 900Mi
-              cpu: 85m
+              memory: 200Mi
+              cpu: 50m
           readinessProbe:
             httpGet:
               path: /auth/version

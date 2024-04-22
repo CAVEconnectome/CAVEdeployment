@@ -146,7 +146,7 @@ spec:
             - name: REDIS_PASSWORD
               value: ${MAT_REDIS_PASSWORD}
             - name: CELERY_BROKER_URL
-              value: redis://${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
+              value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -407,10 +407,10 @@ spec:
       tolerations:
         - key: "pool"
           operator: "Equal"
-          value: "${CORE_POOL}"
+          value: "${STANDARD_POOL}"
           effect: "NoSchedule"
       nodeSelector:
-        cloud.google.com/gke-nodepool: ${CORE_POOL}
+        cloud.google.com/gke-nodepool: ${STANDARD_POOL}
       volumes:
         - name: materializationengine-config-volume
           configMap:
@@ -501,6 +501,13 @@ spec:
       labels:
         app: flower
     spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${STANDARD_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${STANDARD_POOL}
       containers:
         - name: flower
           image: mher/flower:0.9.5
@@ -514,4 +521,8 @@ spec:
               value: "5555"
           ports:
             - containerPort: 5555
+          resources:
+            requests:
+              memory: 150Mi
+              cpu: 10m
       restartPolicy: Always
