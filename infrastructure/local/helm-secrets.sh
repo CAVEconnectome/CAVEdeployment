@@ -41,6 +41,8 @@ annotation:
       value: $(encode_file "$ANNOTATION_SECRET_PATH")
     - name: cave-secret.json
       value: $(encode_file "$CAVE_SECRET_PATH")
+dash:
+  secretKey: "asdfasdn$!#@adfaA123r1f"
 slack:
     apiToken: $SLACK_API_TOKEN
 EOF
