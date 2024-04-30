@@ -42,6 +42,8 @@ spec:
             - name: meshing-config-volume
               mountPath: /app/pychunkedgraph/app/instance/
           env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/home/nginx/.cloudvolume/secrets/google-secret.json"
             {{- include "pcg_env.config" . | nindent 12 }}
           resources:
             requests:

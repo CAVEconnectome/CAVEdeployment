@@ -298,6 +298,8 @@ spec:
               value: "false"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: UWSGI_INI
+              value: uwsgi_read.ini
           resources:
             requests:
               memory: ${PYCG_READ_MEM_GIB}Gi
