@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: dash-service
+spec:
+  type: NodePort
+  selector:
+    app: dash
+  ports:
+  - port: 80
+    targetPort: 80

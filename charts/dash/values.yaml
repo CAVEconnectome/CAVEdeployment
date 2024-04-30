@@ -1,0 +1,18 @@
+dash: 
+  version: 1.12.2
+  secretKey: "!$#!#@$!#@qadsfasdf"
+  minReplicas: 1
+  maxReplicas: 10
+cluster:
+  # required to fill in or choose
+  globalServer: ""
+  environment: ""
+  domainName: ""
+  googleProject: ""
+  googleRegion: "us-east1"
+  googleZone: "us-east1-b"
+  # likely fine as defaults
+  lightweightPool: "lightweight-pool"
+  meshPool: "mesh-pool"
+  standardPool: "standard-pool"
+  dockerRegistry: "docker.io/caveconnectome"

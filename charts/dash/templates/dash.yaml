@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dash
+spec:
+  selector:
+    matchLabels:
+      app: dash
+  template:
+    metadata:
+      labels:
+        app: dash
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      tolerations:
+      - key: "pool"
+        operator: "Equal"
+        value: "{{ .Values.cluster.lightweightPool}}"
+        effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.lightweightPool}}
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - name: dash-config-volume
+        configMap:
+          name: dash-config
+      containers:
+      - name: dash
+        image: {{ .Values.cluster.dockerRegistry }}/dashonflask:v{{ .Values.dash.version }}
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: dash-config-volume
+          mountPath: /app/app/instance/
+        env:
+        - name: AUTH_URI
+          value: {{ .Values.cluster.globalServer }}/auth
+        - name: STICKY_AUTH_URL
+          value: {{ .Values.cluster.globalServer }}/sticky_auth
+        - name: AUTH_URL
+          value: {{ .Values.cluster.globalServer }}/auth
+        - name: INFO_URL
+          value: {{ .Values.cluster.globalServer }}/info
+        - name: PROJECT_ID
+          value: {{ .Values.cluster.dataProjectName }}
+        - name: AUTH_USE_REDIS
+          value: "false"
+        - name: SECRET_KEY
+          value: "{{ .Values.dash.secretKey }}"
+        - name: DASH_SETTINGS
+          value: /app/app/instance/config.py
+        resources:
+          requests:
+            memory: 300Mi
+            cpu: 100m
+        readinessProbe:
+          httpGet:
+            path: /dash/
+            port: 80
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+          periodSeconds: 60
+        livenessProbe:
+          httpGet:
+            path: /dash/
+            port: 80
+          initialDelaySeconds: 15
+          timeoutSeconds: 1
+          periodSeconds: 60
+      - name: sysctl-buddy
+        image: alpine:3.4
+        command:
+        - /bin/sh
+        - -c
+        - |
+          while true; do
+            sysctl -w net.core.somaxconn=32768
+            sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+            sleep 100
+          done
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          privileged: true
+        resources:
+          requests:
+            memory: 10Mi
+            cpu: 5m

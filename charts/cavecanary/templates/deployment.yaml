@@ -12,6 +12,8 @@ spec:
         app: cavecanary
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/cavecanary_secret.yaml") . | sha256sum }}
+        checksum/cloudsql: {{ include (print $.Template.BasePath "/cloudsql_secret.yaml") . | sha256sum }}
     spec:
       tolerations:
         - key: "pool"
@@ -32,7 +34,7 @@ spec:
             secretName: cavecanary-cloudsql-google-cloud-key
       containers:
         - name: cavecanary
-          image: {{ .Values.cluster.dockerRegistory}}/cavecanary:v{{ .Values.cavecanary.version}}
+          image: {{ .Values.cluster.dockerRegistry}}/cavecanary:v{{ .Values.cavecanary.version}}
           imagePullPolicy: Always
           ports:
             - containerPort: 80

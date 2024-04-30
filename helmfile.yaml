@@ -1,11 +1,11 @@
 # helmfile.yaml
 releases:
   - name: materialization-engine
-    namespace: processing
+    namespace: default
     chart: ./charts/materializationengine
     version: 0.1.0
     values:
-      - environments/ltv5/cluster.yaml  # Specific values for production
+      - environments/ltv5/cluster.yaml   # Specific values for ltv5 cluster
       - environments/ltv5/materialize.yaml  # Specific values for materialization
       - environments/ltv5/annotation.yaml  # Specific values for annotation
       - environments/ltv5/cloudsql.yaml # Specific values for cloudsql
@@ -19,11 +19,11 @@ releases:
       - name: materialize.schedules
         file: environments/ltv5/minnie_mat_schedules.json
   - name: annotation-engine
-    namespace: processing
+    namespace: default
     chart: ./charts/annotationengine
     version: 0.1.0
     values:
-      - environments/ltv5/cluster.yaml  # Specific values for production
+      - environments/ltv5/cluster.yaml   # Specific values for ltv5 cluster
       - environments/ltv5/annotation.yaml  # Specific values for annotation
       - environments/ltv5/cloudsql.yaml # Specific values for cloudsql
     secrets:
@@ -32,12 +32,12 @@ releases:
       - name: limiter.redis.host
         value: {{ env "MAT_REDIS_HOST" }}
   - name: pychunkedgraph
-    namespace: processing
+    namespace: default
     chart: ./charts/pychunkedgraph
     version: 0.1.0
     values:
-      - environments/ltv5/cluster.yaml  # Specific values for production
-      - environments/ltv5/pychunkedgraph.yaml # Specific values for cloudsql
+      - environments/ltv5/cluster.yaml  # Specific values for ltv5 cluster
+      - environments/ltv5/pychunkedgraph.yaml # Specific values for pychunkedgraph
     secrets:
       - environments/ltv5/secrets.yaml
     set:
@@ -45,3 +45,15 @@ releases:
         value: {{ env "PCG_REDIS_IP" }}
       - name: pychunkedgraph.redis.host
         value: {{ env "PCG_REDIS_IP" }}
+  - name: dash
+    namespace: default
+    chart: ./charts/dash
+    version: 0.1.0
+    values:
+      - environments/ltv5/cluster.yaml  # Specific values for ltv5 cluster
+      - environments/ltv5/dash.yaml # Specific values for clodashudsql
+    secrets:
+      - environments/ltv5/secrets.yaml
+    set:
+      - name: dash.config
+        file: environments/ltv5/minnie_dash_config_combined.py
