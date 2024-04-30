@@ -1,0 +1,35 @@
+cloudsql:
+  sqlInstanceName: ""
+  googleSecret: ""
+  username: "postgres"
+  password: ""
+annotation:
+  version: "4.4.0"
+  # add to this if you want to exclude joint membership in a group name 
+  # from applying to group level permissions
+  excludedPermissionGroups: 
+    - default
+  # needs to be correspond to sql instance created
+  # needs to correspond to a aligned volume that you created a database for
+  healthAlignedVolumeName: ""
+  secretFiles:
+    # need to fill in with path to secret file
+    - name: google-secret.json
+      value: ""
+    # need to fill in with path to secret file
+    - name: cave-secret.json
+      value: ""
+limiter:
+  redis:
+    host: ""
+cluster:
+  # required to fill in or choose
+  globalServer: ""
+  environment: ""
+  domainName: ""
+  googleProject: ""
+  googleRegion: "us-east1"
+  googleZone: "us-east1-b"
+  # likely fine as defaults
+  standardPool: "standard-pool"
+  dockerRegistry: "docker.io/caveconnectome"

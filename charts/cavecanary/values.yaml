@@ -1,0 +1,31 @@
+cloudsql:
+  sqlInstanceName: ""
+  googleSecret: ""
+  username: "postgres"
+  password: ""
+materialize:
+  # need to fill in
+  datastacks: 
+    - ""
+  secretFiles:
+    # need to fill in with path to secret file
+    - name: google-secret.json
+      value: ""
+    # need to fill in with path to secret file
+    - name: cave-secret.json
+      value: ""
+cluster:
+  # required to fill in or choose
+  globalServer: ""
+  environment: ""
+  domainName: ""
+  googleProject: ""
+  googleRegion: "us-east1"
+  googleZone: "us-east1-b"
+  # likely fine as defaults
+  standardPool: "standard-pool"
+  lightweightPool: "lightweight-pool"
+  dockerRegistry: "docker.io/caveconnectome"
+slack:
+  api_token: ""
+  canary_channel: ""

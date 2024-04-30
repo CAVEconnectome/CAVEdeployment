@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meshing
+spec:
+  # replicas: 1
+  selector:
+    matchLabels:
+      app: meshing
+  template:
+    metadata:
+      labels:
+        app: meshing
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "{{ .Values.cluster.meshPool }}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.meshPool }}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: pychunkedgraph-google-cloud-key
+        - name: meshing-config-volume
+          configMap:
+            name: pychunkedgraph-config
+      terminationGracePeriodSeconds: 65
+      containers:
+        - name: meshing
+          image: {{ .Values.cluster.dockerRegistry }}/pychunkedgraph:v{{ .Values.pychunkedgraph.version }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: meshing-config-volume
+              mountPath: /app/pychunkedgraph/app/instance/
+          env:
+            {{- include "pcg_env.config" . | nindent 12 }}
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 100m
+          readinessProbe:
+            httpGet:
+              path: /meshing/api/v1
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /meshing/api/v1
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        {{- include "sysctl.config" . | nindent 8 -}}

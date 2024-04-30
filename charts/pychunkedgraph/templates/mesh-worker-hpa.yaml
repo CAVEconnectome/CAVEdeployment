@@ -1,0 +1,34 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: meshworker-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: meshworker
+  minReplicas: {{ .Values.pychunkedgraph.meshWorkerMinReplicas }}
+  maxReplicas: {{ .Values.pychunkedgraph.meshWorkerMaxReplicas }}
+  metrics:
+    - external:
+        metric:
+          name: pubsub.googleapis.com|subscription|num_undelivered_messages
+          selector:
+            matchLabels:
+              resource.labels.subscription_id: {{ .Values.cluster.environment }}_PCG_HIGH_PRIORITY_REMESH
+        target:
+          type: AverageValue
+          averageValue: 1
+      type: External
+    # - type: Resource
+    #   resource:
+    #     name: cpu
+    #     target:
+    #       type: Utilization
+    #       averageUtilization: 95
+    # - type: Resource
+    #   resource:
+    #     name: memory
+    #     target:
+    #       type: Utilization
+    #       averageUtilization: 75

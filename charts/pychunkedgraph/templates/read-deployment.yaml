@@ -1,0 +1,66 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pychunkedgraph-read
+spec:
+  selector:
+    matchLabels:
+      app: pychunkedgraph-read
+  template:
+    metadata:
+      labels:
+        app: pychunkedgraph-read
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "{{ .Values.cluster.meshPool }}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.meshPool }}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: pychunkedgraph-google-cloud-key
+        - name: pcg-config-volume
+          configMap:
+            name: pychunkedgraph-config
+      terminationGracePeriodSeconds: 15
+      containers:
+        - name: pychunkedgraph
+          image: {{ .Values.cluster.dockerRegistry }}/pychunkedgraph:v{{ .Values.pychunkedgraph.version }}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: pcg-config-volume
+              mountPath: /app/pychunkedgraph/app/instance/
+          env:
+            {{- include "pcg_env.config" . | nindent 12 }}
+            - name: UWSGI_INI
+              value: {{ .Values.pychunkedgraph.uwsgiReadIni | default "uwsgi.ini"}}
+          resources:
+            requests:
+              memory: {{ .Values.pychunkedgraph.readMemGb }}Gi
+              cpu: {{ .Values.pychunkedgraph.readCpuMilli }}m
+          readinessProbe:
+            httpGet:
+              path: /segmentation
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /segmentation
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        {{- include "sysctl.config" . | nindent 8 -}}

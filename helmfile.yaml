@@ -8,10 +8,40 @@ releases:
       - environments/ltv5/cluster.yaml  # Specific values for production
       - environments/ltv5/materialize.yaml  # Specific values for materialization
       - environments/ltv5/annotation.yaml  # Specific values for annotation
+      - environments/ltv5/cloudsql.yaml # Specific values for cloudsql
     secrets:
       - environments/ltv5/secrets.yaml
     set:
       - name: materialize.redis.host
         value: {{ env "MAT_REDIS_HOST" }}
+      - name: limiter.redis.host
+        value: {{ env "MAT_REDIS_HOST" }}
       - name: materialize.schedules
         file: environments/ltv5/minnie_mat_schedules.json
+  - name: annotation-engine
+    namespace: processing
+    chart: ./charts/annotationengine
+    version: 0.1.0
+    values:
+      - environments/ltv5/cluster.yaml  # Specific values for production
+      - environments/ltv5/annotation.yaml  # Specific values for annotation
+      - environments/ltv5/cloudsql.yaml # Specific values for cloudsql
+    secrets:
+      - environments/ltv5/secrets.yaml
+    set:
+      - name: limiter.redis.host
+        value: {{ env "MAT_REDIS_HOST" }}
+  - name: pychunkedgraph
+    namespace: processing
+    chart: ./charts/pychunkedgraph
+    version: 0.1.0
+    values:
+      - environments/ltv5/cluster.yaml  # Specific values for production
+      - environments/ltv5/pychunkedgraph.yaml # Specific values for cloudsql
+    secrets:
+      - environments/ltv5/secrets.yaml
+    set:
+      - name: limiter.redis.host
+        value: {{ env "PCG_REDIS_IP" }}
+      - name: pychunkedgraph.redis.host
+        value: {{ env "PCG_REDIS_IP" }}

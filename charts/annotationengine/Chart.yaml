@@ -1,0 +1,5 @@
+apiVersion: v2
+name: annotationengine
+description: A Helm chart for CAVE annotationengine service on Kubernetes
+version: 0.1.1
+appVersion: "4.4.0"

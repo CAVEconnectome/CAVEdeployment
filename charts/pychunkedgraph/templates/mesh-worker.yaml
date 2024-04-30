@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: meshworker
+spec:
+  selector:
+    matchLabels:
+      app: meshworker
+  template:
+    metadata:
+      labels:
+        app: meshworker
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "{{ .Values.cluster.meshPool }}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.meshPool }}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: pychunkedgraph-google-cloud-key
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: meshworker
+          image: {{ .Values.cluster.dockerRegistry }}/pychunkedgraph:v{{ .Values.pychunkedgraph.version }}
+          imagePullPolicy: Always
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /root/.cloudvolume/secrets
+          env: 
+            {{- include "pcg_env.config" . | nindent 12 }}
+          resources:
+            requests:
+              memory: 3000Mi
+              cpu: 800m
+          command:
+            - /bin/sh
+            - -c
+            - python -m workers.mesh_worker

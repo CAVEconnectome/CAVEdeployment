@@ -1,4 +1,7 @@
 {{- $password := .Values.cloudsql.password | required ".Values.cloudsql.password is required." -}}
+{{- $password := .Values.materialize.redis.host | required ".Values.materialize.redis.host is required." -}}
+{{- $password := .Values.cluster.globalServer | required ".Values.cluster.globalServer is required." -}}
+{{- $password := .Values.cluster.domainName | required ".Values.cluster.domainName is required." -}}
 
 ---
 apiVersion: v1
@@ -14,7 +17,7 @@ data:
     INFOSERVICE_ENDPOINT = "https://{{ .Values.cluster.globalServer }}/info"
     SCHEMA_SERVICE_ENDPOINT = "https://{{ .Values.cluster.globalServer }}/schema/"
     GLOBAL_SERVER_URL = "https://{{ .Values.cluster.globalServer }}"
-    LOCAL_SERVER_URL = "https://{{ .Values.cluster.environment }}.{{ .Values.cluster.domainName }}"
+    LOCAL_SERVER_URL = "https://{{ .Values.cluster.environment | default "local" }}.{{ .Values.cluster.domainName }}"
     TESTING = False
     SQLALCHEMY_DATABASE_URI = "postgres://{{ .Values.cloudsql.username}}:{{ .Values.cloudsql.password}}@127.0.0.1:3306/annotation"
     REDIS_HOST = "{{ .Values.materialize.redis.host}}"
@@ -31,8 +34,8 @@ data:
     DAYS_TO_EXPIRE = 7
     LTS_DAYS_TO_EXPIRE = 30
     # database number config
-    MIN_DATABASES = {{ .Values.materialize.minDatabases }}
-    MAX_DATABASES = {{ .Values.materialize.maxDatabases }}  
+    MIN_DATABASES = {{ .Values.materialize.minDatabases | default 1 }}
+    MAX_DATABASES = {{ .Values.materialize.maxDatabases | default 3 }}  
     # celery throttling settings
     QUERY_LIMIT_SIZE = 500000
     QUEUE_LENGTH_LIMIT = 10000

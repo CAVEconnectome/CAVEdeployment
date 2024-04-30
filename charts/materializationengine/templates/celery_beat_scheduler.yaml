@@ -15,6 +15,8 @@ spec:
         app: celery-beat-scheduler
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/materialize_secret.yaml") . | sha256sum }}
+        checksum/cloudsql: {{ include (print $.Template.BasePath "/cloudsql_secret.yaml") . | sha256sum }}
     spec:
       tolerations:
         - key: "pool"
@@ -32,7 +34,7 @@ spec:
             secretName: materialize-google-cloud-key
         - name: cloudsql-instance-credentials-volume
           secret:
-            secretName: cloudsql-google-cloud-key
+            secretName: mat-cloudsql-google-cloud-key
       containers:
         - name: celery-beat-scheduler
           image: {{ .Values.cluster.dockerRegistry }}/materializationengine:v{{ .Values.materialize.version }}
@@ -72,7 +74,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances={{ .Values.cluster.googleProject}}:{{ .Values.cluster.googleRegion}}:{{ .Values.annotation.sqlInstanceName}}=tcp:3306",
+              "-instances={{ .Values.cluster.googleProject}}:{{ .Values.cluster.googleRegion}}:{{ .Values.cloudsql.sqlInstanceName}}=tcp:3306",
               "-credential_file=/secrets/cloudsql/google-secret.json",
             ]
           resources:

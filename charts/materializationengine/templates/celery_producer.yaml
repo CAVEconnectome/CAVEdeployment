@@ -12,6 +12,8 @@ spec:
         app: celery-producer
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/materialize_secret.yaml") . | sha256sum }}
+        checksum/cloudsql: {{ include (print $.Template.BasePath "/cloudsql_secret.yaml") . | sha256sum }}
     spec:
       terminationGracePeriodSeconds: 6000 # change grace period to one hour
       tolerations:
@@ -30,7 +32,7 @@ spec:
             secretName: materialize-google-cloud-key
         - name: cloudsql-instance-credentials-volume
           secret:
-            secretName: cloudsql-google-cloud-key
+            secretName: mat-cloudsql-google-cloud-key
         - name: graceful-shut-down
           emptyDir: {}
       containers:
@@ -40,7 +42,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues={{ .Values.producerQueueName}} --loglevel=info -E -Ofair --concurrency={{ .Values.celeryProducerConcurrency }}"
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues={{ .Values.materialize.producerQueueName}} --loglevel=info -E -Ofair --concurrency={{ .Values.materialize.celeryProducerConcurrency }}"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -144,7 +146,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances={{ .Values.cluster.googleProject}}:{{ .Values.cluster.googleRegion}}:{{ .Values.annotation.sqlInstanceName}}=tcp:3306",
+              "-instances={{ .Values.cluster.googleProject}}:{{ .Values.cluster.googleRegion}}:{{ .Values.cloudsql.sqlInstanceName}}=tcp:3306",
               "-credential_file=/secrets/cloudsql/google-secret.json",
             ]
           resources:

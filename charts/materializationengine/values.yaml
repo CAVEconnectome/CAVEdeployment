@@ -4,22 +4,22 @@ annotation:
   excludedPermissionGroups: 
     - default
   # needs to be correspond to sql instance created
-  sqlInstanceName: "sql-instance-name"
   # needs to correspond to a aligned volume that you created a database for
-  healthAlignedVolumeName: "my-aligned-volume-name"
-  postgresWriteUserPassword: "my-postgres-password"
-  # likely fine as default
-  postgresWriteUser: "postgres"
+  healthAlignedVolumeName: ""
 cloudsql:
+  sqlInstanceName: ""
   googleSecret: ""
   username: "postgres"
   password: ""
+limiter:
+  redis:
+    host: ""
 materialize:
   # will change as you upgrade versions
   version: "4.23.2"
   # need to fill in
   datastacks: 
-    - my_datastack_1
+    - ""
   secretFiles:
     # need to fill in with path to secret file
     - name: google-secret.json
@@ -61,10 +61,10 @@ materialize:
     password: ""
 cluster:
   # required to fill in or choose
-  globalServer: "my.global-server.com"
-  environment: "myenvironmentname"
-  domainName: "my-domain-name.com"
-  googleProject: "my-google-project"
+  globalServer: ""
+  environment: ""
+  domainName: ""
+  googleProject: ""
   googleRegion: "us-east1"
   googleZone: "us-east1-b"
   # likely fine as defaults

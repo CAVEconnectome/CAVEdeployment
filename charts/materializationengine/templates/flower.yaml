@@ -26,10 +26,10 @@ spec:
       tolerations:
         - key: "pool"
           operator: "Equal"
-          value: "{{ .Values.cluster.standard_pool}}"
+          value: "{{ .Values.cluster.standardPool}}"
           effect: "NoSchedule"
       nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.cluster.standard_pool}}
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.standardPool}}
       containers:
         - name: flower
           image: mher/flower:0.9.5

@@ -1,0 +1,11 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: pychunkedgraph-service
+spec:
+  type: NodePort
+  selector:
+    app: pychunkedgraph
+  ports:
+    - port: 80
+      targetPort: 80

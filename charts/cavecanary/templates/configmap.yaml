@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cavecanary-config
+  namespace: default
+data:
+  config.cfg: |
+    [SETTINGS]
+    DATASTACK_NAME = {{ .Values.materialize.datastacks | toJson}}
+    SERVER_ADDRESS = https://{{ .Values.cluster.globalServer }}
+    SLACK_API_TOKEN = {{ .Values.slack.api_token }}
+    SLACK_CHANNEL = {{ .Values.slack.canary_channel }}
+    NUM_TEST_ANNOTATIONS = 1000
+    CHECK_INTERVAL = 60
+    DATABASE_URI = postgresql+asyncpg://{{ .Values.cloudsql.username}}:{{ .Values.cloudsql.password}}@127.0.0.1:3306/annotation"
+
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: annotationengine-config
+data:
+  config.cfg: |
+    import os
+    import json
+    INFOSERVICE_ENDPOINT = "https://{{ .Values.cluster.globalServer }}/info"
+    SCHEMA_SERVICE_ENDPOINT = "https://{{ .Values.cluster.globalServer }}/schema/"
+    GLOBAL_SERVER_URL = "https://{{ .Values.cluster.globalServer }}"
+    NEUROGLANCER_URL = "https://neuroglancer-demo.appspot.com"
+    SQLALCHEMY_DATABASE_URI = "postgres://{{ .Values.cloudsql.username}}:{{ .Values.cloudsql.password}}@127.0.0.1:3306/annotation"
+    TESTING = False
+    LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
+    LOGGING_LOCATION = '/home/nginx/annoeng/bookshelf.log'
+    if os.environ.get("DAF_CREDENTIALS", None) is not None:
+        with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
+            AUTH_TOKEN = json.load(f)["token"]
+    AUTH_SHARED_EXCLUDED_GROUPS={{ .Values.annotation.excludedPermissionGroups | toJson }}

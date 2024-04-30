@@ -1,60 +1,57 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: materialize
+  name: annotationengine
 spec:
   selector:
     matchLabels:
-      app: materialize
+      app: annotationengine
   template:
     metadata:
       labels:
-        app: materialize
+        app: annotationengine
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
-        checksum/secrets: {{ include (print $.Template.BasePath "/materialize_secret.yaml") . | sha256sum }}
+        checksum/secrets: {{ include (print $.Template.BasePath "/annotation_secret.yaml") . | sha256sum }}
         checksum/cloudsql: {{ include (print $.Template.BasePath "/cloudsql_secret.yaml") . | sha256sum }}
     spec:
       tolerations:
         - key: "pool"
           operator: "Equal"
-          value: "{{ .Values.cluster.lightweightPool }}"
+          value: "{{ .Values.cluster.standardPool}}"
           effect: "NoSchedule"
       nodeSelector:
-        cloud.google.com/gke-nodepool: {{ .Values.cluster.lightweightPool }}
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.standardPool}}
       volumes:
-        - name: materializationengine-config-volume
+        - name: annotation-engine-config-volume
           configMap:
-            name: materializationengine-config
-        # Other volumes...
+            name: annotationengine-config
         - name: google-cloud-key
           secret:
-            secretName: materialize-google-cloud-key
+            secretName: annengine-google-cloud-key
         - name: cloudsql-instance-credentials-volume
           secret:
-            secretName: mat-cloudsql-google-cloud-key
+            secretName: ann-cloudsql-google-cloud-key
       containers:
-        - name: materialize
-          image: {{ .Values.cluster.dockerRegistry }}/materializationengine:v{{.Values.materialize.version}}
+        - name: annotationengine
+          image: {{ .Values.cluster.dockerRegistry}}/annotationengine:v{{ .Values.annotation.version}}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
           volumeMounts:
             - name: google-cloud-key
               mountPath: /home/nginx/.cloudvolume/secrets
-            - name: materializationengine-config-volume
-              mountPath: /app/materializationengine/instance/
+            - name: annotation-engine-config-volume
+              mountPath: /app/annotationengine/instance/
           env:
-            - name: MATERIALIZATION_ENGINE_SETTINGS
-              value: /app/materializationengine/instance/config.cfg
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/google-secret.json
-            - name: AUTH_URI
-              value: {{ .Values.cluster.globalServer }}/auth
             - name: LIMITER_CATEGORIES
-              value: '{"query":"{{ .Values.materialize.limitsFastQueryPerMinute}}/minute","fast_query":"{{ .Values.materialize.limitsQueryPerMinute}}/minute"}'
+              value: '{"query":"{{ .Values.annotation.limitsFastQueryPerMinute}}/minute","fast_query":"{{ .Values.annotation.limitsQueryPerMinute}}/minute"}'
             - name: LIMITER_URI
               value: redis://{{ .Values.limiter.redis.host }}/0 
+            - name: AUTH_URI
+              value: {{ .Values.globalServer }}/auth
             - name: STICKY_AUTH_URL
               value: {{ .Values.cluster.globalServer }}/sticky_auth
             - name: AUTH_URL
@@ -65,8 +62,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/cave-secret.json
           resources:
             requests:
-              memory: 1000Mi
-              cpu: 200m
+              memory: 300Mi
+              cpu: 100m
           readinessProbe:
             httpGet:
               path: /health

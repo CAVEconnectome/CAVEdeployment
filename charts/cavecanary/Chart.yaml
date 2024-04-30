@@ -1,0 +1,5 @@
+apiVersion: v2
+name: cavecanary
+description: A Helm chart for CAVE cavecanary service on Kubernetes
+version: 0.1.0
+appVersion: "0.4.4"
