@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: materialize
+spec:
+  selector:
+    matchLabels:
+      app: materialize
+  template:
+    metadata:
+      labels:
+        app: materialize
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "{{ .Values.cluster.lightweightPool }}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.lightweightPool }}
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config
+        # Other volumes...
+        - name: google-cloud-key
+          secret:
+            secretName: materialize-google-cloud-key
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: cloudsql-google-cloud-key
+      containers:
+        - name: materialize
+          image: {{ .Values.cluster.dockerRegistry }}/materializationengine:v{{.Values.materialize.version}}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/google-secret.json
+            - name: AUTH_URI
+              value: {{ .Values.globalServer }}/auth
+            - name: LIMITER_CATEGORIES
+              value: '{"query":"{{ .Values.materialize.limitsFastQueryPerMinute}}/minute","fast_query":"{{ .Values.materialize.limitsQueryPerMinute}}/minute"}'
+            - name: LIMITER_URI
+              value: redis://{{ .Values.materialize.redis.ip }}/0 
+            - name: STICKY_AUTH_URL
+              value: {{ .Values.cluster.globalServer }}/sticky_auth
+            - name: AUTH_URL
+              value: {{ .Values.cluster.globalServer }}/auth
+            - name: INFO_URL
+              value: {{ .Values.cluster.globalServer }}/info
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/cave-secret.json
+          resources:
+            requests:
+              memory: 1000Mi
+              cpu: 200m
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances={{ .Values.cluster.googleProject}}:{{ .Values.cluster.googleRegion}}:{{ .Values.annotation.sqlInstanceName}}=tcp:3306",
+              "-credential_file=/secrets/cloudsql/google-secret.json",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 10
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m

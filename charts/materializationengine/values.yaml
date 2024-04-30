@@ -1,0 +1,74 @@
+annotation:
+  # add to this if you want to exclude joint membership in a group name 
+  # from applying to group level permissions
+  excludedPermissionGroups: 
+    - default
+  # needs to be correspond to sql instance created
+  sqlInstanceName: "sql-instance-name"
+  # needs to correspond to a aligned volume that you created a database for
+  healthAlignedVolumeName: "my-aligned-volume-name"
+  postgresWriteUserPassword: "my-postgres-password"
+  # likely fine as default
+  postgresWriteUser: "postgres"
+cloudsql:
+  googleSecret: ""
+  username: "postgres"
+  password: ""
+materialize:
+  # will change as you upgrade versions
+  version: "4.23.2"
+  # need to fill in
+  datastacks: 
+    - my_datastack_1
+  secretFiles:
+    # need to fill in with path to secret file
+    - name: google-secret.json
+      value: ""
+    # need to fill in with path to secret file
+    - name: cave-secret.json
+      value: ""
+  # needs to be set via a file
+  schedules: ""
+  # controls autoscaling but likely fine as is
+  apiMinReplicas: 1
+  apiMaxReplicas: 5
+  producerMinReplicas: 2
+  producerMaxReplicas: 5
+  consumerMinReplicas: 1
+  consumerMaxReplicas: 50
+  schedulerReplicas: 1
+  # control how many databases it will allow materialization to create
+  minDatabases: 1
+  maxDatabases: 3
+  # limits queries to the api
+  limitsQueryPerMinute: 300
+  limitsFastQueryPerMinute: 2000
+  # resources limits for the celery workers
+  celeryProducerCpu: "100m"
+  celeryProducerMemory: "400Mi"
+  celeryConsumerCpu: "100m"
+  celeryConsumerMemory: "400Mi"
+  celeryProducerConcurrency: 2
+  celeryConsumerConcurrency: 2
+  # name of celery queues, likely fine as defaults
+  producerQueueName: "workflow"
+  consumerQueueName: "process"
+  redis:
+    # need to fill in with redis IP 
+    host: ""
+    # likely fine
+    port: "6379"
+    password: ""
+cluster:
+  # required to fill in or choose
+  globalServer: "my.global-server.com"
+  environment: "myenvironmentname"
+  domainName: "my-domain-name.com"
+  googleProject: "my-google-project"
+  googleRegion: "us-east1"
+  googleZone: "us-east1-b"
+  # likely fine as defaults
+  lightweightPool: "lightweight-pool"
+  meshPool: "mesh-pool"
+  standardPool: "standard-pool"
+  dockerRegistry: "docker.io/caveconnectome"

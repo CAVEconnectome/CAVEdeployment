@@ -1,0 +1,17 @@
+# helmfile.yaml
+releases:
+  - name: materialization-engine
+    namespace: processing
+    chart: ./charts/materializationengine
+    version: 0.1.0
+    values:
+      - environments/ltv5/cluster.yaml  # Specific values for production
+      - environments/ltv5/materialize.yaml  # Specific values for materialization
+      - environments/ltv5/annotation.yaml  # Specific values for annotation
+    secrets:
+      - environments/ltv5/secrets.yaml
+    set:
+      - name: materialize.redis.host
+        value: {{ env "MAT_REDIS_HOST" }}
+      - name: materialize.schedules
+        file: environments/ltv5/minnie_mat_schedules.json

@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flower
+spec:
+  ports:
+    - port: 5555
+      targetPort: 5555
+  selector:
+    app: flower
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flower
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flower
+  template:
+    metadata:
+      labels:
+        app: flower
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "{{ .Values.cluster.standard_pool}}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.standard_pool}}
+      containers:
+        - name: flower
+          image: mher/flower:0.9.5
+          args:
+            - flower
+            - --broker=redis://{{ .Values.materialize.redis.ip}}:{{ .Values.materialize.redis.port}}/0
+            - --port=5555
+            - --purge_offline_workers=1
+          env:
+            - name: FLOWER_PORT
+              value: "5555"
+          ports:
+            - containerPort: 5555
+          resources:
+            requests:
+              memory: 150Mi
+              cpu: 10m
+      restartPolicy: Always

@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-beat-scheduler
+  labels:
+    deployment: celery-beat-scheduler
+spec:
+  replicas: {{ .Values.materialize.schedulerReplicas }}
+  selector:
+    matchLabels:
+      app: celery-beat-scheduler
+  template:
+    metadata:
+      labels:
+        app: celery-beat-scheduler
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "{{ .Values.cluster.standardPool }}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.standardPool }}
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config
+        - name: google-cloud-key
+          secret:
+            secretName: materialize-google-cloud-key
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: cloudsql-google-cloud-key
+      containers:
+        - name: celery-beat-scheduler
+          image: {{ .Values.cluster.dockerRegistry }}/materializationengine:v{{ .Values.materialize.version }}
+          args:
+            - su
+            - nginx
+            - -c
+            - "celery --app=run.celery beat --pidfile=/home/nginx/celerybeat.pid --schedule=/home/nginx/celerybeat-schedule --loglevel=info"
+          volumeMounts:
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: REDIS_SERVICE_HOST
+              value: {{ .Values.materialize.redis.host }}
+            - name: MAT_REDIS_PASSWORD
+              value: {{ .Values.materialize.redis.password }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/google-secret.json
+            - name: AUTH_URI
+              value: {{ .Values.cluster.globalServer }}/auth
+            - name: STICKY_AUTH_URL
+              value: {{ .Values.cluster.globalServer }}/sticky_auth
+            - name: AUTH_URL
+              value: {{ .Values.cluster.globalServer }}/auth
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/cave-secret.json
+          resources:
+            requests:
+              cpu: 10m
+              memory: 150Mi
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances={{ .Values.cluster.googleProject}}:{{ .Values.cluster.googleRegion}}:{{ .Values.annotation.sqlInstanceName}}=tcp:3306",
+              "-credential_file=/secrets/cloudsql/google-secret.json",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+      restartPolicy: Always

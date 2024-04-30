@@ -1,0 +1,172 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-producer
+spec:
+  selector:
+    matchLabels:
+      app: celery-producer
+  template:
+    metadata:
+      labels:
+        app: celery-producer
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+    spec:
+      terminationGracePeriodSeconds: 6000 # change grace period to one hour
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "{{ .Values.cluster.standardPool}}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: {{ .Values.cluster.standardPool }}
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config
+        - name: google-cloud-key
+          secret:
+            secretName: materialize-google-cloud-key
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: cloudsql-google-cloud-key
+        - name: graceful-shut-down
+          emptyDir: {}
+      containers:
+        - name: celery
+          image: {{ .Values.cluster.dockerRegistry }}/materializationengine:v{{.Values.materialize.version}}
+          args:
+            - su
+            - nginx
+            - -c
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues={{ .Values.producerQueueName}} --loglevel=info -E -Ofair --concurrency={{ .Values.celeryProducerConcurrency }}"
+          volumeMounts:
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: REDIS_SERVICE_HOST
+              value: {{ .Values.materialize.redis.host }}
+            - name: REDIS_HOST
+              value: {{ .Values.materialize.redis.host }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.materialize.redis.password }}
+            - name: CELERY_BROKER_URL
+              value: redis://:{{ .Values.materialize.redis.password}}@{{ .Values.materialize.redis.host}}:{{ .Values.materialize.redis.post}}/0
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/google-secret.json
+            - name: AUTH_URI
+              value: {{ .Values.cluster.globalServer }}/auth
+            - name: STICKY_AUTH_URL
+              value: {{ .Values.cluster.globalServer }}/sticky_auth
+            - name: AUTH_URL
+              value: {{ .Values.cluster.globalServer }}/auth
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/cave-secret.json
+            - name: QUEUE_NAME
+              value: {{ .Values.materialize.producerQueueName }}
+            - name: WORKER_NAME
+              value: worker.{{ .Values.materialize.producerQueueName}}
+            - name: WORKER_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          resources:
+            requests:
+              cpu: {{ .Values.materialize.celeryProducerCpu }}
+              memory: {{ .Values.materialize.celeryProducerMemory }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/home/nginx/gracefully_shutdown_celery.sh"]
+        - name: celery-exporter
+          image: {{ .Values.cluster.dockerRegistry}}/celery-metric-exporter:v5
+          command: ["python"]
+          args:
+            - cli.py
+            - --broker-url
+            - redis://:{{ .Values.materialize.redis.password}}@{{ .Values.materialize.redis.host}}}:{{ .Values.materialize.redis.post}}/0
+            - --port
+            - "9540"
+            - -q
+            - {{ .Values.materialize.producerQueueName}}
+          ports:
+            - containerPort: 9540
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  [
+                    "sh",
+                    "-c",
+                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; kill -2 1",
+                  ]
+          volumeMounts:
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+        - name: prometheus-to-sd
+          image: gcr.io/google-containers/prometheus-to-sd:v0.8.0
+          command: ["/monitor"]
+          args:
+            - --source=http://localhost:9540/metrics
+            - --stackdriver-prefix=custom.googleapis.com
+            - --pod-id=$(POD_ID)
+            - --namespace-id=$(POD_NAMESPACE)
+          env:
+            # save Kubernetes metadata as environment variables for use in metrics
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          volumeMounts:
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances={{ .Values.cluster.googleProject}}:{{ .Values.cluster.googleRegion}}:{{ .Values.annotation.sqlInstanceName}}=tcp:3306",
+              "-credential_file=/secrets/cloudsql/google-secret.json",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  [
+                    "sh",
+                    "-c",
+                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; kill -2 1",
+                  ]
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+      restartPolicy: Always

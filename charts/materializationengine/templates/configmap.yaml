@@ -1,0 +1,51 @@
+{{- $password := .Values.cloudsql.password | required ".Values.cloudsql.password is required." -}}
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: materializationengine-config
+data:
+  config.cfg: |
+    import os
+    import json
+    import logging
+    # Dynamic config generation
+    INFOSERVICE_ENDPOINT = "https://{{ .Values.cluster.globalServer }}/info"
+    SCHEMA_SERVICE_ENDPOINT = "https://{{ .Values.cluster.globalServer }}/schema/"
+    GLOBAL_SERVER_URL = "https://{{ .Values.cluster.globalServer }}"
+    LOCAL_SERVER_URL = "https://{{ .Values.cluster.environment }}.{{ .Values.cluster.domainName }}"
+    TESTING = False
+    SQLALCHEMY_DATABASE_URI = "postgres://{{ .Values.cloudsql.username}}:{{ .Values.cloudsql.password}}@127.0.0.1:3306/annotation"
+    REDIS_HOST = "{{ .Values.materialize.redis.host}}"
+    REDIS_PORT = "{{ .Values.materialize.redis.port}}"
+    REDIS_PASSWORD = "{{ .Values.materialize.redis.password}}"
+    REDIS_URL = "redis://:{{ .Values.materialize.redis.password}}@{{ .Values.materialize.redis.host}}:{{ .Values.materialize.redis.post}}/0"
+    # Add all other configuration options similarly...
+    CELERY_BROKER_URL = REDIS_URL
+    CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+    MATERIALIZATION_ROW_CHUNK_SIZE = 500
+    TEST_DB_NAME = "{{ .Values.annotation.healthAlignedVolumeName }}"
+    INFO_API_VERSION = 2
+    DATASTACKS ={{ .Values.materialize.datastacks | toJson}}
+    DAYS_TO_EXPIRE = 7
+    LTS_DAYS_TO_EXPIRE = 30
+    # database number config
+    MIN_DATABASES = {{ .Values.materialize.minDatabases }}
+    MAX_DATABASES = {{ .Values.materialize.maxDatabases }}  
+    # celery throttling settings
+    QUERY_LIMIT_SIZE = 500000
+    QUEUE_LENGTH_LIMIT = 10000
+    QUEUES_TO_THROTTLE = ["process"]
+    THROTTLE_QUEUES = True
+    MERGE_TABLES = False
+    LOGGING_LEVEL = logging.ERROR
+    if os.environ.get("DAF_CREDENTIALS", None) is not None:
+        with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
+            AUTH_TOKEN = json.load(f)["token"]
+    else:
+        AUTH_TOKEN = ""
+    BEAT_SCHEDULES = {{.Values.materialize.schedules | indent 4}}
+    AUTH_SHARED_EXCLUDED_GROUPS={{ .Values.annotation.excludedPermissionGroups | toJson }}
+    DB_CONNECTION_POOL_SIZE = 5 
+    DB_CONNECTION_MAX_OVERFLOW = 5
