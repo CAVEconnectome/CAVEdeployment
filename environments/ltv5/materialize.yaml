@@ -1,0 +1,24 @@
+materialize:
+  version: "4.23.2"
+  datastacks: 
+    - minnie65_phase3_v1
+  schedules: |-
+    {{ .Files.Get "environments/ltv5/minnie_mat_schedule.json" | toString | indent 2 }}
+  apiMinReplicas: 1
+  apiMaxReplicas: 5
+  producerMinReplicas: 2
+  producerMaxReplicas: 5
+  consumerMinReplicas: 1
+  consumerMaxReplicas: 50
+  minDatabases: 1
+  maxDatabases: 3
+  limitsQueryPerMinute: 300
+  limitsFastQueryPerMinute: 2000
+  celeryProducerCpu: "100m"
+  celeryProducerMemory: "400Mi"
+  celeryConsumerCpu: "100m"
+  celeryConsumerMemory: "400Mi"
+  redis:
+    host: ""
+    port: "6379"
+    password: ""

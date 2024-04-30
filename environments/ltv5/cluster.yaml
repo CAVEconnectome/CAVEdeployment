@@ -1,0 +1,11 @@
+cluster:
+  globalServer: "global.daf-apis.com"
+  environment: "ltv5"
+  domainName: "microns-daf.com"
+  googleProject: "seung-lab"
+  dataProjectName: "neuromancer-seung-import"
+  meshPool: "mesh-pool"
+  standardPool: "standard-pool"
+  lightweightPool: "lightweight-pool"
+  corePool: "core-pool"
+  

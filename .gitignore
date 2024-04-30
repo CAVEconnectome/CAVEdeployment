@@ -1,8 +1,7 @@
 gcloud_keys/
 kubeyamls/
 secrets/
-environments/
-
+secrets.yaml
 .DS_Store
 .vscode
 env_config.sh
