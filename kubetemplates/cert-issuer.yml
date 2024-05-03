@@ -18,6 +18,6 @@ spec:
           project: $PROJECT_NAME
           serviceAccountSecretRef:
             name: $CLOUD_DNS_SERVICE_ACCOUNT_SECRET
-            key: $GOOGLE_SECRET_FILENAME
+            key: google-secret.json
 
 

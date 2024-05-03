@@ -12,6 +12,8 @@ annotation:
   # needs to be correspond to sql instance created
   # needs to correspond to a aligned volume that you created a database for
   healthAlignedVolumeName: ""
+  minReplicas = 1
+  maxReplicas = 10
   secretFiles:
     # need to fill in with path to secret file
     - name: google-secret.json
