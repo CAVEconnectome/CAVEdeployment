@@ -19,6 +19,9 @@ letsencrypt_email          = "forrestc@alleninstitute.org"
 # postgres setup
 sql_instance_name          = "svenmd-dynamicannotationframework-ltv"
 postgres_user_password     = "welcometothematrix"
+sql_instance_memory_gb     = 10
+sql_instance_cpu           = 2
+
 
 # pcg/l2cache setup variables
 bigtable_instance_name     = "pychunkedgraph"

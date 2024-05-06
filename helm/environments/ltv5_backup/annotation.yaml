@@ -1,0 +1,5 @@
+annotation:
+  excludedPermissionGroups:
+    - default
+    - group2
+  healthAlignedVolumeName: "minnie65_phase3"

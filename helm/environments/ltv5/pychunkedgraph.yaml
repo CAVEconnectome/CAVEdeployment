@@ -1,8 +1,0 @@
-pychunkedgraph:
-  version: UWSGI_read3
-  # should be a list of graphIds, no quotes
-  # each one on a new line with a - indented
-  graphIds: "pinky_mesh_v3,minnie3_v1,pinky_nf_v2,pcgv2_fly_undo_redo,fly_pcgv2_i0,fly_training_v2,minnie35_p3_v1,rsc_cutout1_1_v2,rsc_cutout2_1_v2,rsc_cutout2_2_v2,rsc_cutout3_1_v2,pinky_v2_microns_sandbox,ffn_test,megalopta_NO_test"
-  # should be enable or left blank
-  enableLogs: "enable"
-  uwsgiReadIni: "uwsgi_read.ini"

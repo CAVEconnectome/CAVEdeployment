@@ -37,10 +37,13 @@ module "cave" {
     max_nodes_core_pool        = var.max_nodes_core_pool
     
     # postgres variables with defaults
-    postgres_write_user        = var.postgres_write_user
-    sql_instance_cpu           = var.sql_instance_cpu
-    sql_instance_memory        = var.sql_instance_memory
-    
+    postgres_write_user              = var.postgres_write_user
+    sql_instance_cpu                 = var.sql_instance_cpu
+    sql_instance_memory_gb           = var.sql_instance_memory_gb
+    sql_temp_file_limit_gb           = var.sql_temp_file_limit_gb
+    sql_work_mem_mb                  = var.sql_work_mem_mb
+    sql_maintenance_work_mem_gb      = var.sql_maintenance_work_mem_gb
+
     # pcg variables with default
     pcg_redis_memory_size_gb   = var.pcg_redis_memory_size_gb
 

@@ -1,0 +1,247 @@
+{
+  "version": 4,
+  "terraform_version": "1.8.2",
+  "serial": 3,
+  "lineage": "e355f36b-1773-9150-d4cf-02c07970a8e6",
+  "outputs": {
+    "postgres_user_password": {
+      "value": "welcometothematrix",
+      "type": "string"
+    },
+    "postgres_write_user": {
+      "value": "postgres",
+      "type": "string"
+    },
+    "project_id": {
+      "value": "seung-lab",
+      "type": "string"
+    },
+    "sql_instance_name": {
+      "value": "svenmd-dynamicannotationframework-ltv",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "module": "module.cave",
+      "mode": "managed",
+      "type": "google_redis_instance",
+      "name": "pcg_redis",
+      "provider": "module.cave.provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "alternative_location_id": "",
+            "auth_enabled": false,
+            "auth_string": "",
+            "authorized_network": "projects/seung-lab/global/networks/daf-ltv5-network",
+            "connect_mode": "DIRECT_PEERING",
+            "create_time": "2023-03-15T22:43:18.787552002Z",
+            "current_location_id": "us-east1-b",
+            "display_name": "",
+            "host": "10.54.132.251",
+            "id": "projects/seung-lab/locations/us-east1/instances/ltv-pcg-cache",
+            "labels": {},
+            "location_id": "us-east1-b",
+            "maintenance_policy": [],
+            "maintenance_schedule": [],
+            "memory_size_gb": 1,
+            "name": "ltv-pcg-cache",
+            "persistence_iam_identity": "serviceAccount:service-483670036293@cloud-redis.iam.gserviceaccount.com",
+            "port": 6379,
+            "project": "seung-lab",
+            "redis_configs": {
+              "maxmemory-policy": "allkeys-lru"
+            },
+            "redis_version": "REDIS_6_X",
+            "region": "us-east1",
+            "reserved_ip_range": "10.54.132.248/29",
+            "server_ca_certs": [],
+            "tier": "BASIC",
+            "timeouts": {
+              "create": null,
+              "delete": null,
+              "update": null
+            },
+            "transit_encryption_mode": "DISABLED"
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "auth_string"
+              }
+            ]
+          ],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMCJ9"
+        }
+      ]
+    },
+    {
+      "module": "module.cave",
+      "mode": "managed",
+      "type": "google_sql_database_instance",
+      "name": "postgres",
+      "provider": "module.cave.provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "clone": [],
+            "connection_name": "seung-lab:us-east1:svenmd-dynamicannotationframework-ltv",
+            "database_version": "POSTGRES_13",
+            "deletion_protection": true,
+            "first_ip_address": "35.237.180.139",
+            "id": "svenmd-dynamicannotationframework-ltv",
+            "ip_address": [
+              {
+                "ip_address": "35.237.180.139",
+                "time_to_retire": "",
+                "type": "PRIMARY"
+              },
+              {
+                "ip_address": "104.196.113.225",
+                "time_to_retire": "",
+                "type": "OUTGOING"
+              }
+            ],
+            "master_instance_name": "",
+            "name": "svenmd-dynamicannotationframework-ltv",
+            "private_ip_address": "",
+            "project": "seung-lab",
+            "public_ip_address": "35.237.180.139",
+            "region": "us-east1",
+            "replica_configuration": [],
+            "restore_backup_context": [],
+            "root_password": null,
+            "self_link": "https://sqladmin.googleapis.com/sql/v1beta4/projects/seung-lab/instances/svenmd-dynamicannotationframework-ltv",
+            "server_ca_cert": [
+              {
+                "cert": "-----BEGIN CERTIFICATE-----\nMIIDfzCCAmegAwIBAgIBADANBgkqhkiG9w0BAQsFADB3MS0wKwYDVQQuEyQ3ZTEy\nOTM3Yy05OTY4LTRlNDMtODE3Yy1kMjNmMWY1ZDE0NDYxIzAhBgNVBAMTGkdvb2ds\nZSBDbG91ZCBTUUwgU2VydmVyIENBMRQwEgYDVQQKEwtHb29nbGUsIEluYzELMAkG\nA1UEBhMCVVMwHhcNMjEwNTI2MjIyNjI2WhcNMzEwNTI0MjIyNzI2WjB3MS0wKwYD\nVQQuEyQ3ZTEyOTM3Yy05OTY4LTRlNDMtODE3Yy1kMjNmMWY1ZDE0NDYxIzAhBgNV\nBAMTGkdvb2dsZSBDbG91ZCBTUUwgU2VydmVyIENBMRQwEgYDVQQKEwtHb29nbGUs\nIEluYzELMAkGA1UEBhMCVVMwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIB\nAQCVHeqFfmRfnXCjUXsZ2BWXtA4EKxuMClGKKEPtQIecIxklvlqfoHG1UKQXP0oW\nVY5PcgY1eWcSfB+YQTyoegc6ygQMrI5PzKzuU6KOd+lHZHQnWtbqJiVl1R9t6A97\nWA+3J3Jkbgd9rgG+gaT51GjW7CwFLGEN+ESCtxgb4/AcqbK8E7oDNrIE5W6ZHQmn\ntva08TheLXT+gWOxc7B05LjtWwB35B4VgR33Pqdj91RzDhBoYNgqOsQzkCOZ0ZT+\n2eB3Q1kD/cIWVSVA1PPb/pIfKV8lFJYa0BYB+MtHa0doJ907agWmrmAjROzzAZ5L\nGWT/pOboP9iz06BKHVEl+rTZAgMBAAGjFjAUMBIGA1UdEwEB/wQIMAYBAf8CAQAw\nDQYJKoZIhvcNAQELBQADggEBAJLF9gD03S7iDUNGbqjhNeFVOG8f62aI2uelzl55\n12TfWKGf51UcLEMgCySpeLXThIJxpoM8Mq6O49uMd0Lv1ooZgqOKua7o4hOWdxUP\nlgqeGinmZz2ptGmcEfWZf/7SK5dhEtdkHHAcqYATrCBqlGNvV3/kKXg9ZcW4Isic\newsBX4fCI/mIneY194rgvO7gVnGUKElr9f7p/hdY89mxqnUIbRkpgPWcpSKmmtea\nlvc9lP57u1XnktYIMycuvVQLuAkvL19ASCYEptcnozU3w5NibzItKOX/JJOqHCwC\nfgXlsdSQgDmEr8RzqpkAiDoHShRMZ0JUbGwTX2bnIQHJgXY=\n-----END CERTIFICATE-----",
+                "common_name": "C=US,O=Google\\, Inc,CN=Google Cloud SQL Server CA,dnQualifier=7e12937c-9968-4e43-817c-d23f1f5d1446",
+                "create_time": "2021-05-26T22:26:26.853Z",
+                "expiration_time": "2031-05-24T22:27:26.853Z",
+                "sha1_fingerprint": "2ee63b3da1a5c9d30fc95668d9c00834e9a4480e"
+              }
+            ],
+            "service_account_email_address": "p483670036293-ujsdj2@gcp-sa-cloud-sql.iam.gserviceaccount.com",
+            "settings": [
+              {
+                "activation_policy": "ALWAYS",
+                "availability_type": "ZONAL",
+                "backup_configuration": [
+                  {
+                    "backup_retention_settings": [
+                      {
+                        "retained_backups": 7,
+                        "retention_unit": "COUNT"
+                      }
+                    ],
+                    "binary_log_enabled": false,
+                    "enabled": false,
+                    "location": "",
+                    "point_in_time_recovery_enabled": false,
+                    "start_time": "20:00",
+                    "transaction_log_retention_days": 7
+                  }
+                ],
+                "collation": "",
+                "database_flags": [
+                  {
+                    "name": "temp_file_limit",
+                    "value": "8000000"
+                  }
+                ],
+                "disk_autoresize": false,
+                "disk_autoresize_limit": 0,
+                "disk_size": 50,
+                "disk_type": "PD_SSD",
+                "insights_config": [],
+                "ip_configuration": [
+                  {
+                    "allocated_ip_range": "",
+                    "authorized_networks": [],
+                    "ipv4_enabled": true,
+                    "private_network": "",
+                    "require_ssl": false
+                  }
+                ],
+                "location_preference": [
+                  {
+                    "follow_gae_application": "",
+                    "zone": "us-east1-c"
+                  }
+                ],
+                "maintenance_window": [
+                  {
+                    "day": 0,
+                    "hour": 0,
+                    "update_track": ""
+                  }
+                ],
+                "pricing_plan": "PER_USE",
+                "tier": "db-custom-2-10240",
+                "user_labels": {
+                  "environment": "test"
+                },
+                "version": 277
+              }
+            ],
+            "timeouts": {
+              "create": null,
+              "delete": null,
+              "update": null
+            }
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "root_password"
+              }
+            ]
+          ],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxODAwMDAwMDAwMDAwLCJkZWxldGUiOjE4MDAwMDAwMDAwMDAsInVwZGF0ZSI6MTgwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMCJ9"
+        }
+      ]
+    },
+    {
+      "module": "module.cave",
+      "mode": "managed",
+      "type": "google_sql_user",
+      "name": "writer",
+      "provider": "module.cave.provider[\"registry.terraform.io/hashicorp/google\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "deletion_policy": null,
+            "host": "",
+            "id": "postgres//svenmd-dynamicannotationframework-ltv",
+            "instance": "svenmd-dynamicannotationframework-ltv",
+            "name": "postgres",
+            "password": null,
+            "project": "seung-lab",
+            "timeouts": {
+              "create": null,
+              "delete": null,
+              "update": null
+            },
+            "type": ""
+          },
+          "sensitive_attributes": [
+            [
+              {
+                "type": "get_attr",
+                "value": "password"
+              }
+            ]
+          ],
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6NjAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9"
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
