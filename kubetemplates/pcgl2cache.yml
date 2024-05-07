@@ -28,8 +28,8 @@ spec:
           type: Utilization
           averageUtilization: 90
 ---
-kind: Service
 apiVersion: v1
+kind: Service
 metadata:
   name: pcgl2cache-service
 spec:
