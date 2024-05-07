@@ -3,8 +3,8 @@
 resource "google_service_account" "workload_identity" {
   project = var.project_id
 
-  account_id   = "svc-workident-${var.environment}-${terraform.workspace}"
-  display_name = "svc-workident-${var.environment}-${terraform.workspace}"
+  account_id   = "svc-workident-${var.cluster_name}"
+  display_name = "svc-workident-${var.cluster_name}"
 }
 
 # resource "kubernetes_service_account" "ksa" {
@@ -26,13 +26,13 @@ resource "google_service_account_iam_binding" "ksa_gsa_binding" {
 }
 
 resource "google_container_cluster" "cluster" {
-  name                     = "${var.environment}-cave"
+  name                     = "${var.cluster_name}-cave"
   location                 = var.zone
   remove_default_node_pool = true
   initial_node_count       = 1
 
-  network         = google_compute_network.vpc.self_link
-  subnetwork      = google_compute_subnetwork.subnet.self_link
+  network         = var.network
+  subnetwork      = var.subnetwork
   networking_mode = "VPC_NATIVE"
 
   resource_labels = {
@@ -88,7 +88,7 @@ resource "google_container_cluster" "cluster" {
 # }
 
 resource "google_compute_address" "cluster_ip" {
-  name   = "${var.environment}-cave"
+  name   = "${var.cluster_name}-cave"
   region = var.region
 
 }

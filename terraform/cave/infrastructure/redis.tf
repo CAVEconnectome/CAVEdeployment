@@ -19,18 +19,4 @@ resource "google_redis_instance" "pcg_redis" {
   }
 }
 
-resource "google_redis_instance" "mat_redis" {
-  name               = "${var.environment}-${terraform.workspace}-mat-redis"
-  display_name       = "${var.environment}-${terraform.workspace}-mat-redis"
-  tier               = "BASIC"
-  memory_size_gb     = 1
-  region             = var.region
-  redis_version      = "REDIS_${var.redis_version}_X"
-  authorized_network = google_compute_network.vpc.self_link
-
-  labels = {
-    project = var.environment
-    owner   = var.owner
-  }
-}
 
