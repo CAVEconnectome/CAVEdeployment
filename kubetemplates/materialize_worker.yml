@@ -175,6 +175,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
+            - name: TASKQUEUE_QURL
+              value: "pubsub://projects/${PROJECT_NAME}/topics/${MAT_TASKQUEUE_TOPIC}/subscriptions/${MAT_TASKQUEUE_SUBSCRIPTION}"
+            - name: TASKQUEUE_TIMEOUT
+              value: "300"
           resources:
             requests:
               cpu: ${CELERY_CPU}
