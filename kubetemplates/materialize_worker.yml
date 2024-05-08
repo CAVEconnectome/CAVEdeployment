@@ -128,7 +128,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
+            - "celery --app=run.celery worker --pool=threads --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -163,6 +163,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
             - name: QUEUE_NAME
               value: ${PRODUCER_QUEUE_NAME}
+            - name: CELERY_CLOUDVOLUME_CACHE_BYTES
+              value: "5200000000"
             - name: WORKER_NAME
               value: ${CELERY_PRODUCER_WORKER_NAME}
             - name: WORKER_HOSTNAME
@@ -173,6 +175,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.uid
+            - name: TASKQUEUE_QURL
+              value: "pubsub://projects/${PROJECT_NAME}/topics/${MAT_TASKQUEUE_TOPIC}/subscriptions/${MAT_TASKQUEUE_SUBSCRIPTION}"
+            - name: TASKQUEUE_TIMEOUT
+              value: "300"
           resources:
             requests:
               cpu: ${CELERY_CPU}
@@ -186,7 +192,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-instances=${SQL_PROJECT_NAME}:${SQL_REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
               "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
             ]
           resources:
@@ -303,7 +309,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
+            - "celery --app=run.celery worker --pool=threads --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -361,7 +367,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-instances=${SQL_PROJECT_NAME}:${SQL_REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
               "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
             ]
           resources:
@@ -460,7 +466,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-instances=${SQL_PROJECT_NAME}:${SQL_REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
               "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
             ]
           resources:

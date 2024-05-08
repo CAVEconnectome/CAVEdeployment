@@ -21,7 +21,7 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PM
 
 
 gcloud iam service-accounts create $CLOUD_SQL_SERVICE_ACCOUNT_NAME --display-name=CloudSQL-$ENVIRONMENT
-gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$CLOUD_SQL_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/cloudsql.client
+gcloud projects add-iam-policy-binding $SQL_PROJECT_NAME --member serviceAccount:$CLOUD_SQL_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/cloudsql.client
 
 
 # gcloud iam service-accounts create $AUTH_SERVICE_ACCOUNT_NAME --display-name=Auth-$ENVIRONMENT

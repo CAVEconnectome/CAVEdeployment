@@ -1,7 +1,7 @@
 source env_config.sh
 source $ENV_REPO_PATH/$1.sh
 gcloud auth application-default login
-export INSTANCE_CONNECTION_NAME=$PROJECT_NAME:$REGION:$SQL_INSTANCE_NAME
+export INSTANCE_CONNECTION_NAME=$SQL_PROJECT_NAME:$SQL_REGION:$SQL_INSTANCE_NAME
 
 docker pull gcr.io/cloudsql-docker/gce-proxy:1.16
 docker rm --force gce-proxy
