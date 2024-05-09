@@ -1,0 +1,114 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: materialize-pubsub-worker
+spec:
+  replicas: 100  # Add this line to set the number of replicas
+  selector:
+    matchLabels:
+      app: materialize-pubsub-worker
+  template:
+    metadata:
+      labels:
+        app: materialize-pubsub-worker
+    spec:
+      terminationGracePeriodSeconds: 6000 # change grace period to one hour
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${MESH_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config-v${MATERIALIZE_CONFIG_VERSION}
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
+        - name: graceful-shut-down
+          emptyDir: {}
+      containers:
+        - name: worker
+          image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
+          args:
+            - su
+            - nginx
+            - -c
+            - "python /app/materializationengine/taskqueue_worker.py"
+          volumeMounts:
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: REDIS_SERVICE_HOST
+              value: ${MAT_REDIS_HOST}
+            - name: REDIS_HOST
+              value: ${MAT_REDIS_HOST}
+            - name: REDIS_PASSWORD
+              value: ${MAT_REDIS_PASSWORD}
+            - name: CELERY_BROKER_URL
+              value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: BIGTABLE_PROJECT
+              value: ${DATA_PROJECT_NAME}
+            - name: BIGTABLE_INSTANCE
+              value: ${BIGTABLE_INSTANCE_NAME}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: DAF_CREDENTIALS.
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: QUEUE_NAME
+              value: ${PRODUCER_QUEUE_NAME}
+            - name: CELERY_CLOUDVOLUME_CACHE_BYTES
+              value: "5200000000"
+            - name: WORKER_NAME
+              value: ${CELERY_PRODUCER_WORKER_NAME}
+            - name: WORKER_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          resources:
+            requests:
+              cpu: ${MAT_TASKQUEUE_CPU}
+              memory: ${MAT_TASKQUEUE_MEMORY}
+        - name: cloudsql-proxy
+          image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
+          command:
+            [
+              "/cloud_sql_proxy",
+              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:3306",
+              "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
+            ]
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+      restartPolicy: Always
