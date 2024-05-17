@@ -147,7 +147,7 @@ spec:
             name: dash-service
             port:
               number: 80
-      - path: /skeleton
+      - path: /properties
         pathType: ImplementationSpecific
         backend:
           service:

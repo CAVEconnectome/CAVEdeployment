@@ -5,7 +5,7 @@ metadata:
   namespace: default
 data:
   config.cfg: |
-    SKELETON_CACHE_BUCKET = "${SKELETON_CACHE_BUCKET}"
+    SKELETON_CACHE_BUCKET = "gs://${SKELETON_CACHE_BUCKET}"
 ---
 apiVersion: v1
 kind: Service
@@ -88,6 +88,8 @@ spec:
               value: ${AUTH_URL}
             - name: INFO_URL
               value: ${INFO_URL}
+            - name: SKELETONSERVICE_SETTINGS
+              value: "/app/skeletoncache/app/instance/config.cfg"
             - name: APP_SETTINGS
               value: "skeletoncache.app.config.DevelopmentConfig"
             - name: DAF_CREDENTIALS
@@ -98,14 +100,14 @@ spec:
               cpu: 200m
           readinessProbe:
             httpGet:
-              path: /skeletoncache/api/v1
+              path: /properties/health
               port: 80
             initialDelaySeconds: 5
             timeoutSeconds: 1
             periodSeconds: 60
           livenessProbe:
             httpGet:
-              path: /skeletoncache/api/v1
+              path: /properties/health
               port: 80
             initialDelaySeconds: 15
             timeoutSeconds: 1
