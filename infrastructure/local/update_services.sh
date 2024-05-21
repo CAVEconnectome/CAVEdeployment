@@ -6,7 +6,9 @@ source $ENV_REPO_PATH/$1.sh
 #export REDIS_IP="$(gcloud redis instances describe $REDIS_NAME --region=$REGION | sed -n -e 's/^host: \(.*\)$/\1/p')"
 ./infrastructure/local/create_yaml_files_from_templates.sh $1
 
-MAX_REPLICA_ARRAY=(${PCGL2CACHE_MAX_REPLICAS}
+MAX_REPLICA_ARRAY=(
+${PCGL2CACHE_MAX_REPLICAS}
+${SKELETONCACHE_MAX_REPLICAS}
 ${ANNOTATIONENGINE_MAX_REPLICAS}
 ${PYCG_MAX_REPLICAS}
 ${MAT_MAX_REPLICAS}
@@ -21,7 +23,9 @@ ${PPROGRESS_MAX_REPLICAS}
 ${PMANAGEMENT_MAX_REPLICAS}
 ${CAVECANERY_MAX_REPLICAS})
 
-SERVICE_ARRAY=(pcgl2cache
+SERVICE_ARRAY=(
+pcgl2cache
+skeletoncache
 annotation
 pychunkedgraph
 materialize

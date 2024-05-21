@@ -147,6 +147,13 @@ spec:
             name: dash-service
             port:
               number: 80
+      - path: /properties
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: skeletoncache-service
+            port:
+              number: 80
       - path: /auth_info
         pathType: ImplementationSpecific
         backend:

@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: skeletoncache-config-v${SKELETONCACHE_CONFIG_VERSION}
+  namespace: default
+data:
+  config.cfg: |
+    SKELETON_CACHE_BUCKET = "gs://${SKELETON_CACHE_BUCKET}"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: skeletoncache-service
+spec:
+  type: NodePort
+  selector:
+    app: skeletoncache
+  ports:
+    - port: 80
+      targetPort: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: skeletoncache-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: skeletoncache
+  minReplicas: ${SKELETONCACHE_MIN_REPLICAS}
+  maxReplicas: ${SKELETONCACHE_MAX_REPLICAS}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 90
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skeletoncache
+spec:
+  selector:
+    matchLabels:
+      app: skeletoncache
+  template:
+    metadata:
+      labels:
+        app: skeletoncache
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${MESH_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${SKELETON_SERVICE_ACCOUNT_SECRET}
+        - name: skeleton-config-volume
+          configMap:
+            name: skeletoncache-config-v${SKELETONCACHE_CONFIG_VERSION}
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: skeletoncache
+          image: ${DOCKER_REPOSITORY}/skeletoncache:v${SKELETONCACHE_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: skeleton-config-volume
+              mountPath: /app/skeletoncache/app/instance/
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: INFO_URL
+              value: ${INFO_URL}
+            - name: SKELETONSERVICE_SETTINGS
+              value: "/app/skeletoncache/app/instance/config.cfg"
+            - name: APP_SETTINGS
+              value: "skeletoncache.app.config.DevelopmentConfig"
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+          resources:
+            requests:
+              memory: 200Mi
+              cpu: 200m
+          readinessProbe:
+            httpGet:
+              path: /properties/health
+              port: 80
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 60
+          livenessProbe:
+            httpGet:
+              path: /properties/health
+              port: 80
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 100
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m
