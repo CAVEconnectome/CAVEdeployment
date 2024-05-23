@@ -100,14 +100,14 @@ spec:
               cpu: 200m
           readinessProbe:
             httpGet:
-              path: /properties/health
+              path: /skeletoncache/health
               port: 80
             initialDelaySeconds: 5
             timeoutSeconds: 1
             periodSeconds: 60
           livenessProbe:
             httpGet:
-              path: /properties/health
+              path: /skeletoncache/health
               port: 80
             initialDelaySeconds: 15
             timeoutSeconds: 1
