@@ -94,6 +94,10 @@ spec:
               value: "skeletoncache.app.config.DevelopmentConfig"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: SKELETON_CACHE_EXCHANGE
+              value: ${SKELETON_CACHE_EXCHANGE}
+            - name: SKELETON_CACHE_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_RETRIEVE_QUEUE}
           resources:
             requests:
               memory: 200Mi
@@ -130,3 +134,106 @@ spec:
             requests:
               memory: 10Mi
               cpu: 5m
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: skeletoncache-worker-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: skeletoncache-worker
+  minReplicas: ${SKELETONCACHE_WORKER_MIN_REPLICAS}
+  maxReplicas: ${SKELETONCACHE_WORKER_MAX_REPLICAS}
+  metrics:
+    - external:
+        metric:
+          name: pubsub.googleapis.com|subscription|num_undelivered_messages
+          selector:
+            matchLabels:
+              resource.labels.subscription_id: ${SKELETON_CACHE_RETRIEVE_QUEUE}
+        target:
+          type: AverageValue
+          averageValue: 1
+      type: External
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: skeletoncache-worker
+spec:
+  selector:
+    matchLabels:
+      app: skeletoncache-worker
+  template:
+    metadata:
+      labels:
+        app: skeletoncache-worker
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${MESH_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${SKELETON_SERVICE_ACCOUNT_SECRET}
+        - name: sksv-config-volume
+          configMap:
+            name: skeletoncache-config-v${SKELETONCACHE_CONFIG_VERSION}
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: skeletoncache-worker
+          image: ${DOCKER_REPOSITORY}/skeletoncache:worker_sksvv1_v${SKELETONCACHE_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: sksv-config-volume
+              mountPath: /app/skeletoncache/app/instance/
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: BIGTABLE_PROJECT
+              value: ${DATA_PROJECT_NAME}
+            - name: BIGTABLE_INSTANCE
+              value: ${BIGTABLE_INSTANCE_NAME}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: INFO_URL
+              value: ${INFO_URL}
+            - name: APP_SETTINGS
+              value: "skeletoncache.app.config.DevelopmentConfig"
+            - name: SKELETON_CACHE_URL_PREFIX
+              value: sksv
+            - name: PROJECT_ID
+              value: ${DATA_PROJECT_NAME}
+            - name: PROJECT_NAME
+              value: ${PROJECT_NAME}
+            - name: SKELETON_CACHE_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_RETRIEVE_QUEUE}
+            - name: SKELETON_CACHE_EXCHANGE
+              value: ${SKELETON_CACHE_EXCHANGE}
+            - name: AUTH_USE_REDIS
+              value: "false"
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+          resources:
+            requests:
+              memory: 2500Mi
+              cpu: 500m
+          command:
+            - su
+            - nginx
+            - -c
+            - "python -m workers.missing"
