@@ -188,7 +188,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: skeletoncache-worker
-          image: ${DOCKER_REPOSITORY}/skeletoncache:worker_sksvv1_v${SKELETONCACHE_VERSION}
+          image: ${DOCKER_REPOSITORY}/skeletoncache:v${SKELETONCACHE_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
