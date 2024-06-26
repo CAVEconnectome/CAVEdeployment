@@ -236,4 +236,4 @@ spec:
             - su
             - nginx
             - -c
-            - "python -m workers.missing"
+            - "python -m skeletonservice.datasets.messaging"
