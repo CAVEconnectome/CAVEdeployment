@@ -88,6 +88,8 @@ spec:
               value: ${AUTH_URL}
             - name: INFO_URL
               value: ${INFO_URL}
+            - name: PROJECT_NAME
+              value: ${PROJECT_NAME}
             - name: SKELETONSERVICE_SETTINGS
               value: "/app/skeletoncache/app/instance/config.cfg"
             - name: APP_SETTINGS
