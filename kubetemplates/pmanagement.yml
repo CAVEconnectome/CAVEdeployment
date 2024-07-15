@@ -92,7 +92,7 @@ spec:
               value: ${PMANAGEMENT_NEURONINFORMATION_TABLE}
           resources:
             requests:
-              memory: 1000Mi
+              memory: 950Mi
               cpu: 100m
           readinessProbe:
             httpGet:

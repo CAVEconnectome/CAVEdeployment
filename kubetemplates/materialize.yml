@@ -149,7 +149,7 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 1000Mi
+              memory: 950Mi
               cpu: 200m
           readinessProbe:
             httpGet:
