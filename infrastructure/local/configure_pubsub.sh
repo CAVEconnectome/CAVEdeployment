@@ -7,7 +7,7 @@ gcloud pubsub topics create ${L2CACHE_EXCHANGE}
 gcloud pubsub subscriptions create ${L2CACHE_UPDATE_QUEUE} --topic=${L2CACHE_EXCHANGE} --topic-project=${PROJECT_NAME} --ack-deadline=60 --expiration-period="never" --max-retry-delay=10
 
 gcloud pubsub topics create ${SKELETON_CACHE_EXCHANGE}
-gcloud pubsub subscriptions create ${SKELETON_CACHE_RETRIEVE_QUEUE} --topic=${SKELETON_CACHE_EXCHANGE} --topic-project=${PROJECT_NAME} --ack-deadline=60 --expiration-period="never" --max-retry-delay=10
+gcloud pubsub subscriptions create ${SKELETON_CACHE_RETRIEVE_QUEUE} --topic=${SKELETON_CACHE_EXCHANGE} --topic-project=${PROJECT_NAME} --ack-deadline=180 --expiration-period="never" --max-retry-delay=10
 
 gcloud pubsub topics create ${PYCHUNKEDGRAPH_EDITS_EXCHANGE}
 gcloud pubsub subscriptions create ${PYCHUNKEDGRAPH_REMESH_QUEUE} --topic=${PYCHUNKEDGRAPH_EDITS_EXCHANGE} --topic-project=${PROJECT_NAME} --ack-deadline=600 --expiration-period="never" --max-retry-delay=10 --message-filter='attributes.remesh_priority="true"'
