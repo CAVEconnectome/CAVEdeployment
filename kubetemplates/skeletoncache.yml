@@ -196,12 +196,12 @@ spec:
             - containerPort: 80
           volumeMounts:
             - name: google-cloud-key
-              mountPath: /home/nginx/.cloudvolume/secrets
+              mountPath: /root/.cloudvolume/secrets
             - name: sksv-config-volume
               mountPath: /app/skeletoncache/app/instance/
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+              value: /root/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: STICKY_AUTH_URL
@@ -229,13 +229,13 @@ spec:
             - name: AUTH_USE_REDIS
               value: "false"
             - name: DAF_CREDENTIALS
-              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+              value: /root/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
               memory: 2500Mi
-              cpu: 500m
+              cpu: 250m
           command:
-            - su
-            - nginx
+            - /bin/sh
             - -c
-            - "python -u -m skeletonservice.datasets.messaging"
+            - python -u -m skeletonservice.datasets.messaging
+            
