@@ -12,7 +12,7 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PY
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/storage.objectViewer
 
 gcloud iam service-accounts create $SKELETON_SERVICE_ACCOUNT_NAME --display-name=SkeletonService-$ENVIRONMENT
-gsutil iam ch serviceAccount:$SKELETON_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter,legacyObjectOwner,legacyObjectReader gs://$SKELETON_CACHE_BUCKET
+gsutil iam ch serviceAccount:$SKELETON_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter,legacyObjectOwner,legacyObjectReader gs://$(echo $SKELETON_CACHE_BUCKET | cut -d'/' -f1)
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$SKELETON_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/pubsub.editor
 
 gcloud iam service-accounts create $AE_SERVICE_ACCOUNT_NAME --display-name=AnnotationEngine-$ENVIRONMENT
