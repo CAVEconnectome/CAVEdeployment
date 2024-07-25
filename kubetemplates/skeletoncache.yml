@@ -80,6 +80,8 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: GLOBAL_SERVER_URL
+              value: ${GLOBAL_SERVER_URL}
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: STICKY_AUTH_URL
@@ -202,6 +204,8 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /root/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: GLOBAL_SERVER_URL
+              value: ${GLOBAL_SERVER_URL}
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: STICKY_AUTH_URL
