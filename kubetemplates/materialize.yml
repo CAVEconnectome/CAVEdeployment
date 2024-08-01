@@ -17,6 +17,8 @@ data:
     LOGGING_FORMAT = '%(asctime)s - %(levelname)s - %(message)s'
     LOGGING_LOCATION = '/home/nginx/.materializationengine/bookshelf.log'
     SQLALCHEMY_DATABASE_URI = "${SQL_DB_TYPE}://${POSTGRES_WRITE_USER}:${POSTGRES_WRITE_USER_PASSWORD}@127.0.0.1:3306/${SQL_ANNO_DB_NAME}"
+    SQL_INSTANCE_NAME = "${SQL_INSTANCE_NAME}"
+    MATERIALIZATION_DUMP_BUCKET = "gs://${MATERIALIZATION_DUMP_BUCKET}"
     REDIS_HOST = "${MAT_REDIS_HOST}"
     REDIS_PORT = "${MAT_REDIS_PORT}"
     REDIS_PASSWORD = "${MAT_REDIS_PASSWORD}"
@@ -38,7 +40,7 @@ data:
     QUEUES_TO_THROTTLE = ["process"]
     THROTTLE_QUEUES = True
     MERGE_TABLES=${MERGE_MATERIALIZE_DATABASES}  
-    LOGGING_LEVEL = logging.ERROR
+    LOGGING_LEVEL = logging.DEBUG
     if os.environ.get("DAF_CREDENTIALS", None) is not None:
         with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
             AUTH_TOKEN = json.load(f)["token"]

@@ -6,6 +6,10 @@ source $ENV_REPO_PATH/$1.sh
 mkdir -p ${KEY_FOLDER}
 gcloud iam service-accounts create $PYCG_SERVICE_ACCOUNT_NAME --display-name=PyChunkedGraph-$ENVIRONMENT
 gsutil iam ch serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter,legacyObjectOwner,legacyObjectReader gs://$PCG_BUCKET_NAME
+if [ -n "$MATERIALIZATION_DUMP_BUCKET" ]
+then
+    gsutil iam ch serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter,legacyObjectOwner,legacyObjectReader gs://$MATERIALIZATION_DUMP_BUCKET
+fi
 gcloud projects add-iam-policy-binding $DATA_PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/bigtable.user
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/datastore.user
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/pubsub.editor
