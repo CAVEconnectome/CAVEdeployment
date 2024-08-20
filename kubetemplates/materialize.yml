@@ -135,6 +135,8 @@ spec:
               value: /app/materializationengine/instance/config.cfg
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: LOCAL_SERVER_URL
+              value: "http://pychunkedgraph-read-service"
             - name: AUTH_URI
               value: ${AUTH_URI}
             - name: LIMITER_CATEGORIES
