@@ -3,11 +3,6 @@ output "pcg_redis_host" {
   description = "The ip of the pcg_redis host"
 }
 
-output "mat_redis_host" {
-  value       = google_redis_instance.mat_redis.host
-  description = "The ip of the mat_redis host"
-}
-
 output "network_self_link" {
   value       = google_compute_network.vpc.self_link
   description = "The self_link of the network"

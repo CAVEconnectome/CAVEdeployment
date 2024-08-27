@@ -1,4 +1,4 @@
-module "ltv-infrastructure" {
+module "infrastructure" {
     source                     = "../../../cave/infrastructure"
     ## variables that must be defined
     # global google setup variables
@@ -6,15 +6,13 @@ module "ltv-infrastructure" {
     owner                      = var.owner
     project_id                 = var.project_id
     region                     = var.region
-    zone                       = var.zone
-    gcp_user_account           = var.gcp_user_account
 
     # postgres setup
     sql_instance_name          = var.sql_instance_name
     postgres_user_password     = var.postgres_user_password
 
     # pcg/l2cache setup variables
-    pcg_redis_name             = var.pcg_redis_name
+    pcg_redis_name_override         = var.pcg_redis_name
 
     # postgres variables with defaults
     postgres_write_user              = var.postgres_write_user
@@ -26,5 +24,5 @@ module "ltv-infrastructure" {
 
     # pcg variables with default
     pcg_redis_memory_size_gb   = var.pcg_redis_memory_size_gb
-
+    vpc_name_override          = var.vpc_name
 }

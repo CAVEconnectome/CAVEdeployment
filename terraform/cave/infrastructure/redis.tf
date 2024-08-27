@@ -1,12 +1,13 @@
 
 
 resource "google_redis_instance" "pcg_redis" {
-  name               = "${var.owner}-${var.environment}-pcg-redis"
-  display_name       = "${var.owner}-${var.environment}-pcg-redis"
+  name               = local.pcg_redis_name
+  display_name       = local.pcg_redis_name
   tier               = "BASIC"
   memory_size_gb     = var.pcg_redis_memory_size_gb
   region             = var.region
-  redis_version      = "REDIS_${var.redis_version}_X"
+  redis_version      = "REDIS_${var.redis_version}"
+  project            = var.project_id
   authorized_network = google_compute_network.vpc.self_link
   redis_configs =  {
     maxmemory-policy = "allkeys-lru"
@@ -18,5 +19,4 @@ resource "google_redis_instance" "pcg_redis" {
     owner   = var.owner
   }
 }
-
 

@@ -13,6 +13,11 @@ variable "owner" {
   default = "na"
 }
 
+variable "project_id" {
+  description = "google project id"
+}
+
+
 variable "sql_instance_name" {
   description = "Name of the SQL instance"
   type = string
@@ -24,8 +29,21 @@ variable "postgres_user_password" {
   sensitive = true
 }
 
-variable "pcg_redis_name" {
-  description = "Name of the SQL instance"
+variable "pcg_redis_name_override" {
+  description = "Override for the PCG Redis name"
+  type        = string
+  default     = ""
+}
+
+variable "vpc_name_override" {
+  description = "Override for the VPC name"
+  type        = string
+  default     = ""
+}
+
+locals {
+  pcg_redis_name = var.pcg_redis_name_override != "" ? var.pcg_redis_name_override : "${var.owner}-${var.environment}-pcg-redis"
+  vpc_name = var.vpc_name_override != "" ? var.vpc_name_override : "${var.owner}-${var.environment}-vpc"
 }
 
 variable "postgres_write_user" {
@@ -70,7 +88,7 @@ variable "pcg_redis_memory_size_gb" {
 }
 
 variable "redis_version" {
-  type        = number
-  default     = 7
+  type        = string
+  default     = "7_2"
   description = "redis version"
 }

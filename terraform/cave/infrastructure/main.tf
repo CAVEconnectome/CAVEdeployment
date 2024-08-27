@@ -1,0 +1,1 @@
+# This file can be used to include common resources or configurations

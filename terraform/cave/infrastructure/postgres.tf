@@ -29,11 +29,13 @@ resource "google_sql_database_instance" "postgres" {
 
 resource "google_sql_database" "annotation" {
   name     = "annotation"
+  project = var.project_id
   instance = google_sql_database_instance.postgres.name
 }
 
 resource "google_sql_database" "materialization" {
   name     = "materialization"
+  project = var.project_id
   instance = google_sql_database_instance.postgres.name
 }
 
