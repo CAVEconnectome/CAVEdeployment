@@ -10,6 +10,8 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$AU
 
 gcloud iam service-accounts create $NGLSTATE_SERVICE_ACCOUNT_NAME --display-name=NGLState-$ENVIRONMENT
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$NGLSTATE_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/datastore.user
+gsutil iam ch serviceAccount:$NGLSTATE_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter,legacyObjectOwner,legacyObjectReader gs://$NGLSTATE_BUCKET_NAME
+
 
 gcloud iam service-accounts create $CLOUD_DNS_SERVICE_ACCOUNT_NAME --display-name=cloud-dns-$ENVIRONMENT
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$CLOUD_DNS_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/dns.admin

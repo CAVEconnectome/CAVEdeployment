@@ -55,9 +55,11 @@ spec:
             - name: PROJECT_ID
               value: ${PROJECT_NAME}
             - name: APP_SETTINGS
-              value: "neuroglancerjsonserver.app.config.DeploymentWithRedisConfig"
+              value: "neuroglancerjsonserver.app.config.BaseConfig"
             - name: JSON_DB_TABLE_NAME
               value: ${JSON_DB_TABLE_NAME}
+            - name: NGLSTATE_BUCKET_PATH
+              value: ${NGLSTATE_BUCKET_PATH}
           resources:
             requests:
               memory: 130Mi
