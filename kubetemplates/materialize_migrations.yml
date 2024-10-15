@@ -1,0 +1,55 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: materialize-db-migration
+spec:
+  template:
+    metadata:
+      name: materialize-db-migration
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: sql_migration
+        image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
+        command: ["/bin/sh", "-c"]
+        args: 
+            - |
+              cat <<EOF > /app/run_migration.sh
+              #!/bin/sh
+              set -e
+              
+              # Attempt to import and run the migration function
+              python3 <<EOF2
+              try:
+                  from migration import migrate_static_schemas_in_aligned_volume_dbs
+                  migrate_static_schemas_in_aligned_volume_dbs()
+                  print("Migration completed successfully")
+              except ImportError:
+                  print("Migration function not found, skipping...")
+                  exit(0)
+              except Exception as e:
+                  print(f"Error during migration: {str(e)}")
+                  exit(1)
+              EOF2
+              
+              EOF
+              
+              chmod +x /app/run_migration.sh
+              /app/run_migration.sh
+        env:
+        - name: MATERIALIZATION_ENGINE_SETTINGS
+          value: /app/materializationengine/instance/config.cfg
+      volumeMounts:
+        - name: cloudsql-instance-credentials-volume
+          mountPath: /secrets/cloudsql
+          readOnly: true
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config-v${MATERIALIZE_CONFIG_VERSION}
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
