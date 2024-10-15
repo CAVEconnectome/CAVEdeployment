@@ -10,6 +10,7 @@ CELERY_WORKER_COUNT=${CELERY_PRODUCER_MIN_REPLICAS:-0}
 if (( $ANNOTATION_COUNT > 0 || $MATERIALIZATION_COUNT > 0 || $CELERY_WORKER_COUNT > 0 ));
 then
   echo "Running database migration for materialize service"
+  envsubst < kubetemplates/materialize_migrations.yml > ${YAML_FOLDER}/materialize_migrations.yml
   kubectl apply -f ${YAML_FOLDER}/materialize_migrations.yml
   kubectl wait --for=condition=complete job/materialize-db-migration --timeout=600s
   if [ $? -ne 0 ]; then

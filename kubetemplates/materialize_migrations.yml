@@ -9,10 +9,10 @@ spec:
     spec:
       restartPolicy: Never
       containers:
-      - name: sql_migration
-        image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
-        command: ["/bin/sh", "-c"]
-        args: 
+        - name: sql-migration
+          image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
+          command: ["/bin/sh", "-c"]
+          args:
             - |
               cat <<EOF > /app/run_migration.sh
               #!/bin/sh
@@ -31,18 +31,19 @@ spec:
                   print(f"Error during migration: {str(e)}")
                   exit(1)
               EOF2
-              
               EOF
               
               chmod +x /app/run_migration.sh
               /app/run_migration.sh
-        env:
-        - name: MATERIALIZATION_ENGINE_SETTINGS
-          value: /app/materializationengine/instance/config.cfg
-      volumeMounts:
-        - name: cloudsql-instance-credentials-volume
-          mountPath: /secrets/cloudsql
-          readOnly: true
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance
       volumes:
         - name: materializationengine-config-volume
           configMap:
