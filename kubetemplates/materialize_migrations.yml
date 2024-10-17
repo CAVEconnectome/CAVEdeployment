@@ -13,10 +13,10 @@ spec:
       tolerations:
         - key: "pool"
           operator: "Equal"
-          value: "${LIGHTWEIGHT_POOL}"
+          value: "${STANDARD_POOL}"
           effect: "NoSchedule"
       nodeSelector:
-        cloud.google.com/gke-nodepool: ${LIGHTWEIGHT_POOL}
+        cloud.google.com/gke-nodepool: ${STANDARD_POOL}
       volumes:
         - name: materializationengine-config-volume
           configMap:
