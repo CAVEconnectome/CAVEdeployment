@@ -1,0 +1,123 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: materialize-db-migration
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      name: materialize-db-migration
+    spec:
+      restartPolicy: Never
+      shareProcessNamespace: true
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${STANDARD_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${STANDARD_POOL}
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config-v${MATERIALIZE_CONFIG_VERSION}
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
+      containers:
+        - name: migration
+          image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
+          command: ["/bin/bash", "-c"]
+          args:
+            - |
+              set -x
+                            
+              echo "Checking for auto-migrate command..."
+              if flask migrator auto-migrate --help >/dev/null 2>&1; then
+                echo "auto-migrate command found. Running migration..."
+                if flask migrator auto-migrate; then
+                  echo "Flask auto-migrate command executed successfully."
+                  exit_code=0
+                else
+                  echo "Error: Flask auto-migrate command failed."
+                  exit_code=1
+                fi
+              else
+                  echo "auto-migrate command not found. Cannot apply auto migration."
+                  echo "This could be due to the environment setup or the command not being implemented in this version of the image: v${MATERIALIZE_VERSION}."
+                  echo "Treating this as a success to allow the deployment to proceed."                                
+                  exit_code=3
+              fi
+
+              curl http://localhost:9091/quitquitquit # kill the cloudsql proxy sidecar
+
+              exit $exit_code
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: LOCAL_SERVER_URL
+              value: "http://pychunkedgraph-read-service"
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: LIMITER_CATEGORIES
+              value: '${MAT_LIMITER_CATEGORIES}'
+            - name: LIMITER_URI
+              value: ${LIMITER_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: INFO_URL
+              value: ${INFO_URL}
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: FLASK_APP
+              value: /app/run.py
+            - name: PYTHONPATH
+              value: /app
+            - name: FLASK_DEBUG
+              value: "1"
+        - name: cloudsql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.13.0
+          command:
+            - "/cloud-sql-proxy"
+          args:
+            - "--admin-port=9091"
+            - "--quitquitquit"
+            - "--exit-zero-on-sigterm"
+            - "--address=0.0.0.0"
+            - "--port=3306"
+            - "--health-check"
+            - "--credentials-file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}"
+            - "${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}"
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+          ports:
+              - containerPort: 3306  # The port your database listens on
+              - containerPort: 9091  # Admin port for shutdown requests
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65532  # non-root user
+          readinessProbe:
+            tcpSocket:
+              port: 3306
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 9091
+            initialDelaySeconds: 60
+            periodSeconds: 10

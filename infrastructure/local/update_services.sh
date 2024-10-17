@@ -40,6 +40,8 @@ pprogress
 pmanagement
 cavecanary)
 
+./infrastructure/local/deploy_migration_job.sh $1
+
 for i in $(seq 0 1 $((${#MAX_REPLICA_ARRAY[@]}-1))); do
   echo $i
 
