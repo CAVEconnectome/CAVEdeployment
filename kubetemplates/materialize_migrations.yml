@@ -48,7 +48,8 @@ spec:
               else
                   echo "auto-migrate command not found. Cannot apply auto migration."
                   echo "This could be due to the environment setup or the command not being implemented in this version of the image: v${MATERIALIZE_VERSION}."
-                  echo "Treating this as a success to allow the deployment to proceed."                                exit_code=3
+                  echo "Treating this as a success to allow the deployment to proceed."                                
+                  exit_code=3
               fi
 
               curl http://localhost:9091/quitquitquit # kill the cloudsql proxy sidecar
