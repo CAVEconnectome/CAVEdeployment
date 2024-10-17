@@ -89,5 +89,6 @@ if (( $ANNOTATION_COUNT > 0 || $MATERIALIZATION_COUNT > 0 || $CELERY_WORKER_COUN
     echo "Cleaning up the migration job"
     kubectl delete job $job_name
     echo "Migration process completed. Proceeding with deployment."
+else 
+    echo "No services require database migration. Proceeding with deployment."
 fi
-echo "No services require database migration. Proceeding with deployment."
