@@ -21,6 +21,8 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-body-size: 10m
     nginx.ingress.kubernetes.io/proxy-send-timeout: "360"
+    # configure nginx ingress max body size
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
 #    ingress.kubernetes.io/whitelist-source-range: '128.112.0.0/16 140.180.0.0/16 63.237.233.8/32 73.97.166.124/30 24.56.235.125/32'
 spec:
   rules:
