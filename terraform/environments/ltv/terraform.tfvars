@@ -9,7 +9,7 @@ sql_instance_name          = "svenmd-dynamicannotationframework-ltv"
 postgres_user_password     = "welcometothematrix"
 sql_instance_memory_gb     = 10
 sql_instance_cpu           = 2
-
+sql_work_mem_mb           = 65
 pcg_redis_name            = "ltv-pcg-cache"
 vpc_name                  = "daf-ltv5-network"
 
