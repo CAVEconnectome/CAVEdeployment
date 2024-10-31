@@ -3,6 +3,7 @@ owner                      = "cave"
 project_id                 = "seung-lab"
 region                     = "us-east1"
 
+terraform_bucket_name      = "af27996a4c4e6d38-terraform-remote-backend"
 # postgres setup
 sql_instance_name          = "svenmd-dynamicannotationframework-ltv"
 postgres_user_password     = "welcometothematrix"

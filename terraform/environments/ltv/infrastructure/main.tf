@@ -3,7 +3,7 @@ resource "random_id" "default" {
 }
 
 resource "google_storage_bucket" "default" {
-  name     = "${random_id.default.hex}-terraform-remote-backend"
+  name     = var.terraform_bucket_name
   project = var.project_id
   location = "US"
 
@@ -29,6 +29,7 @@ resource "local_file" "default" {
   terraform {
     backend "gcs" {
       bucket = "${google_storage_bucket.default.name}"
+      prefix = "ltv/infrastructure/"
     }
   }
   EOT

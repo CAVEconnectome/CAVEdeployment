@@ -11,6 +11,9 @@ variable "region" {
   description = "region"
 }
 
+variable "terraform_bucket_name" {
+  description = "Name of the terraform bucket"
+}
 
 variable "sql_instance_name" {
   description = "Name of the SQL instance"
