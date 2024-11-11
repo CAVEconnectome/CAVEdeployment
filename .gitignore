@@ -5,3 +5,4 @@ secrets.yaml
 .DS_Store
 .vscode
 env_config.sh
+**/.terraform/
