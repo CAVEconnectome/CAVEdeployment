@@ -21,7 +21,7 @@ ${GUIDEBOOK_MAX_REPLICAS:-0}
 ${DASH_MAX_REPLICAS:-0}
 ${PPROGRESS_MAX_REPLICAS:-0}
 ${PMANAGEMENT_MAX_REPLICAS:-0}
-${CAVECANERY_MAX_REPLICAS:-0})
+${CAVECANARY_MAX_REPLICAS:-0})
 
 SERVICE_ARRAY=(
 pcgl2cache
@@ -40,7 +40,6 @@ pprogress
 pmanagement
 cavecanary)
 
-./infrastructure/local/deploy_migration_job.sh $1
 
 for i in $(seq 0 1 $((${#MAX_REPLICA_ARRAY[@]}-1))); do
   echo $i
@@ -54,6 +53,8 @@ for i in $(seq 0 1 $((${#MAX_REPLICA_ARRAY[@]}-1))); do
     kubectl delete -f ${YAML_FOLDER}/${SERVICE_ARRAY[i]}.yml
   fi
 done
+
+./infrastructure/local/deploy_migration_job.sh $1
 
 kubectl apply -f ${YAML_FOLDER}/auth-info.yml
 kubectl apply -f ${YAML_FOLDER}/ingress.yml
