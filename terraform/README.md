@@ -28,19 +28,27 @@ terraform import module.infrastructure.google_sql_database_instance.postgres pro
 i.e.
 terraform import module.infrastructure.google_sql_database_instance.postgres projects/seung-lab/instances/svenmd-dynamicannotationframework-ltv
 
+terragrunt import google_sql_database_instance.postgres projects/seung-lab/instances/svenmd-dynamicannotationframework-ltv
+
 get sql instance names with  ``gcloud sql instances list``
 
 postgres user:
 terraform import module.infrastructure.google_sql_user.writer {GOOGLE_PROJECT_ID}/{SQL_INSTANCE_NAME}/{SQL_USER_NAME}
 i.e.
 terraform import module.infrastructure.google_sql_user.writer seung-lab/svenmd-dynamicannotationframework-ltv/postgres 
+terragrunt import google_sql_user.writer seung-lab/svenmd-dynamicannotationframework-ltv/postgres 
+
 
 postgres ann database:
 terraform import module.infrastructure.google_sql_database.annotation projects/<project_id>/instances/<sql_instance_id>/databases/annotation
 i.e.
 terraform import module.infrastructure.google_sql_database.annotation projects/seung-lab/instances/svenmd-dynamicannotationframework-ltv/databases/annotation
+terragrunt import google_sql_database.annotation projects/seung-lab/instances/svenmd-dynamicannotationframework-ltv/databases/annotation
+
 
 postgrea mat database:
+terragrunt import google_sql_database.materialization projects/seung-lab/instances/svenmd-dynamicannotationframework-ltv/databases/materialization
+
 
 ## REDIS
 The pychunkedgraph redis instance has cached data about which mesh fragments exist and which don't which helps accelerate the manifest generation for large oct-trees.  It's valuable to hydrate that cache with data from a precious production cache but must be done manually if you are re-running terraform in a new environment.. any data that is lost in the transition will be regenerated the next time it is queries so data integrity is not a huge concern. This information is just a cache
@@ -50,18 +58,22 @@ terraform import module.infrastructure.google_redis_instance.pcg_redis projects/
 
 i.e.
 terraform import module.infrastructure.google_redis_instance.pcg_redis projects/seung-lab/locations/us-east1/instances/ltv-pcg-cache
+terragrunt import google_redis_instance.pcg_redis projects/seung-lab/locations/us-east1/instances/ltv-pcg-cache
 
 
 ## network
 terraform import module.infrastructure.google_compute_network.vpc <project_id>/<network_name>
 i.e.
 terraform import module.infrastructure.google_compute_network.vpc seung-lab/daf-ltv5-network
+terragrunt import google_compute_network.vpc seung-lab/daf-ltv5-network
+
 
 ## sub network
 
  terraform import module.infrastructure.google_compute_subnetwork.subnet <project_id>/<region>/<subnet-name>
  i.e.
 terraform import module.infrastructure.google_compute_subnetwork.subnet seung-lab/us-east1/daf-ltv5-network-sub 
+terragrunt import google_compute_subnetwork.subnet seung-lab/us-east1/daf-ltv5-network-sub 
 
 
 
