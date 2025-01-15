@@ -6,6 +6,7 @@ metadata:
 data:
   config.cfg: |
     SKELETON_CACHE_BUCKET = "gs://${SKELETON_CACHE_BUCKET}"
+    SKELETONCACHE_MAX_REPLICAS = ${SKELETONCACHE_MAX_REPLICAS}
 ---
 apiVersion: v1
 kind: Service
