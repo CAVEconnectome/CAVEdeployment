@@ -99,10 +99,14 @@ spec:
               value: "skeletoncache.app.config.DevelopmentConfig"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
-            - name: SKELETON_CACHE_EXCHANGE
-              value: ${SKELETON_CACHE_EXCHANGE}
-            - name: SKELETON_CACHE_RETRIEVE_QUEUE
-              value: ${SKELETON_CACHE_RETRIEVE_QUEUE}
+            - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
+              value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
+            - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
+              value: ${SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE}
+            - name: SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
+            - name: SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
           resources:
             requests:
               memory: 600Mi
@@ -157,7 +161,8 @@ spec:
           name: pubsub.googleapis.com|subscription|num_undelivered_messages
           selector:
             matchLabels:
-              resource.labels.subscription_id: ${SKELETON_CACHE_RETRIEVE_QUEUE}
+              resource.labels.subscription_id: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
+              resource.labels.subscription_id: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
         target:
           type: AverageValue
           averageValue: 1
@@ -227,10 +232,14 @@ spec:
               value: ${DATA_PROJECT_NAME}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
-            - name: SKELETON_CACHE_RETRIEVE_QUEUE
-              value: ${SKELETON_CACHE_RETRIEVE_QUEUE}
-            - name: SKELETON_CACHE_EXCHANGE
-              value: ${SKELETON_CACHE_EXCHANGE}
+            - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
+              value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
+            - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
+              value: ${SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE}
+            - name: SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
+            - name: SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
             - name: AUTH_USE_REDIS
               value: "false"
             - name: DAF_CREDENTIALS
