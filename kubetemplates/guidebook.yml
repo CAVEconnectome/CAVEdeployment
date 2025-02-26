@@ -74,7 +74,7 @@ spec:
             - name: GUIDEBOOK_TMP_DIR
               value: ${GUIDEBOOK_TMP_DIR}
             - name: GUIDEBOOK_TIMEOUT
-              value: ${GUIDEBOOK_TIMEOUT}
+              value: "${GUIDEBOOK_TIMEOUT}"
           resources:
             requests:
               memory: 1200Mi
