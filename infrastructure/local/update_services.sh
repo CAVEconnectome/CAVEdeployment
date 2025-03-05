@@ -18,6 +18,7 @@ ${MESHING_MAX_REPLICAS:-0}
 ${MESHWORKER_MAX_REPLICAS:-0}
 ${REMESHWORKER_MAX_REPLICAS:-0}
 ${GUIDEBOOK_MAX_REPLICAS:-0}
+${TOURGUIDE_MAX_REPLICAS:-0}
 ${DASH_MAX_REPLICAS:-0}
 ${PPROGRESS_MAX_REPLICAS:-0}
 ${PMANAGEMENT_MAX_REPLICAS:-0}
@@ -35,6 +36,7 @@ meshing
 mesh_worker
 remesh_worker
 guidebook
+tourguide
 dash
 pprogress
 pmanagement
