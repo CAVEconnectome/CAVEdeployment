@@ -45,6 +45,12 @@ spec:
   minReplicas: ${PYCG_READ_MIN_REPLICAS}
   maxReplicas: ${PYCG_READ_MAX_REPLICAS}
   metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 110
     - type: Pods
       pods:
         metric:
