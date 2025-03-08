@@ -70,12 +70,6 @@ spec:
         target:
           type: Utilization
           averageUtilization: 75
-    - type: Resource
-      resource:
-        name: memory
-        target:
-          type: Utilization
-          averageUtilization: 75
     - type: Pods
       pods:
         metric:
@@ -200,6 +194,20 @@ spec:
             - --stackdriver-prefix=custom.googleapis.com
             - --pod-id=$(POD_ID)
             - --namespace-id=$(POD_NAMESPACE)
+          env:
+            # save Kubernetes metadata as environment variables for use in metrics
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
         - name: cloudsql-proxy
           image: gcr.io/cloudsql-docker/gce-proxy:1.33.6
           command:
