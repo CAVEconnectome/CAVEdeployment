@@ -97,7 +97,7 @@ spec:
           value: /app/app/instance/config.py
         resources:
           requests:
-            memory: 300Mi
+            memory: 450Mi
             cpu: 100m
         readinessProbe:
           httpGet:

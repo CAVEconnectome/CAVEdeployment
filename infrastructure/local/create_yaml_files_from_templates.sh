@@ -28,6 +28,7 @@ envsubst < kubetemplates/cert-manager-values.yml > ${YAML_FOLDER}/cert-manager-v
 envsubst < kubetemplates/certificate.yml > ${YAML_FOLDER}/certificate.yml
 envsubst < kubetemplates/proxy.yml > ${YAML_FOLDER}/proxy.yml
 envsubst < kubetemplates/guidebook.yml > ${YAML_FOLDER}/guidebook.yml
+envsubst < kubetemplates/tourguide.yml > ${YAML_FOLDER}/tourguide.yml
 envsubst < kubetemplates/dash.yml > ${YAML_FOLDER}/dash.yml
 envsubst < kubetemplates/auth-info.yml > ${YAML_FOLDER}/auth-info.yml
 envsubst < kubetemplates/redis_production_values.yml > ${YAML_FOLDER}/redis_production_values.yml
