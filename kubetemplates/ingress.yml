@@ -140,6 +140,13 @@ spec:
             name: guidebook-service
             port:
               number: 80
+      - path: /tourguide
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: tourguide-service
+            port:
+              number: 80
       - path: /dash
         pathType: ImplementationSpecific
         backend:

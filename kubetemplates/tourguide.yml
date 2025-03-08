@@ -1,0 +1,113 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: tourguide-scaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: tourguide
+  minReplicas: ${TOURGUIDE_MIN_REPLICAS}
+  maxReplicas: ${TOURGUIDE_MAX_REPLICAS}
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 125
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: tourguide-service
+spec:
+  type: NodePort
+  selector:
+    app: tourguide
+  ports:
+    - port: 80
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tourguide
+spec:
+  selector:
+    matchLabels:
+      app: tourguide
+  template:
+    metadata:
+      labels:
+        app: tourguide
+    spec:
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${MESH_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: tourguide
+          image: ${DOCKER_REPOSITORY}/tourguide:v${TOURGUIDE_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: TOURGUIDE_SERVER_ADDRESS
+              value: ${TOURGUIDE_SERVER_ADDRESS}
+            - name: TOURGUIDE_LOG_LEVEL
+              value: ${TOURGUIDE_LOG_LEVEL}
+            - name: TOURGUIDE_TMP_DIR
+              value: ${TOURGUIDE_TMP_DIR}
+            - name: TOURGUIDE_TIMEOUT
+              value: "${TOURGUIDE_TIMEOUT}"
+          resources:
+            requests:
+              memory: 1200Mi 
+              cpu: 300m
+          readinessProbe:
+            httpGet:
+              path: /tourguide/version
+              port: 8080
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            periodSeconds: 15
+          livenessProbe:
+            httpGet:
+              path: /tourguide/version
+              port: 8080
+            initialDelaySeconds: 15
+            timeoutSeconds: 1
+            periodSeconds: 60
+        - name: sysctl-buddy
+          image: alpine:3.4
+          command:
+            - /bin/sh
+            - -c
+            - |
+              while true; do
+                sysctl -w net.core.somaxconn=32768
+                sysctl -w net.ipv4.ip_local_port_range='1024 65535'
+                sleep 100
+              done
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          resources:
+            requests:
+              memory: 10Mi
+              cpu: 5m
