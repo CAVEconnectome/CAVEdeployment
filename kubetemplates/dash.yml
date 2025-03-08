@@ -25,6 +25,13 @@ spec:
       target:
         type: Utilization
         averageUtilization: 90
+  - type: Pods
+      pods:
+        metric:
+          name: custom.googleapis.com|http|uwsgi_perc_busy_workers
+        target:
+          type: AverageValue
+          averageValue: 75
   # - type: Resource
   #   resource:
   #     name: memory
@@ -75,6 +82,7 @@ spec:
         imagePullPolicy: Always
         ports:
         - containerPort: 80
+        - containerPort: 9192
         volumeMounts:
         - name: dash-config-volume
           mountPath: /app/app/instance/
@@ -113,6 +121,29 @@ spec:
           initialDelaySeconds: 15
           timeoutSeconds: 1
           periodSeconds: 60
+      - name: uwsgi-exporter
+        image: caveconnectome/uwsgi-export-workers:v14
+        # Exposes the metrics endpoint on 0.0.0.0:9101
+        ports:
+            - containerPort: 9101
+        env:
+        # This tells the exporter where to find the uWSGI stats server
+        - name: UWSGI_STATS_URL
+          value: "http://localhost:9192"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      - name: prometheus-to-sd
+        image: gcr.io/google-containers/prometheus-to-sd:v0.8.0
+        command: ["/monitor"]
+        args:
+          - --source=http://localhost:9101/metrics
+          - --stackdriver-prefix=custom.googleapis.com
+          - --pod-id=$(POD_ID)
+          - --namespace-id=$(POD_NAMESPACE)
       - name: sysctl-buddy
         image: alpine:3.4
         command:
