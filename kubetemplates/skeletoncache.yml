@@ -32,6 +32,12 @@ spec:
   minReplicas: ${SKELETONCACHE_MIN_REPLICAS}
   maxReplicas: ${SKELETONCACHE_MAX_REPLICAS}
   metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 90
     - type: Pods
       pods:
         metric:
