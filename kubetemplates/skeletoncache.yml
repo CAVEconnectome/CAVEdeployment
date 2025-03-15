@@ -292,8 +292,8 @@ spec:
               value: /root/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: 2500Mi
-              cpu: 250m
+              memory: 500Mi
+              cpu: 50m
           command:
             - /bin/sh
             - -c
