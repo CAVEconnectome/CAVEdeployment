@@ -1,5 +1,6 @@
 source env_config.sh
 source $ENV_REPO_PATH/$1.sh
+source ./infrastructure/local/convert_variables.sh
 
 if [ "$#" == 1 ]; then
     gcloud container clusters delete $CLUSTER_NAME

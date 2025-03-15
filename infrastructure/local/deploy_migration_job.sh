@@ -1,5 +1,6 @@
 source env_config.sh
 source $ENV_REPO_PATH/$1.sh
+source ./infrastructure/local/convert_variables.sh
 
 # Get replica counts for each service that communicates with the database
 ANNOTATION_COUNT=${ANNOTATIONENGINE_MAX_REPLICAS:-0}

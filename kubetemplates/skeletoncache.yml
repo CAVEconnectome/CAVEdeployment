@@ -284,6 +284,8 @@ spec:
               value: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
             - name: SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE
               value: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
+            - name: VERBOSE_LEVEL
+              value: "4"
             - name: AUTH_USE_REDIS
               value: "false"
             - name: DAF_CREDENTIALS

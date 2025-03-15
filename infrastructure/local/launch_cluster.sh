@@ -1,5 +1,6 @@
 source env_config.sh
 source $ENV_REPO_PATH/$1.sh
+source ./infrastructure/local/convert_variables.sh
 
 gcloud config set project $PROJECT_NAME
 gcloud config set compute/zone $ZONE

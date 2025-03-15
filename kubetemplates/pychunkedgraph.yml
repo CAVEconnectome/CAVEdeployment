@@ -59,6 +59,28 @@ spec:
           type: AverageValue
           averageValue: 75
 ---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: pcg-read-vpa
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pychunkedgraph-read
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+    - containerName: 'pychunkedgraph'
+      minAllowed:
+        cpu: ${PYCG_READ_MILLI_CPU}m     
+        memory: ${PYCG_READ_MEM_MIB}Mi 
+      maxAllowed:
+        cpu: 1        
+        memory: 4Gi    
+      controlledResources: ["cpu", "memory"]
+---
 kind: Service
 apiVersion: v1
 metadata:
