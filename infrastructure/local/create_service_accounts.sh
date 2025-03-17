@@ -16,7 +16,7 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PY
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/pubsub.editor
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/storage.objectViewer
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/cloudsql.admin
-gcloud projects add-iam-policy-binding <PROJECT_ID>  --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/storage.objectAdmin
+gcloud projects add-iam-policy-binding $PROJECT_NAME  --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/storage.objectAdmin
 
 
 gcloud iam service-accounts create $SKELETON_SERVICE_ACCOUNT_NAME --display-name=SkeletonService-$ENVIRONMENT
