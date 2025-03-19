@@ -16,7 +16,7 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PY
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/pubsub.editor
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/storage.objectViewer
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/cloudsql.admin
-gcloud projects add-iam-policy-binding <PROJECT_ID>  --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/storage.objectAdmin
+gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/storage.objectAdmin
 
 
 gcloud iam service-accounts create $SKELETON_SERVICE_ACCOUNT_NAME --display-name=SkeletonService-$ENVIRONMENT
@@ -33,6 +33,8 @@ gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$PM
 
 gcloud iam service-accounts create $CLOUD_SQL_SERVICE_ACCOUNT_NAME --display-name=CloudSQL-$ENVIRONMENT
 gcloud projects add-iam-policy-binding $PROJECT_NAME --member serviceAccount:$CLOUD_SQL_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com --role roles/cloudsql.client
+gsutil iam ch serviceAccount:$PYCG_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com:legacyBucketWriter,legacyObjectOwner,legacyObjectReader gs://$MATERIALIZATION_UPLOAD_BUCKET_NAME
+
 
 
 # gcloud iam service-accounts create $AUTH_SERVICE_ACCOUNT_NAME --display-name=Auth-$ENVIRONMENT
@@ -48,3 +50,5 @@ gcloud iam service-accounts keys create ${KEY_FOLDER}/${AE_SERVICE_ACCOUNT_NAME}
 gcloud iam service-accounts keys create ${KEY_FOLDER}/${CLOUD_SQL_SERVICE_ACCOUNT_NAME}.json --iam-account $CLOUD_SQL_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com
 gcloud iam service-accounts keys create ${KEY_FOLDER}/${CLOUD_DNS_SERVICE_ACCOUNT_NAME}.json --iam-account $CLOUD_DNS_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com
 gcloud iam service-accounts keys create ${KEY_FOLDER}/${PMANAGEMENT_SERVICE_ACCOUNT_NAME}.json --iam-account $PMANAGEMENT_SERVICE_ACCOUNT_NAME@$PROJECT_NAME.iam.gserviceaccount.com
+
+./infrastructure/local/setup_materialization_bucket.sh $1
