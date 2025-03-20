@@ -79,6 +79,10 @@ spec:
             requests:
               memory: 1200Mi 
               cpu: 300m
+              ephemeral-storage: "1.8Gi"
+            limits:
+              memory: 2000Mi
+              ephemeral-storage: "2.2Gi"
           readinessProbe:
             httpGet:
               path: /tourguide/version
