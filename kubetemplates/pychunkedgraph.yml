@@ -77,8 +77,8 @@ spec:
         cpu: ${PYCG_READ_MILLI_CPU}m     
         memory: ${PYCG_READ_MEM_MIB}Mi 
       maxAllowed:
-        cpu: 1        
-        memory: 4Gi    
+        cpu: 1500m        
+        memory: 6Gi    
       controlledResources: ["cpu", "memory"]
 ---
 kind: Service
