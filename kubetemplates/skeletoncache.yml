@@ -114,8 +114,8 @@ spec:
               value: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
             - name: SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE
               value: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
-            - name: SKELETONCACHE_WORKER_MAX_REPLICAS
-              value: ${SKELETONCACHE_WORKER_MAX_REPLICAS}
+            - name: SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE}
           resources:
             requests:
               memory: 600Mi
@@ -209,6 +209,7 @@ spec:
             matchLabels:
               resource.labels.subscription_id: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
               resource.labels.subscription_id: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
+              resource.labels.subscription_id: ${SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE}
         target:
           type: AverageValue
           averageValue: 1
@@ -286,8 +287,8 @@ spec:
               value: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
             - name: SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE
               value: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
-            - name: SKELETONCACHE_WORKER_MAX_REPLICAS
-              value: ${SKELETONCACHE_WORKER_MAX_REPLICAS}
+            - name: SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE}
             - name: VERBOSE_LEVEL
               value: "0"
             - name: AUTH_USE_REDIS
