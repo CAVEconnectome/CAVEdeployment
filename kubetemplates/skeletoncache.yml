@@ -106,6 +106,8 @@ spec:
               value: "skeletoncache.app.config.DevelopmentConfig"
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: CACHE_NON_H5_SKELETONS
+              value: "false"
             - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
               value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
             - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
@@ -283,6 +285,8 @@ spec:
               value: ${DATA_PROJECT_NAME}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
+            - name: CACHE_NON_H5_SKELETONS
+              value: "false"
             - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
               value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
             - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
