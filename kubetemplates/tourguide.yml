@@ -77,8 +77,11 @@ spec:
               value: "${TOURGUIDE_TIMEOUT}"
           resources:
             requests:
-              memory: 1200Mi 
-              cpu: 300m
+              memory: 750Mi 
+              cpu: 280m
+              ephemeral-storage: 1500Mi
+            limits:
+              ephemeral-storage: 2000Mi
           readinessProbe:
             httpGet:
               path: /tourguide/version
