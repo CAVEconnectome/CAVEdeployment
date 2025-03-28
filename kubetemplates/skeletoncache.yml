@@ -214,8 +214,16 @@ spec:
           selector:
             matchLabels:
               resource.labels.subscription_id: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
+        target:
+          type: AverageValue
+          averageValue: 1
+      type: External
+    - external:
+        metric:
+          name: pubsub.googleapis.com|subscription|num_undelivered_messages
+          selector:
+            matchLabels:
               resource.labels.subscription_id: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
-              # resource.labels.subscription_id: ${SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE}
         target:
           type: AverageValue
           averageValue: 1
