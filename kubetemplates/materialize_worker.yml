@@ -128,7 +128,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY} --without-heartbeat --without-gossip --without-mingle"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -139,12 +139,6 @@ spec:
           env:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
-            - name: REDIS_SERVICE_HOST
-              value: ${MAT_REDIS_HOST}
-            - name: REDIS_HOST
-              value: ${MAT_REDIS_HOST}
-            - name: REDIS_PASSWORD
-              value: ${MAT_REDIS_PASSWORD}
             - name: CELERY_BROKER_URL
               value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
@@ -167,6 +161,20 @@ spec:
               value: ${PRODUCER_QUEUE_NAME}
             - name: WORKER_NAME
               value: ${CELERY_PRODUCER_WORKER_NAME}
+            - name: QUEUE_LENGTH_LIMIT
+              value: "5000"
+            - name: QUEUES_TO_THROTTLE
+              value: process
+            - name: THROTTLE_QUEUES
+              value: "true"
+            - name: REDIS_HOST
+              value: "${MAT_REDIS_HOST}"
+            - name: REDIS_PORT
+              value: "${MAT_REDIS_PORT}"
+            - name: REDIS_PASSWORD
+              value: "${MAT_REDIS_PASSWORD}" 
+            - name: CELERY_CLOUDVOLUME_CACHE_BYTES
+              value: "100000000"             
             - name: WORKER_HOSTNAME
               valueFrom:
                 fieldRef:
@@ -405,7 +413,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY} --without-heartbeat --without-gossip --without-mingle"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -416,12 +424,12 @@ spec:
           env:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
-            - name: REDIS_SERVICE_HOST
-              value: ${MAT_REDIS_HOST}
             - name: REDIS_HOST
-              value: ${MAT_REDIS_HOST}
+              value: "${MAT_REDIS_HOST}"
+            - name: REDIS_PORT
+              value: "${MAT_REDIS_PORT}"
             - name: REDIS_PASSWORD
-              value: ${MAT_REDIS_PASSWORD}
+              value: "${MAT_REDIS_PASSWORD}" 
             - name: CELERY_BROKER_URL
               value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
             - name: GOOGLE_APPLICATION_CREDENTIALS
@@ -444,7 +452,15 @@ spec:
               value: ${CONSUMER_QUEUE_NAME}
             - name: WORKER_NAME
               value: ${CELERY_CONSUMER_WORKER_NAME}
-            - name: WORKER_HOSTNAME
+            - name: QUEUE_LENGTH_LIMIT
+              value: "5000"
+            - name: QUEUES_TO_THROTTLE
+              value: process
+            - name: THROTTLE_QUEUES
+              value: "true"
+            - name: CELERY_CLOUDVOLUME_CACHE_BYTES
+              value: "100000000"
+            - name: WORKER_HOSTNAME             
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
@@ -641,10 +657,6 @@ spec:
           env:
             - name: MATERIALIZATION_ENGINE_SETTINGS
               value: /app/materializationengine/instance/config.cfg
-            - name: REDIS_SERVICE_HOST
-              value: ${MAT_REDIS_HOST}
-            - name: MAT_REDIS_PASSWORD
-              value: ${MAT_REDIS_PASSWORD}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
             - name: AUTH_URI
@@ -655,6 +667,20 @@ spec:
               value: ${AUTH_URL}
             - name: DAF_CREDENTIALS
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: QUEUE_LENGTH_LIMIT
+              value: "5000"
+            - name: QUEUES_TO_THROTTLE
+              value: process
+            - name: THROTTLE_QUEUES
+              value: "true"
+            - name: REDIS_HOST
+              value: "${MAT_REDIS_HOST}"
+            - name: REDIS_PORT
+              value: "${MAT_REDIS_PORT}"
+            - name: REDIS_PASSWORD
+              value: "${MAT_REDIS_PASSWORD}" 
+            - name: CELERY_CLOUDVOLUME_CACHE_BYTES
+              value: "100000000"               
           resources:
             requests:
               cpu: 10m
