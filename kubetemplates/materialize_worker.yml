@@ -128,7 +128,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY} --without-heartbeat --without-gossip --without-mingle"
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -413,7 +413,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY} --without-heartbeat --without-gossip --without-mingle"
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
