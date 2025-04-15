@@ -100,6 +100,10 @@ spec:
               value: ${INFO_URL}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
+            - name: LIMITER_CATEGORIES
+              value: '${SK_LIMITER_CATEGORIES}'
+            - name: LIMITER_URI
+              value: ${LIMITER_URI}
             - name: SKELETONSERVICE_SETTINGS
               value: "/app/skeletoncache/app/instance/config.cfg"
             - name: APP_SETTINGS
@@ -331,7 +335,7 @@ spec:
             - name: VERBOSE_LEVEL
               value: "0"
             - name: DEBUG_ROOT_ID
-              value: "864691137021499502"
+              value: "864691135359413848"
             - name: AUTH_USE_REDIS
               value: "false"
             - name: DAF_CREDENTIALS
