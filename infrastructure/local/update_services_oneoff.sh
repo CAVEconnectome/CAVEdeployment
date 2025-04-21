@@ -4,7 +4,7 @@ source ./infrastructure/local/convert_variables.sh
 
 ./infrastructure/local/switch_context.sh $1
 
-if [[ $2 = "skeletoncache" ]]; then
+if [[ $2 = "skeletoncache" || $2 = "skeletoncache_integrationtests_only" ]]; then
     # We have to explicitly delete the integration test job before running a new one.
     # Kubernetes won't do this for us.
     if kubectl get job skeletoncache-integration-tester &> /dev/null; then
