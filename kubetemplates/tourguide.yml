@@ -16,6 +16,14 @@ spec:
         target:
           type: Utilization
           averageUtilization: 125
+    - type: Pods
+      pods:
+        metric:
+          name: custom.googleapis.com|http|tourguide_active_requests
+        target:
+          type: AverageValue
+          averageValue: 50
+
 ---
 kind: Service
 apiVersion: v1
@@ -41,6 +49,10 @@ spec:
     metadata:
       labels:
         app: tourguide
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
     spec:
       tolerations:
         - key: "pool"
@@ -53,6 +65,9 @@ spec:
         - name: google-cloud-key
           secret:
             secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+             volumes:
+        - name: prometheus-data
+          emptyDir: {}
       terminationGracePeriodSeconds: 10
       initContainers:
         - name: sysctl-startup
@@ -74,6 +89,9 @@ spec:
       containers:
         - name: tourguide
           image: ${DOCKER_REPOSITORY}/tourguide:v${TOURGUIDE_VERSION}
+          volumeMounts:
+            - name: prometheus-data
+              mountPath: /tmp/prometheus_multiproc
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -92,6 +110,8 @@ spec:
               value: ${TOURGUIDE_TMP_DIR}
             - name: TOURGUIDE_TIMEOUT
               value: "${TOURGUIDE_TIMEOUT}"
+            - name: PROMETHEUS_MULTIPROC_DIR
+              value: /tmp/prometheus_multiproc
           resources:
             requests:
               memory: 750Mi 
@@ -113,3 +133,39 @@ spec:
             initialDelaySeconds: 15
             timeoutSeconds: 1
             periodSeconds: 60
+        - name: tourguide-metrics
+          image: ${DOCKER_REPOSITORY}/tourguide-metrics:v${TOURGUIDE_VERSION}
+          volumeMounts:
+            - name: prometheus-data
+              mountPath: /tmp/prometheus_multiproc
+          ports:
+            - containerPort: 9090
+          resources:
+            requests:
+              cpu: 100m
+              memory: 100Mi
+            limits:
+              cpu: 150m
+              memory: 150Mi 
+        - name: prometheus-to-sd
+          image: gcr.io/google-containers/prometheus-to-sd:v0.8.0
+          command: ["/monitor"]
+          args:
+            - --source=http://localhost:9090/metrics
+            - --stackdriver-prefix=custom.googleapis.com
+            - --pod-id=$(POD_ID)
+            - --namespace-id=$(POD_NAMESPACE)
+          env:
+            # save Kubernetes metadata as environment variables for use in metrics
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
