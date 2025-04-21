@@ -348,4 +348,93 @@ spec:
             - /bin/sh
             - -c
             - python -u -m skeletonservice.datasets.messaging
-            
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: skeletoncache-integration-tester
+spec:
+  backoffLimit: 0
+  template:
+    metadata:
+      labels:
+        app: skeletoncache-integration-tester
+    spec:
+      restartPolicy: OnFailure
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${MESH_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
+      volumes:
+        - name: google-cloud-key
+          secret:
+            secretName: ${SKELETON_SERVICE_ACCOUNT_SECRET}
+        - name: sksv-config-volume
+          configMap:
+            name: skeletoncache-config-v${SKELETONCACHE_CONFIG_VERSION}
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: skeletoncache-integration-tester
+          image: ${DOCKER_REPOSITORY}/skeletoncache:v${SKELETONCACHE_VERSION}
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: google-cloud-key
+              mountPath: /root/.cloudvolume/secrets
+            - name: sksv-config-volume
+              mountPath: /app/skeletoncache/app/instance/
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /root/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: GLOBAL_SERVER_URL
+              value: https://${GLOBAL_SERVER}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: BIGTABLE_PROJECT
+              value: ${DATA_PROJECT_NAME}
+            - name: BIGTABLE_INSTANCE
+              value: ${BIGTABLE_INSTANCE_NAME}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: INFO_URL
+              value: ${INFO_URL}
+            - name: APP_SETTINGS
+              value: "skeletoncache.app.config.DevelopmentConfig"
+            - name: SKELETON_CACHE_URL_PREFIX
+              value: sksv
+            - name: PROJECT_ID
+              value: ${DATA_PROJECT_NAME}
+            - name: PROJECT_NAME
+              value: ${PROJECT_NAME}
+            - name: CACHE_NON_H5_SKELETONS
+              value: "false"
+            - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
+              value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
+            - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
+              value: ${SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE}
+            - name: SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
+            - name: SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
+            - name: SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE
+              value: ${SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE}
+            - name: VERBOSE_LEVEL
+              value: "1"
+            - name: AUTH_USE_REDIS
+              value: "false"
+            - name: DAF_CREDENTIALS
+              value: /root/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+          resources:
+            requests:
+              memory: 500Mi
+              cpu: 50m
+          command:
+            - /bin/sh
+            - -c
+            - python -u -m tests.test_integration --kube -d ${SKELETON_INTEGRATION_TEST_DATASTACK} -s ${SKELETON_INTEGRATION_TEST_SERVER} -v 2

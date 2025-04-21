@@ -43,6 +43,12 @@ pprogress
 pmanagement
 cavecanary)
 
+# We have to explicitly delete the skeleton service integration test job before running a new one.
+# Kubernetes won't do this for us.
+if kubectl get job skeletoncache-integration-tester &> /dev/null; then
+    echo "Deleting integration test job: skeletoncache-integration-tester"
+    kubectl delete job skeletoncache-integration-tester
+fi
 
 for i in $(seq 0 1 $((${#MAX_REPLICA_ARRAY[@]}-1))); do
   echo $i
