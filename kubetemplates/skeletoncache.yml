@@ -233,7 +233,6 @@ spec:
           averageValue: 1
       type: External
 ---
----
 apiVersion: autoscaling.k8s.io/v1
 kind: VerticalPodAutoscaler
 metadata:
@@ -354,7 +353,7 @@ kind: Job
 metadata:
   name: skeletoncache-integration-tester
 spec:
-  backoffLimit: 0
+  backoffLimit: 3
   template:
     metadata:
       labels:
@@ -412,18 +411,9 @@ spec:
               value: ${DATA_PROJECT_NAME}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
-            - name: CACHE_NON_H5_SKELETONS
-              value: "false"
-            - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
-              value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
-            - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
-              value: ${SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE}
-            - name: SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE
-              value: ${SKELETON_CACHE_LOW_PRIORITY_RETRIEVE_QUEUE}
-            - name: SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE
-              value: ${SKELETON_CACHE_HIGH_PRIORITY_RETRIEVE_QUEUE}
-            - name: SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE
-              value: ${SKELETON_CACHE_DEAD_LETTER_RETRIEVE_QUEUE}
+            - name: SLACK_WEBHOOK_ID
+              value: "T0CL3AB5X/B08KJ36BJAF/DfcLRvJzizvCaozpMugAnu38"  # Keith Wiley's Slack direct messages
+              # value: "T0CL3AB5X/B08P52E7A05/iXHgqifbk8MtpDw4adoSh5pW"  # deployment-hour-alerts channel
             - name: VERBOSE_LEVEL
               value: "1"
             - name: AUTH_USE_REDIS
