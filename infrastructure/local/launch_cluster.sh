@@ -18,7 +18,7 @@ gcloud redis instances create $MAT_REDIS_NAME --size=1 --project=$PROJECT_NAME -
 gcloud container node-pools create $STANDARD_POOL --cluster $CLUSTER_NAME --node-taints pool=$STANDARD_POOL:NoSchedule --enable-autoscaling --num-nodes 1 --min-nodes 1 --max-nodes 10 --machine-type=t2d-standard-4 --disk-size=20GB
 # gcloud container node-pools create $CELERY_WORKER_POOL --cluster $CLUSTER_NAME --node-taints pool=$CELERY_WORKER_POOL:NoSchedule --num-nodes 1 --enable-autoscaling --min-nodes 1 --max-nodes 4  --machine-type=e2-highcpu-8 --disk-size=20GB
 gcloud container node-pools create $LIGHTWEIGHT_POOL --cluster $CLUSTER_NAME --node-taints pool=$LIGHTWEIGHT_POOL:NoSchedule --num-nodes 1 --preemptible --enable-autoscaling --min-nodes 1 --max-nodes 10  --machine-type=e2-small --disk-size=20GB
-gcloud container node-pools create $MESH_POOL --cluster $CLUSTER_NAME --node-taints pool=$MESH_POOL:NoSchedule --num-nodes 1 --preemptible --enable-autoscaling --min-nodes 1 --max-nodes 100 --disk-size=20GB --machine-type t2d-standard-4
+gcloud container node-pools create $MESH_POOL --cluster $CLUSTER_NAME --node-taints pool=$MESH_POOL:NoSchedule --num-nodes 1 --preemptible --enable-autoscaling --min-nodes 1 --max-nodes 100 --disk-size=40GB --machine-type t2d-standard-4
 gcloud container node-pools create $CORE_POOL --cluster $CLUSTER_NAME --num-nodes 1 --enable-autoscaling --min-nodes 1 --max-nodes 4  --machine-type=e2-standard-2 --disk-size=20GB
 gcloud container node-pools delete default-pool --cluster $CLUSTER_NAME
 
