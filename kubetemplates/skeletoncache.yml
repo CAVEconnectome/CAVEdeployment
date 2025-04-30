@@ -411,9 +411,10 @@ spec:
               value: ${DATA_PROJECT_NAME}
             - name: PROJECT_NAME
               value: ${PROJECT_NAME}
-            - name: SLACK_WEBHOOK_ID
+            - name: DEV_SLACK_WEBHOOK_ID
               value: "T0CL3AB5X/B08KJ36BJAF/DfcLRvJzizvCaozpMugAnu38"  # Keith Wiley's Slack direct messages
-              # value: "T0CL3AB5X/B08P52E7A05/iXHgqifbk8MtpDw4adoSh5pW"  # deployment-hour-alerts channel
+            - name: PROD_SLACK_WEBHOOK_ID
+              value: "T0CL3AB5X/B08P52E7A05/iXHgqifbk8MtpDw4adoSh5pW"  # deployment-hour-alerts channel
             - name: VERBOSE_LEVEL
               value: "1"
             - name: AUTH_USE_REDIS
@@ -427,4 +428,4 @@ spec:
           command:
             - /bin/sh
             - -c
-            - python -u -m tests.test_integration --kube -d ${SKELETON_INTEGRATION_TEST_DATASTACK} -s ${SKELETON_INTEGRATION_TEST_SERVER} -v 2
+            - python -u -m tests.test_integration --kube -d ${SKELETON_INTEGRATION_TEST_DATASTACK} -s ${SKELETON_INTEGRATION_TEST_SERVER} -z ${ZONE} -c ${CLUSTER_NAME} -v 2
