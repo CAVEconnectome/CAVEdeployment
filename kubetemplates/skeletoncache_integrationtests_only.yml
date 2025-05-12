@@ -78,4 +78,5 @@ spec:
           command:
             - /bin/sh
             - -c
-            - python -u -m tests.test_integration --kube -d ${SKELETON_INTEGRATION_TEST_DATASTACK} -s ${SKELETON_INTEGRATION_TEST_SERVER} -z ${ZONE} -c ${CLUSTER_NAME} -v 2
+            # You need to verify or change the value of the -d argument each time you deploy. Options are listed in the corresponding PrinceAllenCAVE config file.
+            - python -u -m tests.test_integration --kube -s ${SKELETON_INTEGRATION_TEST_SERVER} -d ${SKELETON_INTEGRATION_TEST_DATASTACK__DEFAULT} -z ${ZONE} -c ${CLUSTER_NAME} -v 2
