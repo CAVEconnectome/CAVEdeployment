@@ -3,6 +3,8 @@ source $ENV_REPO_PATH/$1.sh
 source ./infrastructure/local/convert_variables.sh
 
 ./infrastructure/local/switch_context.sh $1
+source $ENV_REPO_PATH/$1.sh
+source ./infrastructure/local/convert_variables.sh
 
 source $ENV_REPO_PATH/$1.sh
 source ./infrastructure/local/convert_variables.sh
@@ -16,7 +18,8 @@ if [[ $2 = "skeletoncache" || $2 = "skeletoncache_integrationtests_only" ]]; the
     fi
 fi
 
-./infrastructure/local/deploy_migration_job.sh $1
+# You may or may not want to run the next line. Sometimes it hangs, blocking this deployment, while otherwise being unnecessary, so skipping it entirely is a viable option.
+# ./infrastructure/local/deploy_migration_job.sh $1
 
 mkdir -p ${YAML_FOLDER}
 envsubst < kubetemplates/$2.yml > ${YAML_FOLDER}/$2.yml

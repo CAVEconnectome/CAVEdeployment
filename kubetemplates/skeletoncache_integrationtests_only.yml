@@ -3,7 +3,7 @@ kind: Job
 metadata:
   name: skeletoncache-integration-tester
 spec:
-  backoffLimit: 3
+  backoffLimit: 1
   template:
     metadata:
       labels:
