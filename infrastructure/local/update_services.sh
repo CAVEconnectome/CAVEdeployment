@@ -4,6 +4,9 @@ source ./infrastructure/local/convert_variables.sh
 
 ./infrastructure/local/switch_context.sh $1
 
+source $ENV_REPO_PATH/$1.sh
+source ./infrastructure/local/convert_variables.sh
+
 #export REDIS_IP="$(gcloud redis instances describe $REDIS_NAME --region=$REGION | sed -n -e 's/^host: \(.*\)$/\1/p')"
 ./infrastructure/local/create_yaml_files_from_templates.sh $1
 
