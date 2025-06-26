@@ -105,6 +105,8 @@ spec:
               value: ${TOURGUIDE_TMP_DIR}
             - name: TOURGUIDE_TIMEOUT
               value: "${TOURGUIDE_TIMEOUT}"
+            - name: TOURGUIDE_NEUROGLANCER_URL
+              value: ${TOURGUIDE_NEUROGLANCER_URL}
             - name: PROMETHEUS_MULTIPROC_DIR
               value: /tmp/prometheus_multiproc
           resources:
