@@ -35,7 +35,7 @@ data:
     MIN_DATABASES = ${MIN_DATABASES}
     MAX_DATABASES = ${MAX_DATABASES}    
     # celery throttling settings
-    QUERY_LIMIT_SIZE = 500000
+    QUERY_LIMIT_SIZE = ${QUERY_LIMIT_SIZE}
     QUEUE_LENGTH_LIMIT = 5000
     QUEUES_TO_THROTTLE = ["process"]
     THROTTLE_QUEUES = True
@@ -170,6 +170,8 @@ spec:
               value: "${MAT_REDIS_PASSWORD}" 
             - name: CELERY_CLOUDVOLUME_CACHE_BYTES
               value: "100000000" 
+            - name: QUERY_LIMIT_SIZE
+              value: "${MAT_QUERY_LIMIT_SIZE}"
           resources:
             requests:
               memory: 850Mi
