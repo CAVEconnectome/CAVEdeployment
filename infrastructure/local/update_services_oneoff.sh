@@ -6,8 +6,6 @@ source ./infrastructure/local/convert_variables.sh
 source $ENV_REPO_PATH/$1.sh
 source ./infrastructure/local/convert_variables.sh
 
-source $ENV_REPO_PATH/$1.sh
-source ./infrastructure/local/convert_variables.sh
 
 if [[ $2 = "skeletoncache" || $2 = "skeletoncache_integrationtests_only" ]]; then
     # We have to explicitly delete the integration test job before running a new one.
