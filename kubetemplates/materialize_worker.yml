@@ -128,7 +128,14 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
+            - |
+              echo "Waiting for CloudSQL proxy to be ready..."
+              while ! python -c "import socket; s=socket.socket(); s.settimeout(1); s.connect(('localhost', 3306)); s.close()" 2>/dev/null; do
+                echo "CloudSQL proxy not ready yet, waiting 2 seconds..."
+                sleep 2
+              done
+              echo "CloudSQL proxy is ready! Starting Celery..."
+              exec celery --app=run.celery worker --pool=prefork --hostname=worker.workflow@%h --queues=${PRODUCER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -413,7 +420,14 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}"
+            - |
+              echo "Waiting for CloudSQL proxy to be ready..."
+              while ! python -c "import socket; s=socket.socket(); s.settimeout(1); s.connect(('localhost', 3306)); s.close()" 2>/dev/null; do
+                echo "CloudSQL proxy not ready yet, waiting 2 seconds..."
+                sleep 2
+              done
+              echo "CloudSQL proxy is ready! Starting Celery..."
+              exec celery --app=run.celery worker --pool=prefork --hostname=worker.process@%h --queues=${CONSUMER_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_CONSUMER_CONCURRENCY}
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
@@ -648,7 +662,14 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery beat --pidfile=/home/nginx/celerybeat.pid --schedule=/home/nginx/celerybeat-schedule --loglevel=info"
+            - |
+              echo "Waiting for CloudSQL proxy to be ready..."
+              while ! python -c "import socket; s=socket.socket(); s.settimeout(1); s.connect(('localhost', 3306)); s.close()" 2>/dev/null; do
+                echo "CloudSQL proxy not ready yet, waiting 2 seconds..."
+                sleep 2
+              done
+              echo "CloudSQL proxy is ready! Starting Celery Beat..."
+              exec celery --app=run.celery beat --pidfile=/home/nginx/celerybeat.pid --schedule=/home/nginx/celerybeat-schedule --loglevel=info
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
