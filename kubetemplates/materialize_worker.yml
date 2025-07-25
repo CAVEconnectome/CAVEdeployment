@@ -323,6 +323,243 @@ spec:
               mountPath: /home/nginx/tmp/shutdown
       restartPolicy: Always
 ---
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-orchestration
+spec:
+  selector:
+    matchLabels:
+      app: celery-orchestration
+  template:
+    metadata:
+      labels:
+        app: celery-orchestration
+    spec:
+      replicas: 1
+      terminationGracePeriodSeconds: 6000 # change grace period to one hour
+      tolerations:
+        - key: "pool"
+          operator: "Equal"
+          value: "${STANDARD_POOL}"
+          effect: "NoSchedule"
+      nodeSelector:
+        cloud.google.com/gke-nodepool: ${STANDARD_POOL}
+      volumes:
+        - name: materializationengine-config-volume
+          configMap:
+            name: materializationengine-config-v${MATERIALIZE_CONFIG_VERSION}
+        - name: google-cloud-key
+          secret:
+            secretName: ${PYCG_SERVICE_ACCOUNT_SECRET}
+        - name: cloudsql-instance-credentials-volume
+          secret:
+            secretName: ${CLOUD_SQL_SERVICE_ACCOUNT_SECRET}
+        - name: graceful-shut-down
+          emptyDir: {}
+      containers:
+        - name: celery
+          image: ${DOCKER_REPOSITORY}/materializationengine:v${MATERIALIZE_VERSION}
+          args:
+            - su
+            - nginx
+            - -c
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.orchestration@%h --queues=${ORCHESTRATION_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
+          volumeMounts:
+            - name: materializationengine-config-volume
+              mountPath: /app/materializationengine/instance/
+            - name: google-cloud-key
+              mountPath: /home/nginx/.cloudvolume/secrets
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+          env:
+            - name: MATERIALIZATION_ENGINE_SETTINGS
+              value: /app/materializationengine/instance/config.cfg
+            - name: CELERY_BROKER_URL
+              value: redis://:${MAT_REDIS_PASSWORD}@${MAT_REDIS_HOST}:${MAT_REDIS_PORT}/0
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${GOOGLE_SECRET_FILENAME}
+            - name: AUTH_URI
+              value: ${AUTH_URI}
+            - name: BIGTABLE_PROJECT
+              value: ${DATA_PROJECT_NAME}
+            - name: BIGTABLE_INSTANCE
+              value: ${BIGTABLE_INSTANCE_NAME}
+            - name: LOCAL_SERVER_URL
+              value: "http://pychunkedgraph-read-service"
+            - name: STICKY_AUTH_URL
+              value: ${STICKY_AUTH_URL}
+            - name: AUTH_URL
+              value: ${AUTH_URL}
+            - name: DAF_CREDENTIALS
+              value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
+            - name: QUEUE_NAME
+              value: ${ORCHESTRATION_QUEUE_NAME}
+            - name: WORKER_NAME
+              value: ${CELERY_ORCHESTRATION_WORKER_NAME}
+            - name: QUEUE_LENGTH_LIMIT
+              value: "5000"
+            - name: QUEUES_TO_THROTTLE
+              value: process
+            - name: THROTTLE_QUEUES
+              value: "true"
+            - name: REDIS_HOST
+              value: "${MAT_REDIS_HOST}"
+            - name: REDIS_PORT
+              value: "${MAT_REDIS_PORT}"
+            - name: REDIS_PASSWORD
+              value: "${MAT_REDIS_PASSWORD}" 
+            - name: CELERY_CLOUDVOLUME_CACHE_BYTES
+              value: "100000000"             
+            - name: WORKER_HOSTNAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.uid
+          resources:
+            requests:
+              cpu: ${CELERY_CPU}
+              memory: ${CELERY_MEMORY}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/home/nginx/gracefully_shutdown_celery.sh"]
+        - name: cloudsql-proxy
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.15.2
+          args:
+            # Set the --max-connections flag to 50
+            - "--port=3306"
+            - "--credentials-file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}"
+            - "${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}"
+          resources:
+            requests:
+              memory: 8Mi
+              cpu: 10m
+          securityContext:
+            runAsUser: 2 # non-root user
+            allowPrivilegeEscalation: false
+          # Replace <DB_PORT> with the port that the proxy should open
+          # to listen for database connections from the application
+          env:
+          - name: CSQL_PROXY_PORT
+            value: "3306"
+          # If connecting from a VPC-native GKE cluster, you can use the
+          # following flag to have the proxy connect over private IP
+          # - name: CSQL_PROXY_PRIVATE_IP
+          #   value: "true"
+
+          # Enable HTTP healthchecks on port 9801. This enables /liveness,
+          # /readiness and /startup health check endpoints. Allow connections
+          # listen for connections on any interface (0.0.0.0) so that the
+          # k8s management components can reach these endpoints.
+          - name: CSQL_PROXY_HEALTH_CHECK
+            value: "true"
+          - name: CSQL_PROXY_HTTP_PORT
+            value: "9801"
+          - name: CSQL_PROXY_HTTP_ADDRESS
+            value: 0.0.0.0
+
+          # Configure the proxy to exit gracefully when sent a k8s configuration
+          # file.
+          - name: CSQL_PROXY_EXIT_ZERO_ON_SIGTERM
+            value: "true"
+
+          # Enable the admin api server (which only listens for local connections)
+          # and enable the /quitquitquit endpoint. This allows other pods
+          # to shut down the proxy gracefully when they are ready to exit.
+          - name: CSQL_PROXY_QUITQUITQUIT
+            value: "true"
+          - name: CSQL_PROXY_ADMIN_PORT
+            value: "9092"
+
+          # Enable structured logging with LogEntry format
+          - name: CSQL_PROXY_STRUCTURED_LOGS
+            value: "true"
+
+          # The /startup probe returns OK when the proxy is ready to receive
+          # connections from the application. In this example, k8s will check
+          # once a second for 60 seconds.
+          #
+          # We strongly recommend adding a startup probe to the proxy sidecar
+          # container. This will ensure that service traffic will be routed to
+          # the pod only after the proxy has successfully started.
+          startupProbe:
+            failureThreshold: 60
+            httpGet:
+              path: /startup
+              port: 9801
+              scheme: HTTP
+            periodSeconds: 1
+            successThreshold: 1
+            timeoutSeconds: 10
+          # The /liveness probe returns OK as soon as the proxy application has
+          # begun its startup process and continues to return OK until the
+          # process stops.
+          #
+          # We recommend adding a liveness probe to the proxy sidecar container.
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /liveness
+              port: 9801
+              scheme: HTTP
+            # The probe will be checked every 10 seconds.
+            periodSeconds: 10
+            # Number of times the probe is allowed to fail before the transition
+            # from healthy to failure state.
+            #
+            # If periodSeconds = 60, 5 tries will result in five minutes of
+            # checks. The proxy starts to refresh a certificate five minutes
+            # before its expiration. If those five minutes lapse without a
+            # successful refresh, the liveness probe will fail and the pod will be
+            # restarted.
+            successThreshold: 1
+            # The probe will fail if it does not respond in 10 seconds
+            timeoutSeconds: 10
+          readinessProbe:
+            # The /readiness probe returns OK when the proxy can establish
+            # a new connections to its databases.
+            #
+            # Please use the readiness probe to the proxy sidecar with caution.
+            # An improperly configured readiness probe can cause unnecessary
+            # interruption to the application. See README.md for more detail.
+            httpGet:
+              path: /readiness
+              port: 9801
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 10
+            # Number of times the probe must report success to transition from failure to healthy state.
+            # Defaults to 1 for readiness probe.
+            successThreshold: 1
+            failureThreshold: 6
+
+          # Declare the HTTP Port so that k8s components can reach the
+          # metrics and health check endpoints.
+          ports:
+          - containerPort: 9801
+            protocol: TCP
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  [
+                    "sh",
+                    "-c",
+                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; kill -2 1",
+                  ]
+          volumeMounts:
+            - name: cloudsql-instance-credentials-volume
+              mountPath: /secrets/cloudsql
+              readOnly: true
+            - name: graceful-shut-down
+              mountPath: /home/nginx/tmp/shutdown
+      restartPolicy: Always
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
