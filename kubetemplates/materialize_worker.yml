@@ -323,12 +323,12 @@ spec:
               mountPath: /home/nginx/tmp/shutdown
       restartPolicy: Always
 ---
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: celery-orchestration
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: celery-orchestration
@@ -337,7 +337,6 @@ spec:
       labels:
         app: celery-orchestration
     spec:
-      replicas: 1
       terminationGracePeriodSeconds: 6000 # change grace period to one hour
       tolerations:
         - key: "pool"
