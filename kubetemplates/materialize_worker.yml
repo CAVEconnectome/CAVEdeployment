@@ -328,7 +328,7 @@ kind: Deployment
 metadata:
   name: celery-orchestration
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: celery-orchestration
@@ -364,7 +364,7 @@ spec:
             - su
             - nginx
             - -c
-            - "celery --app=run.celery worker --pool=prefork --hostname=worker.orchestration@%h --queues=${ORCHESTRATION_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=${CELERY_PRODUCER_CONCURRENCY}"
+            - "celery --app=run.celery worker --pool=prefork --hostname=worker.orchestration@%h --queues=${ORCHESTRATION_QUEUE_NAME} --loglevel=info -E -Ofair --concurrency=8"
           volumeMounts:
             - name: materializationengine-config-volume
               mountPath: /app/materializationengine/instance/
