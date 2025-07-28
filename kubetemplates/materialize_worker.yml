@@ -229,7 +229,7 @@ spec:
           # Configure the proxy to exit gracefully when sent a k8s configuration
           # file.
           - name: CSQL_PROXY_EXIT_ZERO_ON_SIGTERM
-            value: "true"
+            value: "false"
 
           # Enable the admin api server (which only listens for local connections)
           # and enable the /quitquitquit endpoint. This allows other pods
@@ -313,7 +313,7 @@ spec:
                   [
                     "sh",
                     "-c",
-                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; kill -2 1",
+                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; curl -f -X POST http://localhost:9092/quitquitquit || kill -15 1",
                   ]
           volumeMounts:
             - name: cloudsql-instance-credentials-volume
@@ -514,7 +514,7 @@ spec:
           # Configure the proxy to exit gracefully when sent a k8s configuration
           # file.
           - name: CSQL_PROXY_EXIT_ZERO_ON_SIGTERM
-            value: "true"
+            value: "false"
 
           # Enable the admin api server (which only listens for local connections)
           # and enable the /quitquitquit endpoint. This allows other pods
@@ -598,7 +598,7 @@ spec:
                   [
                     "sh",
                     "-c",
-                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; kill -2 1",
+                    "while ! [ -f /home/nginx/tmp/shutdown/kill_sidecar ]; do sleep 1; done; curl -f -X POST http://localhost:9092/quitquitquit || kill -15 1",
                   ]
           volumeMounts:
             - name: cloudsql-instance-credentials-volume
