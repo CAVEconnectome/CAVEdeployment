@@ -1,8 +1,8 @@
 PYCG_READ_MEM_MIB=$(echo "(${PYCG_READ_MEM_GIB} * 1024) + 0.5" | bc -l | awk '{printf("%d",$0)}')
 export PYCG_READ_MEM_MIB
 
-PCG_MEM_MIB = $(echo "(${PCG_MEM_GIB} * 1024) + 0.5" | bc -l | awk '{printf("%d",$0)}')
-export PCG_MEM_MIB
+PYCG_MEM_MIB=$(echo "(${PYCG_MEM_GIB} * 1024) + 0.5" | bc -l | awk '{printf("%d",$0)}')
+export PYCG_MEM_MIB
 
 # Generate cluster name safe for use in metric names (replace dashes with underscores)
 CLUSTER_NAME_SAFE=$(echo "${CLUSTER_NAME}" | sed 's/-/_/g')
