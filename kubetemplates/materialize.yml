@@ -35,7 +35,7 @@ data:
     MIN_DATABASES = ${MIN_DATABASES}
     MAX_DATABASES = ${MAX_DATABASES}    
     # celery throttling settings
-    QUERY_LIMIT_SIZE = 500000
+    QUERY_LIMIT_SIZE = ${MAT_QUERY_LIMIT_SIZE}
     QUEUE_LENGTH_LIMIT = 5000
     QUEUES_TO_THROTTLE = ["process"]
     THROTTLE_QUEUES = True
