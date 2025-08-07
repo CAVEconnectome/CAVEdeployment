@@ -192,6 +192,7 @@ export LIMITS_FAST_QUERY_PER_MINUTE=2000
 export LIMITER_URI=redis://${PCG_REDIS_IP}/0
 export MAT_LIMITER_CATEGORIES={\"query\":\"${LIMITS_QUERY_PER_MINUTE}/minute\"\,\"fast_query\":\"${LIMITS_FAST_QUERY_PER_MINUTE}/minute\"}
 
+
 # ANNOTATION_ENGINE
 export ANNOTATION_ENGINE_CONFIG_VERSION=1.4
 export ANNOTATION_EXCLUDED_PERMISSION_GROUPS = "{{ ann_excluded_permission_groups }}"

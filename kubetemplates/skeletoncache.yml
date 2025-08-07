@@ -142,6 +142,10 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
             - name: CACHE_NON_H5_SKELETONS
               value: "false"
+            - name: SKELETON_DATASTACK_NAME_REMAPPING
+              value: ${SKELETON_DATASTACK_NAME_REMAPPING}
+            - name: SKELETONCACHE_WORKER_MAX_REPLICAS
+              value: "${SKELETONCACHE_WORKER_MAX_REPLICAS}"
             - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
               value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
             - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
@@ -348,6 +352,10 @@ spec:
               value: ${PROJECT_NAME}
             - name: CACHE_NON_H5_SKELETONS
               value: "false"
+            - name: SKELETON_DATASTACK_NAME_REMAPPING
+              value: ${SKELETON_DATASTACK_NAME_REMAPPING}
+            - name: SKELETONCACHE_WORKER_MAX_REPLICAS
+              value: "${SKELETONCACHE_WORKER_MAX_REPLICAS}"
             - name: SKELETON_CACHE_LOW_PRIORITY_EXCHANGE
               value: ${SKELETON_CACHE_LOW_PRIORITY_EXCHANGE}
             - name: SKELETON_CACHE_HIGH_PRIORITY_EXCHANGE
