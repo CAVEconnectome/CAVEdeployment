@@ -40,7 +40,7 @@ data:
     QUEUES_TO_THROTTLE = ["process"]
     THROTTLE_QUEUES = True
     MERGE_TABLES=${MERGE_MATERIALIZE_DATABASES}  
-    LOGGING_LEVEL = logging.WARNING
+    LOGGING_LEVEL = logging.${MAT_LOG_LEVEL}
     if os.environ.get("DAF_CREDENTIALS", None) is not None:
         with open(os.environ.get("DAF_CREDENTIALS"), "r") as f:
             AUTH_TOKEN = json.load(f)["token"]
