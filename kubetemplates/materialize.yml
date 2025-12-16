@@ -233,7 +233,7 @@ spec:
             # Set the --max-connections flag to 50
             - "--port=3306"
             - "--credentials-file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}"
-            - "${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}"
+            - "${SQL_PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}"
           resources:
             requests:
               memory: 8Mi
