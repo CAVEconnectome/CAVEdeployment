@@ -71,7 +71,7 @@ data:
     listen = 4096
 
     # Max request header size
-    buffer-size = 4096
+    buffer-size = 8192
 
     # Don't spawn new workers if total memory over 750 MB
     cheaper-rss-limit-soft = 805306368
@@ -174,7 +174,7 @@ spec:
             name: auth-config-v${AUTHSERVICE_CONFIG_VERSION}
       containers:
         - name: auth
-          image: ${DOCKER_REPOSITORY}/neuroglancer_auth:v${AUTH_VERSION}
+          image: ${DOCKER_REPOSITORY}/middle_auth:v${AUTH_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -227,7 +227,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:5432",
+              "-instances=${SQL_PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:5432",
               "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
             ]
           resources:

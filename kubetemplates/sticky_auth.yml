@@ -45,6 +45,10 @@ data:
     show-config = true
     need-app = true
     die-on-term = true
+
+    # Needed due to rejected uWSGI because request headers exceed buffer size limit of 4096 bytes
+    # while the OAuth callback URL with all its query parameters is generating ~4400 bytes.
+    buffer-size = 8192
 ---
 kind: Service
 apiVersion: v1
@@ -91,7 +95,7 @@ spec:
             name: sticky-auth-uwsgiconfig-v${AUTHSERVICE_CONFIG_VERSION}
       containers:
         - name: auth
-          image: ${DOCKER_REPOSITORY}/neuroglancer_auth:v${AUTH_VERSION}
+          image: ${DOCKER_REPOSITORY}/middle_auth:v${AUTH_VERSION}
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -144,7 +148,7 @@ spec:
           command:
             [
               "/cloud_sql_proxy",
-              "-instances=${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:5432",
+              "-instances=${SQL_PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}=tcp:5432",
               "-credential_file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}",
             ]
           resources:
