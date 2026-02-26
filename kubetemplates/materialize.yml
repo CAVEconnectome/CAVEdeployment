@@ -179,15 +179,17 @@ spec:
               path: /health
               port: 80
             initialDelaySeconds: 5
-            timeoutSeconds: 1
-            periodSeconds: 60
+            failureThreshold: 2
+            timeoutSeconds: 2   
+            periodSeconds: 20
           livenessProbe:
             httpGet:
               path: /health
               port: 80
             initialDelaySeconds: 15
-            timeoutSeconds: 1
-            periodSeconds: 60
+            timeoutSeconds: 5
+            failureThreshold: 5
+            periodSeconds: 20
         - name: uwsgi-exporter
           image: caveconnectome/uwsgi-export-workers:v14
           # Exposes the metrics endpoint on 0.0.0.0:9101
