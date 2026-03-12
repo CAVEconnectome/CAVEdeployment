@@ -696,7 +696,13 @@ spec:
               value: "true"
             - name: CELERY_CLOUDVOLUME_CACHE_BYTES
               value: "100000000"
-            - name: WORKER_HOSTNAME             
+            - name: DB_CONNECTION_POOL_SIZE
+              value: "1"
+            - name: DB_CONNECTION_MAX_OVERFLOW
+              value: "2"
+            - name: CLOUDVOLUME_PARALLEL
+              value: "10"
+            - name: WORKER_HOSTNAME
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
