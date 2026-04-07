@@ -172,7 +172,7 @@ spec:
               value: "100000000" 
           resources:
             requests:
-              memory: 850Mi
+              memory: $MAT_SERVICE_MEM
               cpu: 200m
           readinessProbe:
             httpGet:
