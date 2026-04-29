@@ -105,21 +105,28 @@ spec:
           value: /app/app/instance/config.py
         resources:
           requests:
-            memory: 450Mi
-            cpu: 100m
+            memory: 700Mi
+            cpu: 500m
+        startupProbe:
+          httpGet:
+            path: /dash/
+            port: 80
+          failureThreshold: 30
+          periodSeconds: 10
+          timeoutSeconds: 3
         readinessProbe:
           httpGet:
             path: /dash/
             port: 80
           initialDelaySeconds: 5
-          timeoutSeconds: 1
+          timeoutSeconds: 3
           periodSeconds: 60
         livenessProbe:
           httpGet:
             path: /dash/
             port: 80
           initialDelaySeconds: 15
-          timeoutSeconds: 1
+          timeoutSeconds: 3
           periodSeconds: 60
       - name: uwsgi-exporter
         image: caveconnectome/uwsgi-export-workers:v14
