@@ -3,6 +3,7 @@
 # Materialization engine configuration
 export MAT_QUERY_LIMIT_SIZE=500000
 export MAT_LOG_LEVEL=WARNING
+export MAT_SERVICE_MEM=850Mi
 
 # Derive MATERIALIZATION_UPLOAD_BUCKET_NAME / MATERIALIZATION_UPLOAD_BUCKET_PATH
 # from each other if only one is set.
