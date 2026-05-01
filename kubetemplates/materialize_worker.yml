@@ -1016,7 +1016,7 @@ spec:
           resources:
             requests:
               cpu: 950m
-              memory: 8000Mi
+              memory: 4000Mi
           lifecycle:
             preStop:
               exec:
