@@ -1005,6 +1005,8 @@ spec:
               value: "100000000"
             - name: CLOUDVOLUME_PARALLEL
               value: "10"
+            - name: DELTALAKE_FLUSH_THRESHOLD_BYTES
+              value: "536870912"
             - name: WORKER_HOSTNAME
               valueFrom:
                 fieldRef:
