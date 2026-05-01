@@ -728,8 +728,8 @@ spec:
                   fieldPath: metadata.uid
           resources:
             requests:
-              cpu: 950m
-              memory: 4000Mi
+              cpu: ${CELERY_CPU}
+              memory: ${CELERY_MEMORY}
           lifecycle:
             preStop:
               exec:
@@ -1015,8 +1015,8 @@ spec:
                   fieldPath: metadata.uid
           resources:
             requests:
-              cpu: ${CELERY_CPU}
-              memory: ${CELERY_MEMORY}
+              cpu: 950m
+              memory: 8000Mi
           lifecycle:
             preStop:
               exec:
