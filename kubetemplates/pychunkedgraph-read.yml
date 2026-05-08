@@ -1,14 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pychunkedgraph-config-v${PCG_CONFIG_VERSION}
+  namespace: default
+data:
+  config.cfg: |
+${PCG_CONFIG}
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
-  name: pychunkedgraph-scaler
+  name: pychunkedgraph-read-scaler
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: pychunkedgraph
-  minReplicas: ${PYCG_MIN_REPLICAS}
-  maxReplicas: ${PYCG_MAX_REPLICAS}
+    name: pychunkedgraph-read
+  minReplicas: ${PYCG_READ_MIN_REPLICAS}
+  maxReplicas: ${PYCG_READ_MAX_REPLICAS}
   metrics:
     - type: Resource
       resource:
@@ -24,14 +33,36 @@ spec:
           type: AverageValue
           averageValue: 75
 ---
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: pcg-read-vpa
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: pychunkedgraph-read
+  updatePolicy:
+    updateMode: Auto
+  resourcePolicy:
+    containerPolicies:
+    - containerName: 'pychunkedgraph'
+      minAllowed:
+        cpu: ${PYCG_READ_MILLI_CPU}m     
+        memory: ${PYCG_READ_MEM_MIB}Mi 
+      maxAllowed:
+        cpu: 1500m        
+        memory: 5Gi    
+      controlledResources: ["cpu", "memory"]
+---
 kind: Service
 apiVersion: v1
 metadata:
-  name: pychunkedgraph-service
+  name: pychunkedgraph-read-service
 spec:
   type: NodePort
   selector:
-    app: pychunkedgraph
+    app: pychunkedgraph-read
   ports:
     - port: 80
       targetPort: 80
@@ -39,23 +70,23 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: pychunkedgraph
+  name: pychunkedgraph-read
 spec:
   selector:
     matchLabels:
-      app: pychunkedgraph
+      app: pychunkedgraph-read
   template:
     metadata:
       labels:
-        app: pychunkedgraph
+        app: pychunkedgraph-read
     spec:
       tolerations:
         - key: "pool"
           operator: "Equal"
-          value: "${STANDARD_POOL}"
+          value: "${MESH_POOL}"
           effect: "NoSchedule"
       nodeSelector:
-        cloud.google.com/gke-nodepool: ${STANDARD_POOL}
+        cloud.google.com/gke-nodepool: ${MESH_POOL}
       volumes:
         - name: google-cloud-key
           secret:
@@ -63,7 +94,7 @@ spec:
         - name: pcg-config-volume
           configMap:
             name: pychunkedgraph-config-v${PCG_CONFIG_VERSION}
-      terminationGracePeriodSeconds: 605
+      terminationGracePeriodSeconds: 15
       containers:
         - name: pychunkedgraph
           image: ${DOCKER_REPOSITORY}/pychunkedgraph:v${PYCG_VERSION}
@@ -91,6 +122,10 @@ spec:
               value: ${DATA_PROJECT_NAME}
             - name: BIGTABLE_INSTANCE
               value: ${BIGTABLE_INSTANCE_NAME}
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "upb"
+            - name: ZSTD_THREADS
+              value: "2"
             - name: AUTH_URL
               value: ${AUTH_URL}
             - name: INFO_URL
@@ -123,10 +158,6 @@ spec:
               value: ${PCG_SERVER_LOGS_LEAVES_MANY}
             - name: PCG_GRAPH_IDS
               value: ${PCG_GRAPH_IDS}
-            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
-              value: "upb"
-            - name: ZSTD_THREADS
-              value: "4"
             - name: MESHING_URL_PREFIX
               value: meshing
             - name: AUTH_USE_REDIS
@@ -135,8 +166,8 @@ spec:
               value: /home/nginx/.cloudvolume/secrets/${CAVE_SECRET_FILENAME}
           resources:
             requests:
-              memory: ${PYCG_MEM_MIB}Mi
-              cpu: ${PYCG_MILLI_CPU}m
+              memory: ${PYCG_READ_MEM_GIB}Gi
+              cpu: ${PYCG_READ_MILLI_CPU}m
           readinessProbe:
             httpGet:
               path: /segmentation
@@ -160,12 +191,14 @@ spec:
           # This tells the exporter where to find the uWSGI stats server
           - name: UWSGI_STATS_URL
             value: "http://localhost:9192"
+          - name: SCRAPE_INTERVAL
+            value: "1"
           readinessProbe:
             httpGet:
               path: /
               port: 8080
             initialDelaySeconds: 5
-            periodSeconds: 5
+            periodSeconds: 1
         - name: prometheus-to-sd
           image: gcr.io/google-containers/prometheus-to-sd:v0.8.0
           command: ["/monitor"]

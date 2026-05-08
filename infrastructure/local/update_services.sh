@@ -16,6 +16,7 @@ ${PCGL2CACHE_MAX_REPLICAS:-0}
 ${SKELETONCACHE_MAX_REPLICAS:-0}
 ${ANNOTATIONENGINE_MAX_REPLICAS:-0}
 ${PYCG_MAX_REPLICAS:-0}
+${PYCG_READ_MAX_REPLICAS:-0}
 ${MAT_MAX_REPLICAS:-0}
 ${CELERY_PRODUCER_MIN_REPLICAS:-0}
 ${PROXY_MAX_REPLICAS:-0}
@@ -34,6 +35,7 @@ pcgl2cache
 skeletoncache
 annotation
 pychunkedgraph
+pychunkedgraph-read
 materialize
 materialize_worker
 proxy
