@@ -74,11 +74,32 @@ spec:
     containerPolicies:
     - containerName: 'pychunkedgraph'
       minAllowed:
-        cpu: ${PYCG_READ_MILLI_CPU}m     
-        memory: ${PYCG_READ_MEM_MIB}Mi 
+        cpu: ${PYCG_READ_MILLI_CPU}m
+        memory: ${PYCG_READ_MEM_MIB}Mi
       maxAllowed:
-        cpu: 1500m        
-        memory: 5Gi    
+        cpu: 1500m
+        memory: 5Gi
+      controlledResources: ["cpu", "memory"]
+    - containerName: 'uwsgi-exporter'
+      minAllowed:
+        memory: 32Mi
+      maxAllowed:
+        cpu: 50m
+        memory: 128Mi
+      controlledResources: ["cpu", "memory"]
+    - containerName: 'prometheus-to-sd'
+      minAllowed:
+        memory: 32Mi
+      maxAllowed:
+        cpu: 20m
+        memory: 128Mi
+      controlledResources: ["cpu", "memory"]
+    - containerName: 'sysctl-buddy'
+      minAllowed:
+        memory: 16Mi
+      maxAllowed:
+        cpu: 10m
+        memory: 64Mi
       controlledResources: ["cpu", "memory"]
 ---
 kind: Service
