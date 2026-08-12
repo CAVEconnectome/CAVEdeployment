@@ -12,6 +12,7 @@ envsubst < kubetemplates/ingress-service.yml > ${YAML_FOLDER}/ingress-service.ym
 envsubst < kubetemplates/materialize.yml > ${YAML_FOLDER}/materialize.yml
 envsubst < kubetemplates/materialize_worker.yml > ${YAML_FOLDER}/materialize_worker.yml
 envsubst < kubetemplates/materialize_migrations.yml > ${YAML_FOLDER}/materialize_migrations.yml
+envsubst < kubetemplates/pychunkedgraph-read.yml > ${YAML_FOLDER}/pychunkedgraph-read.yml
 envsubst < kubetemplates/pychunkedgraph.yml > ${YAML_FOLDER}/pychunkedgraph.yml
 envsubst < kubetemplates/meshing.yml > ${YAML_FOLDER}/meshing.yml
 envsubst < kubetemplates/nglstate.yml > ${YAML_FOLDER}/nglstate.yml
