@@ -5,13 +5,13 @@ source ./infrastructure/local/convert_variables.sh
 
 rm transaction.yaml
 
-gcloud dns record-sets transaction start -z=${DNS_ZONE}
-gcloud dns record-sets transaction remove -z=${DNS_ZONE} \
+gcloud dns record-sets transaction start -z=${DNS_ZONE} --project=${DNS_PROJECT_NAME}
+gcloud dns record-sets transaction remove -z=${DNS_ZONE} --project=${DNS_PROJECT_NAME} \
    --name="${2}" \
    --type=A"
-gcloud dns record-sets transaction add -z=${DNS_ZONE} \
+gcloud dns record-sets transaction add -z=${DNS_ZONE} --project=${DNS_PROJECT_NAME} \
    --name="${2}" \
    --type=A \
    --ttl=300 "${EXTERNAL_IP_ADDRESS_WO_QUOTES}"
-gcloud dns record-sets transaction execute -z=${DNS_ZONE}
+gcloud dns record-sets transaction execute -z=${DNS_ZONE} --project=${DNS_PROJECT_NAME}
 rm transaction.yaml

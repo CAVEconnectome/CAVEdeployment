@@ -99,7 +99,7 @@ spec:
             - "--port=3306"
             - "--health-check"
             - "--credentials-file=/secrets/cloudsql/${GOOGLE_SECRET_FILENAME}"
-            - "${PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}"
+            - "${SQL_PROJECT_NAME}:${REGION}:${SQL_INSTANCE_NAME}"
           volumeMounts:
             - name: cloudsql-instance-credentials-volume
               mountPath: /secrets/cloudsql

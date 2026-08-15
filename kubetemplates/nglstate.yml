@@ -53,7 +53,7 @@ spec:
             - name: REDIS_SERVICE_PORT
               value: "6379"
             - name: PROJECT_ID
-              value: ${PROJECT_NAME}
+              value: ${NGSTATE_PROJECT_NAME}
             - name: APP_SETTINGS
               value: "neuroglancerjsonserver.app.config.BaseConfig"
             - name: JSON_DB_TABLE_NAME
