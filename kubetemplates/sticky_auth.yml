@@ -45,6 +45,10 @@ data:
     show-config = true
     need-app = true
     die-on-term = true
+
+    # Needed due to rejected uWSGI because request headers exceed buffer size limit of 4096 bytes
+    # while the OAuth callback URL with all its query parameters is generating ~4400 bytes.
+    buffer-size = 8192
 ---
 kind: Service
 apiVersion: v1

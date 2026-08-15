@@ -71,7 +71,7 @@ data:
     listen = 4096
 
     # Max request header size
-    buffer-size = 4096
+    buffer-size = 8192
 
     # Don't spawn new workers if total memory over 750 MB
     cheaper-rss-limit-soft = 805306368
